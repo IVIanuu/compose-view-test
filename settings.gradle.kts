@@ -16,8 +16,8 @@
 
 include(
     ":composex-compiler",
-    ":composex-compiler-gradle",
-    ":composex-compiler-ide",
+    ":composex-gradle-plugin",
+    ":composex-ide-plugin",
     ":composex-runtime",
     ":sample"
 )

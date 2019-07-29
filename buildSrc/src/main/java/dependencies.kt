@@ -46,10 +46,11 @@ object Versions {
 
     const val buildConfig = "1.1.8"
 
-    const val jarJar = "1.0.1"
-
     const val kotlin = "1.3.41"
+
     const val mavenGradle = "2.1"
+
+    const val shadowJar = "4.0.3"
 }
 
 object Deps {
@@ -66,8 +67,6 @@ object Deps {
     const val buildConfigPlugin =
         "gradle.plugin.de.fuerstenau:BuildConfigPlugin:${Versions.buildConfig}"
 
-    const val jarJarGradlePlugin = "org.anarres.jarjar:jarjar-gradle:${Versions.jarJar}"
-
     const val kotlinCompilerEmbeddable = "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
     const val kotlinGradlePluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:${Versions.kotlin}"
@@ -75,4 +74,7 @@ object Deps {
 
     const val mavenGradlePlugin =
         "com.github.dcendents:android-maven-gradle-plugin:${Versions.mavenGradle}"
+
+    const val shadowJarGradlePlugin =
+        "com.github.jengelman.gradle.plugins:shadow:${Versions.shadowJar}"
 }

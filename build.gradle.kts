@@ -49,9 +49,9 @@ buildscript {
         classpath(Deps.androidGradlePlugin)
         classpath(Deps.bintrayGradlePlugin)
         classpath(Deps.buildConfigPlugin)
-        classpath(Deps.jarJarGradlePlugin)
         classpath(Deps.kotlinGradlePlugin)
         classpath(Deps.mavenGradlePlugin)
+        classpath(Deps.shadowJarGradlePlugin)
     }
 }
 
