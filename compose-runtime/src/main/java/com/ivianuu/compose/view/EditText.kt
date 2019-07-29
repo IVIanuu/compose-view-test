@@ -1,5 +1,6 @@
 package com.ivianuu.compose.view
 
+/**
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.widget.AppCompatEditText
@@ -46,4 +47,4 @@ fun <T : AppCompatEditText> ViewDsl<T>.imeAction(action: ImeAction) {
             ImeAction.Done -> EditorInfo.IME_ACTION_DONE
         }
     }
-}
+}*/

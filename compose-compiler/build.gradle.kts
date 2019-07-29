@@ -11,6 +11,6 @@ apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/mv
 dependencies {
     api(Deps.autoService)
     kapt(Deps.autoService)
-    api(Deps.kotlinCompilerEmbeddable)
+    api(Deps.kotlinCompiler)
     api(Deps.kotlinStdLib)
 }

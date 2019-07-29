@@ -28,8 +28,8 @@ buildConfig {
 }
 
 dependencies {
-    implementation(Deps.autoService)
+    api(Deps.autoService)
     kapt(Deps.autoService)
-    implementation(project(":compose-compiler"))
-    implementation(Deps.kotlinGradlePluginApi)
+    api(project(":compose-compiler"))
+    api(Deps.kotlinGradlePluginApi)
 }

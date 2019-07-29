@@ -5,12 +5,10 @@ import org.jetbrains.kotlin.idea.facet.KotlinFacet
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
-internal object ComposexImportHandler {
+
+internal object ComposeImportHandler {
     val PLUGIN_JPS_JAR: String
-        get() = File(
-            PathUtil.kotlinPathsForIdeaPlugin.libPath,
-            "compose-compiler.jar"
-        ).absolutePath
+        get() = File(PathUtil.kotlinPathsForIdeaPlugin.libPath, "compose-compiler.jar").absolutePath
 
     fun modifyCompilerArguments(facet: KotlinFacet, buildSystemPluginJar: String) {
         val facetSettings = facet.configuration.settings

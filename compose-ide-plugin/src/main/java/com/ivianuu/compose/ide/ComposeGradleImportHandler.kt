@@ -6,17 +6,22 @@ import org.jetbrains.kotlin.idea.configuration.GradleProjectImportHandler
 import org.jetbrains.kotlin.idea.facet.KotlinFacet
 import org.jetbrains.plugins.gradle.model.data.GradleSourceSetData
 
-class ComposexGradleImportHandler : GradleProjectImportHandler {
+class ComposeGradleImportHandler : GradleProjectImportHandler {
+
+    init {
+        error("hallo")
+    }
+
     override fun importBySourceSet(
         facet: KotlinFacet,
         sourceSetNode: DataNode<GradleSourceSetData>
     ) {
-        ComposexImportHandler.modifyCompilerArguments(facet, PLUGIN_GRADLE_JAR)
+        ComposeImportHandler.modifyCompilerArguments(facet, PLUGIN_GRADLE_JAR)
     }
 
     override fun importByModule(facet: KotlinFacet, moduleNode: DataNode<ModuleData>) {
-        ComposexImportHandler.modifyCompilerArguments(facet, PLUGIN_GRADLE_JAR)
+        ComposeImportHandler.modifyCompilerArguments(facet, PLUGIN_GRADLE_JAR)
     }
 
-    private val PLUGIN_GRADLE_JAR = "com.ivianuu.compose" // todo
+    private val PLUGIN_GRADLE_JAR = "compose-compiler" // todo
 }
