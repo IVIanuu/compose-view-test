@@ -1,4 +1,4 @@
-package com.ivianuu.compose
+package com.ivianuu.compose.sample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
