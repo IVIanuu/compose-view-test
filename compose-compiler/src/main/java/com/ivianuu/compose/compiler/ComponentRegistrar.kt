@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 
 @AutoService(ComponentRegistrar::class)
 class MyComponentRegistrar : ComponentRegistrar {
@@ -11,6 +12,6 @@ class MyComponentRegistrar : ComponentRegistrar {
         project: MockProject,
         configuration: CompilerConfiguration
     ) {
-        error("hello")
+        SyntheticResolveExtension.registerExtension(project, ComposeSyntheticResolveExtension())
     }
 }
