@@ -9,8 +9,8 @@ apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/kt
 apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/mvn-publish.gradle")
 
 dependencies {
-    api(Deps.autoService)
-    kapt(Deps.autoService)
-    compileOnly(Deps.kotlinCompiler)
-    api(Deps.kotlinStdLib)
+    implementation(Deps.processingX)
+    kapt(Deps.processingX)
+    implementation(Deps.kotlinStdLib)
+    implementation(project(":compose-annotations"))
 }

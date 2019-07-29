@@ -46,11 +46,11 @@ object Versions {
 
     const val buildConfig = "1.1.8"
 
-    const val jarJar = "1.0.1"
-
     const val kotlin = "1.3.41"
 
     const val mavenGradle = "2.1"
+
+    const val processingX = "0.0.1-dev-3"
 }
 
 object Deps {
@@ -59,22 +59,14 @@ object Deps {
     const val androidxAppCompat = "androidx.appcompat:appcompat:${Versions.androidxAppCompat}"
     const val androidxUiMaterial = "androidx.ui:ui-material:${Versions.androidxUi}"
 
-    const val autoService = "com.google.auto.service:auto-service:${Versions.autoService}"
-
     const val bintrayGradlePlugin =
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:${Versions.bintray}"
 
-    const val buildConfigPlugin =
-        "gradle.plugin.de.fuerstenau:BuildConfigPlugin:${Versions.buildConfig}"
-
-    const val jarJarGradlePlugin = "org.anarres.jarjar:jarjar-gradle:${Versions.jarJar}"
-
-    const val kotlinCompiler = "org.jetbrains.kotlin:kotlin-compiler:${Versions.kotlin}"
-    const val kotlinCompilerEmbeddable = "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
-    const val kotlinGradlePluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:${Versions.kotlin}"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
 
     const val mavenGradlePlugin =
         "com.github.dcendents:android-maven-gradle-plugin:${Versions.mavenGradle}"
+
+    const val processingX = "com.ivianuu.processingx:processingx:${Versions.processingX}"
 }

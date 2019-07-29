@@ -15,9 +15,8 @@
  */
 
 include(
+    ":compose",
+    ":compose-annotations",
     ":compose-compiler",
-    ":compose-gradle-plugin",
-    ":compose-ide-plugin",
-    ":compose-runtime",
     ":sample"
 )
