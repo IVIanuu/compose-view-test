@@ -17,7 +17,7 @@
 @file:Suppress("ClassName", "unused")
 
 object Build {
-    const val applicationId = "com.ivianuu.composex.sample"
+    const val applicationId = "com.ivianuu.compose.sample"
     const val buildToolsVersion = "28.0.3"
 
     const val compileSdk = 28
@@ -29,9 +29,9 @@ object Build {
 }
 
 object Publishing {
-    const val groupId = "com.ivianuu.composex"
-    const val vcsUrl = "https://github.com/IVIanuu/composex"
-    const val version = "${Build.versionName}-dev-4"
+    const val groupId = "com.ivianuu.compose"
+    const val vcsUrl = "https://github.com/IVIanuu/compose"
+    const val version = "${Build.versionName}-dev-1"
 }
 
 object Versions {

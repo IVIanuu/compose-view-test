@@ -1,0 +1,13 @@
+<idea-plugin url="https://github.com/IVIanuu/compose">
+    <name>Compose x</name>
+    <id>com.ivianuu.compose</id>
+
+    <depends>org.jetbrains.plugins.gradle</depends>
+    <depends>org.jetbrains.kotlin</depends>
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <gradleProjectImportHandler
+            implementation="com.ivianuu.compose.ide.ComposexGradleImportHandler" />
+
+    </extensions>
+</idea-plugin>

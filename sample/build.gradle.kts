@@ -8,5 +8,5 @@ apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/ja
 apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/kt-android-ext.gradle")
 
 dependencies {
-    implementation(project(":composex-runtime"))
+    implementation(project(":compose-runtime"))
 }
