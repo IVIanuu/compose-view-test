@@ -1,7 +1,5 @@
-import org.anarres.gradle.plugin.jarjar.JarjarTask
-
 plugins {
-    id("java-gradle-plugin")
+    id("java-library")
     id("kotlin")
     id("kotlin-kapt")
     id("org.jetbrains.intellij") version "0.4.9"
@@ -14,8 +12,8 @@ apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/kt
 
 intellij {
     pluginName = "compose"
-    version = "2019.1"
-    setPlugins("gradle", "org.jetbrains.kotlin:1.3.41-release-IJ2019.1-1")
+    //version = "2019.2"
+    setPlugins("org.jetbrains.kotlin:1.3.41-release-IJ2019.2-1")
 }
 
 dependencies {

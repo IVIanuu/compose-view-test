@@ -10,9 +10,9 @@
     <depends>org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
-        <gradleImportHandler
-            implementation="com.ivianuu.compose.ide.ComposeGradleImportHandler" />
         <syntheticResolveExtension
             implementation="com.ivianuu.compose.compiler.ComposeSyntheticResolveExtension" />
+        <packageFragmentProviderExtension
+            implementation="com.ivianuu.compose.compiler.ComposePackageFragmentProviderExtension" />
     </extensions>
 </idea-plugin>

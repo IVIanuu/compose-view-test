@@ -13,5 +13,6 @@ class MyComponentRegistrar : ComponentRegistrar {
         configuration: CompilerConfiguration
     ) {
         SyntheticResolveExtension.registerExtension(project, ComposeSyntheticResolveExtension())
+        //PackageFragmentProviderExtension.registerExtension(project, ComposePackageFragmentProviderExtension())
     }
 }
