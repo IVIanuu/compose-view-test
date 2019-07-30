@@ -1,6 +1,20 @@
 package com.ivianuu.compose.view
 
-/**
+import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.view.View
+import androidx.compose.unaryPlus
+import androidx.ui.core.Dp
+import androidx.ui.core.dp
+import androidx.ui.core.withDensity
+import androidx.ui.graphics.Color
+import androidx.ui.layout.EdgeInsets
+import com.ivianuu.compose.core.withContext
+
+
 fun <T : View> ViewDsl<T>.alpha(alpha: Float) {
     set(alpha) { this.alpha = it }
 }
@@ -11,7 +25,7 @@ fun <T : View> ViewDsl<T>.background(image: Image) {
             when {
                 image.drawable != null -> background = image.drawable
                 image.bitmap != null -> background = BitmapDrawable(resources, image.bitmap)
-                image.res != null -> background = drawable(image.res)
+                image.res != null -> background = context.getDrawable(image.res)
                 else -> background = null
             }
         }
@@ -84,11 +98,11 @@ fun <T : View> ViewDsl<T>.onLongClick(onLongClick: () -> Unit) {
 fun <T : View> ViewDsl<T>.padding(padding: EdgeInsets) {
     +withDensity {
         set(padding) { (left, top, right, bottom) ->
-            updatePadding(
-                left = left.toIntPx().value,
-                top = top.toIntPx().value,
-                right = right.toIntPx().value,
-                bottom = bottom.toIntPx().value
+            setPadding(
+                left.toIntPx().value,
+                top.toIntPx().value,
+                right.toIntPx().value,
+                bottom.toIntPx().value
             )
         }
     }
@@ -170,4 +184,4 @@ fun <T : View> ViewDsl<T>.visible() = visibility(Visibility.Visible)
 
 fun <T : View> ViewDsl<T>.invisible() = visibility(Visibility.Invisible)
 
-fun <T : View> ViewDsl<T>.gone() = visibility(Visibility.Gone)*/
+fun <T : View> ViewDsl<T>.gone() = visibility(Visibility.Gone)

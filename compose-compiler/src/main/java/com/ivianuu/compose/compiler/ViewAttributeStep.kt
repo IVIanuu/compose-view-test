@@ -1,7 +1,7 @@
 package com.ivianuu.compose.compiler
 
 import com.google.common.collect.SetMultimap
-import com.ivianuu.compose.ViewSetter
+import com.ivianuu.compose.ViewAttribute
 import com.ivianuu.processingx.filer
 import com.ivianuu.processingx.getPackage
 import com.ivianuu.processingx.messager
@@ -9,6 +9,7 @@ import com.ivianuu.processingx.steps.ProcessingStep
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
@@ -22,27 +23,24 @@ import javax.lang.model.element.ExecutableElement
 import javax.tools.Diagnostic.Kind.ERROR
 import kotlin.reflect.KClass
 
-class ViewSetterStep : ProcessingStep() {
-    override fun annotations() = setOf(ViewSetter::class)
+class ViewAttributeStep : ProcessingStep() {
+    override fun annotations() = setOf(ViewAttribute::class)
 
     override fun process(elementsByAnnotation: SetMultimap<KClass<out Annotation>, Element>): Set<Element> {
-        elementsByAnnotation[ViewSetter::class]
+        elementsByAnnotation[ViewAttribute::class]
             .filterIsInstance<ExecutableElement>()
             .mapNotNull { createDescriptor(it) }
-            .map { ViewSetterGenerator(it) }
+            .map { ViewAttributeGenerator(it) }
             .map { it.generate() }
             .forEach { it.writeTo(filer) }
 
         return emptySet()
     }
 
-    private fun createDescriptor(element: ExecutableElement): ViewSetterDescriptor? {
-        if (element.parameters.size != 2) {
-            messager.printMessage(
-                ERROR,
-                "Must be a extension function and cannot have more than one parameter",
-                element
-            )
+    private fun createDescriptor(element: ExecutableElement): ViewAttributeDescriptor? {
+        // todo should we allow only receiver?
+        if (element.parameters.isEmpty()) {
+            messager.printMessage(ERROR, "Must have a receiver and atleast on parameter", element)
             return null
         }
 
@@ -52,15 +50,25 @@ class ViewSetterStep : ProcessingStep() {
             return null
         }
 
-        return ViewSetterDescriptor(
+        val fileName =
+            (element.simpleName.toString() + element.parameters.joinToString("") { it.asType().toString() + it.simpleName.toString() })
+                .replace(".", "-")
+
+        return ViewAttributeDescriptor(
             element.getPackage().toString(),
-            (element.parameters.first().asType().toString() + element.parameters[1].asType().toString() + element.simpleName.toString())
-                .replace(".", "_"), // todo only temporary
-            element.parameters.first().asType().asTypeName() as ClassName,
+            fileName, // todo only temporary
+            false, // todo find a way to check internal
+            element.parameters.first().asType().asTypeName() as ClassName, // todo better way to get receiver
             element.simpleName.toString(),
             element.simpleName.toString().replaceFirst("set", "").decapitalize(),
-            (element.parameters[1].asType().asTypeName() as ClassName).javaToKotlinType(),
-            element.parameters[1].simpleName.toString()
+            element.parameters
+                .drop(1)
+                .map {
+                    ViewAttributeDescriptor.ParamDescriptor(
+                        (it.asType().asTypeName() as ClassName).javaToKotlinType(),
+                        it.simpleName.toString()
+                    )
+                }
         )
     }
 
@@ -88,17 +96,22 @@ class ViewSetterStep : ProcessingStep() {
 
 private val VIEW_DSL = ClassName("com.ivianuu.compose.view", "ViewDsl")
 
-private data class ViewSetterDescriptor(
+private data class ViewAttributeDescriptor(
     val packageName: String,
     val fileName: String,
+    val isInternal: Boolean,
     val target: TypeName,
     val setterName: String,
     val dslSetterName: String,
-    val parameter: TypeName,
-    val parameterName: String
-)
+    val parameters: List<ParamDescriptor>
+) {
+    data class ParamDescriptor(
+        val type: TypeName,
+        val name: String
+    )
+}
 
-private class ViewSetterGenerator(private val descriptor: ViewSetterDescriptor) {
+private class ViewAttributeGenerator(private val descriptor: ViewAttributeDescriptor) {
 
     fun generate(): FileSpec {
         return FileSpec.builder(descriptor.packageName, descriptor.fileName)
@@ -108,10 +121,22 @@ private class ViewSetterGenerator(private val descriptor: ViewSetterDescriptor) 
     }
 
     private fun setterFunction() = FunSpec.builder(descriptor.dslSetterName)
+        .apply { if (descriptor.isInternal) addModifiers(KModifier.INTERNAL) }
         .addTypeVariable(TypeVariableName("T", descriptor.target))
         .receiver(VIEW_DSL.parameterizedBy(TypeVariableName("T", descriptor.target)))
-        .addParameter(descriptor.parameterName, descriptor.parameter)
-        .addCode("set(${descriptor.parameterName}) { ${descriptor.setterName}(it) }")
+        .apply {
+            descriptor.parameters.forEach { addParameter(it.name, it.type) }
+
+            // optimize on single parameters
+            when (descriptor.parameters.size) {
+                0 -> addCode("set { ${descriptor.setterName}() }")
+                1 -> addCode("set(${descriptor.parameters.first().name}) { ${descriptor.setterName}(it) }")
+                else -> {
+                    val parameterNamesString = descriptor.parameters.joinToString(", ") { it.name }
+                    addCode("set(listOf($parameterNamesString)) { ${descriptor.setterName}($parameterNamesString) }")
+                }
+            }
+        }
         .build()
 
 }

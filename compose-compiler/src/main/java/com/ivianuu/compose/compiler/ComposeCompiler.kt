@@ -6,5 +6,5 @@ import javax.annotation.processing.Processor
 
 @AutoService(Processor::class)
 class ComposeCompiler : StepProcessor() {
-    override fun initSteps() = setOf(ViewSetterStep())
+    override fun initSteps() = setOf(ViewAttributeStep())
 }

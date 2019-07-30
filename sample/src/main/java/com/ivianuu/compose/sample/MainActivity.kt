@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.composer
 import androidx.compose.setViewContent
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.ViewSetter
+import com.ivianuu.compose.ViewAttribute
 import com.ivianuu.compose.view.View
 import com.ivianuu.compose.view.set
 
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-@ViewSetter
+@ViewAttribute
 fun TextView.setSomething(value: String) {
 
 }

@@ -4,7 +4,9 @@ import android.content.Context
 import android.view.View
 import androidx.compose.ViewComposition
 import androidx.compose.ViewUpdater
+import androidx.compose.memo
 import androidx.compose.sourceLocation
+import androidx.compose.unaryPlus
 
 inline fun <reified T : View> ViewComposition.View(noinline block: ViewDsl<T>.() -> Unit) {
     View(
@@ -45,4 +47,8 @@ open class ViewDsl<T : View>(
 
 inline fun <T : View, reified V> ViewDsl<T>.set(value: V, block: T.(V) -> Unit) {
     update { set(value, block) }
+}
+
+inline fun <T : View> ViewDsl<T>.set(crossinline block: T.() -> Unit) {
+    update { +memo { block(node) } }
 }
