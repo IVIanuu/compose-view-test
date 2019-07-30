@@ -1,6 +1,5 @@
 package com.ivianuu.compose.view
 
-/**
 import android.util.TypedValue
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
@@ -17,7 +16,7 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import com.ivianuu.compose.sourceLocation
-import com.ivianuu.essentials.ui.compose.toGravityInt
+import com.ivianuu.compose.toGravityInt
 import java.util.*
 
 inline fun ViewComposition.TextView(noinline block: ViewDsl<AppCompatTextView>.() -> Unit) =
@@ -82,4 +81,4 @@ fun <T : TextView> ViewDsl<T>.textGravity(gravity: Alignment) {
 
 fun <T : TextView> ViewDsl<T>.maxLines(maxLines: Int) {
     set(maxLines) { setMaxLines(maxLines) }
-}*/
+}

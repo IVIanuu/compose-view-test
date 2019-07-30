@@ -1,6 +1,5 @@
 package com.ivianuu.compose.material
 
-/**
 import androidx.compose.ViewComposition
 import androidx.compose.ambient
 import androidx.ui.graphics.Color
@@ -48,4 +47,4 @@ fun <T : FloatingActionButton> ViewDsl<T>.size(size: FabSize) {
 
 fun <T : FloatingActionButton> ViewDsl<T>.rippleColor(color: Color) {
     set(color) { this.rippleColor = color.toArgb() }
-}*/
+}

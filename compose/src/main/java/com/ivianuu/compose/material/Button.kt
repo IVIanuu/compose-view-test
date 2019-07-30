@@ -1,6 +1,5 @@
 package com.ivianuu.compose.material
 
-/**
 import android.content.res.ColorStateList
 import androidx.compose.ViewComposition
 import androidx.compose.ambient
@@ -60,4 +59,4 @@ fun <T : MaterialButton> ViewDsl<T>.border(
     width: Dp
 ) {
     border(Border(color, width))
-}*/
+}

@@ -1,6 +1,5 @@
 package com.ivianuu.compose.material
 
-/**
 import android.content.res.ColorStateList
 import androidx.compose.ViewComposition
 import androidx.ui.graphics.Color
@@ -70,4 +69,4 @@ private val ENABLED_CHECKED_STATES = arrayOf(
     intArrayOf(-android.R.attr.state_enabled, -android.R.attr.state_checked)*/
 )
 
-private val UnselectedOpacity = 0.6f*/
+private val UnselectedOpacity = 0.6f

@@ -44,11 +44,13 @@ object Versions {
 
     const val bintray = "1.8.4"
 
-    const val buildConfig = "1.1.8"
+    const val constraintLayout = "2.0.0-beta2"
 
     const val kotlin = "1.3.41"
 
     const val mavenGradle = "2.1"
+
+    const val materialComponents = "1.1.0-alpha07"
 
     const val processingX = "0.0.1-dev-3"
 }
@@ -62,11 +64,17 @@ object Deps {
     const val bintrayGradlePlugin =
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:${Versions.bintray}"
 
+    const val constraintLayout =
+        "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
+
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
 
     const val mavenGradlePlugin =
         "com.github.dcendents:android-maven-gradle-plugin:${Versions.mavenGradle}"
+
+    const val materialComponents =
+        "com.google.android.material:material:${Versions.materialComponents}"
 
     const val processingX = "com.ivianuu.processingx:processingx:${Versions.processingX}"
 }

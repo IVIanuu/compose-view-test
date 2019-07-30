@@ -1,6 +1,5 @@
 package com.ivianuu.compose.material
 
-/**
 import android.view.View
 import androidx.compose.ViewComposition
 import androidx.compose.sourceLocation
@@ -28,4 +27,4 @@ fun ViewComposition.Divider(
     height(height)
     margin(left = indent)
     backgroundColor(color)
-}*/
+}

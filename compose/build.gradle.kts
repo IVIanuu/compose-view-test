@@ -13,7 +13,9 @@ apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/mv
 dependencies {
     api(Deps.androidxAppCompat)
     api(Deps.androidxUiMaterial)
-    api(Deps.kotlinStdLib)
+    api(Deps.constraintLayout)
     api(project(":compose-annotations"))
     kapt(project(":compose-compiler"))
+    api(Deps.kotlinStdLib)
+    api(Deps.materialComponents)
 }

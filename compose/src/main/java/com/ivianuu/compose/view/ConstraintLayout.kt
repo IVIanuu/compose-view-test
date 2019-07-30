@@ -1,6 +1,10 @@
 package com.ivianuu.compose.view
 
-/**
+import android.view.View
+import androidx.compose.ViewComposition
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.ivianuu.compose.sourceLocation
+
 val ParentId = ConstraintLayout.LayoutParams.PARENT_ID
 
 inline fun ViewComposition.ConstraintLayout(noinline block: ViewDsl<ConstraintLayout>.() -> Unit) =
@@ -133,4 +137,4 @@ fun <T : View> ViewDsl<T>.constraintVerticalWeight(value: Float) {
         this as ConstraintLayout.LayoutParams
         verticalWeight = value
     }
-}*/
+}
