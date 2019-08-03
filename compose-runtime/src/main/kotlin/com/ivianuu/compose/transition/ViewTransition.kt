@@ -1,8 +1,10 @@
-package com.ivianuu.compose
+package com.ivianuu.compose.transition
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Ambient
+import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.util.tagKey
 
 val InTransitionAmbient = Ambient.of<ViewTransition> { DefaultViewTransition() }
 val OutTransitionAmbient = Ambient.of<ViewTransition> { DefaultViewTransition() }
@@ -77,12 +79,16 @@ class DefaultViewTransition : ViewTransition() {
         isPush: Boolean,
         onComplete: () -> Unit
     ) {
+        println("execute transition container $container from $from to $to")
         if (from != null) container.removeView(from)
-        if (to != null) container.addView(to)
+        if (to != null && to.parent == null) {
+            container.addView(to)
+        }
         onComplete()
     }
 
-    override fun copy(): ViewTransition = DefaultViewTransition()
+    override fun copy(): ViewTransition =
+        DefaultViewTransition()
 
     override fun cancel() {
     }

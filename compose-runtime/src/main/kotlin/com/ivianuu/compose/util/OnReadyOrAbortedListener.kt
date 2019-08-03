@@ -1,4 +1,4 @@
-package com.ivianuu.compose
+package com.ivianuu.compose.util
 
 import android.view.View
 import android.view.ViewTreeObserver

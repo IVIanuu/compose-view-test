@@ -2,6 +2,11 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
+import com.ivianuu.compose.transition.DefaultViewTransition
+import com.ivianuu.compose.transition.ViewTransition
+import com.ivianuu.compose.transition.inTransition
+import com.ivianuu.compose.transition.outTransition
+import com.ivianuu.compose.util.tagKey
 
 private val viewManagerKey = tagKey("viewManager")
 
@@ -22,7 +27,6 @@ internal class ViewManager(val container: ViewGroup) {
     private val runningTransitions = mutableMapOf<View, ViewTransition>()
 
     fun setViews(newViews: List<View>, isPush: Boolean) {
-        println("set views $newViews is push $isPush")
         if (newViews == views) return
 
         val oldViews = views.toList()
@@ -100,7 +104,7 @@ internal class ViewManager(val container: ViewGroup) {
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-
+        println("perform transition container $container from $from to $to")
 
         handlerToUse.execute(
             container,

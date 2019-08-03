@@ -1,4 +1,4 @@
-package com.ivianuu.compose
+package com.ivianuu.compose.util
 
 inline fun sourceLocation(): String {
     val element = Throwable().stackTrace.first()

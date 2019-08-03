@@ -1,9 +1,10 @@
-package com.ivianuu.compose
+package com.ivianuu.compose.transition
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.view.View
 import android.view.ViewGroup
+import com.ivianuu.compose.util.OnReadyOrAbortedListener
 
 abstract class AnimatorViewTransition : ViewTransition() {
 
@@ -21,9 +22,15 @@ abstract class AnimatorViewTransition : ViewTransition() {
         isPush: Boolean,
         onComplete: () -> Unit
     ) {
-        changeData = ChangeData(container, from, to, isPush, onComplete)
+        changeData = ChangeData(
+            container,
+            from,
+            to,
+            isPush,
+            onComplete
+        )
 
-        if (to != null) {
+        if (to != null && to.parent == null) {
             container.addView(to)
         }
 

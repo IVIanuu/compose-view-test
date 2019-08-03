@@ -12,6 +12,11 @@ import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewUpdater
 import androidx.compose.ambient
+import com.ivianuu.compose.transition.InTransitionAmbient
+import com.ivianuu.compose.transition.OutTransitionAmbient
+import com.ivianuu.compose.transition.inTransition
+import com.ivianuu.compose.transition.outTransition
+import com.ivianuu.compose.util.sourceLocation
 import java.util.*
 
 private fun invalidNode(node: Any): Nothing =
@@ -19,49 +24,52 @@ private fun invalidNode(node: Any): Nothing =
 
 class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
 
-    val stack = Stack<Any>()
-    val current: Any get() = _current
-    private var _current: Any = root
-
     private sealed class Op {
         data class Insert(val index: Int, val instance: Any) : Op()
         data class Move(val from: Int, val to: Int, val count: Int) : Op()
         data class Remove(val index: Int, val count: Int) : Op()
     }
+
+    private var current = root
+    private val currentStack = Stack<Any>()
     private var ops = mutableListOf<Op>()
     private val opsStack = Stack<MutableList<Op>>()
 
     override fun Any.start(instance: Any) {
-        println("start $instance")
-        stack.push(_current)
-        _current = instance
-
-        opsStack += ops
-        ops = mutableListOf()
     }
+
     override fun Any.insertAt(index: Int, instance: Any) {
+        if (current != this) {
+            currentStack.push(current)
+            current = this
+            println("start $this instance $instance")
+            opsStack.push(ops)
+            ops = mutableListOf()
+        }
+
+        println("insert $this index $index instance $instance")
         ops.add(Op.Insert(index, instance))
     }
 
     override fun Any.move(from: Int, to: Int, count: Int) {
+        println("move $this from $from to $to count $count")
         ops.add(Op.Move(from, to, count))
     }
 
     override fun Any.removeAt(index: Int, count: Int) {
+        println("remove at $this index $index count $count")
         ops.add(Op.Remove(index, count))
     }
 
     override fun Any.end(instance: Any, parent: Any) {
-        _current = stack.pop()
-
         if (ops.isNotEmpty()) {
-            println("ops $ops")
-
-            val container = when (parent) {
-                is ViewGroup -> parent
-                is Compose.Root -> parent.container
+            val container = when (this) {
+                is ViewGroup -> this
+                is Compose.Root -> container
                 else -> invalidNode(this)
             }
+
+            println("container for $this is $container")
 
             val viewManager = container.getViewManager()
 
@@ -104,7 +112,10 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
             viewManager.setViews(newViews, insertCount >= removeCount)
         }
 
-        ops = opsStack.pop()
+        if (!opsStack.isEmpty()) ops = opsStack.pop()
+        if (!currentStack.isEmpty()) current = currentStack.pop()
+
+        println("ended $this $instance ops stack is $opsStack")
     }
 }
 
@@ -130,55 +141,34 @@ class ViewComposition(val composer: ViewComposer) {
     inline operator fun <V> Effect<V>.unaryPlus(): V =
         resolve(this@ViewComposition.composer, sourceLocation().hashCode())
 
-    inline fun <T : View> emit(
+    private var currentContainer = (composer.root as Compose.Root).container
+
+    fun <T : View> emit(
         key: Any,
-        crossinline ctor: (ViewGroup) -> T,
-        update: ViewUpdater<T>.() -> Unit
+        ctor: (ViewGroup) -> T,
+        update: (ViewUpdater<T>.() -> Unit)? = null,
+        children: (ViewComposition.() -> Unit)? = null
     ) = with(composer) {
         startNode(key)
-        println("emit $key current ${applyAdapter.current} stack ${applyAdapter.stack}")
         val node = if (inserting) {
-            val container =
-                when (val parent = applyAdapter.stack.lastOrNull() ?: applyAdapter.current) {
-                is ViewGroup -> parent
-                else -> (parent as Compose.Root).container
-            }
-            ctor(container).also { emitNode(it) }
+            ctor(currentContainer).also { emitNode(it) }
         } else {
             useNode() as T
         }
-        ViewUpdater(this, node).update()
+
+        update?.let { ViewUpdater(this, node).it() }
 
         node.inTransition = +ambient(InTransitionAmbient)
         node.outTransition = +ambient(OutTransitionAmbient)
 
-        endNode()
-    }
-
-    inline fun <T : ViewGroup> emit(
-        key: Any,
-        crossinline ctor: (ViewGroup) -> T,
-        update: ViewUpdater<T>.() -> Unit,
-        children: () -> Unit
-    ) = with(composer) {
-        startNode(key)
-        println("emit $key current ${applyAdapter.current} stack ${applyAdapter.stack}")
-        val node = if (inserting) {
-            val container =
-                when (val parent = applyAdapter.stack.lastOrNull() ?: applyAdapter.current) {
-                is ViewGroup -> parent
-                else -> (parent as Compose.Root).container
-            }
-            ctor(container).also { emitNode(it) }
-        } else {
-            useNode() as T
+        if (children != null) {
+            node as ViewGroup
+            val previousContainer = currentContainer
+            currentContainer = node
+            children()
+            currentContainer = previousContainer
         }
-        ViewUpdater(this, node).update()
 
-        node.inTransition = +ambient(InTransitionAmbient)
-        node.outTransition = +ambient(OutTransitionAmbient)
-
-        children()
         endNode()
     }
 

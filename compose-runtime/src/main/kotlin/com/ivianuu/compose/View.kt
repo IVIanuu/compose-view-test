@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ViewUpdater
+import com.ivianuu.compose.util.sourceLocation
 
 inline fun <T : View> ViewComposition.ViewById(
     id: Int,
@@ -40,10 +41,7 @@ fun <T : ViewGroup> ViewComposition.ViewGroupById(
 ) {
     ViewGroup(
         key = key,
-        ctor = {
-            println("view group by id $it container id ${it.id} id is $id children ${it.childCount}")
-            it.findViewById(id)
-        },
+        ctor = { it.findViewById(id) },
         update = update,
         children = children
     )
@@ -113,8 +111,8 @@ fun <T : ViewGroup> ViewComposition.ViewGroup(
     emit(
         key = key,
         ctor = ctor,
-        update = { update?.invoke(this) },
-        children = { children?.invoke(this) }
+        update = update,
+        children = children
     )
 }
 
@@ -133,6 +131,6 @@ fun <T : View> ViewComposition.View(
     emit(
         key = key,
         ctor = ctor,
-        update = { update?.invoke(this) }
+        update = update
     )
 }

@@ -1,4 +1,4 @@
-package com.ivianuu.compose
+package com.ivianuu.compose.transition
 
 import android.animation.Animator
 import android.animation.AnimatorSet
