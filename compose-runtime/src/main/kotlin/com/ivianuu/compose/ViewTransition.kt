@@ -26,22 +26,6 @@ fun ViewComposition.Transitions(
     }
 }
 
-private fun tagKey(key: String): Int {
-    return (3 shl 24) or key.hashCode()
-}
-
-internal val animationControllerKey = tagKey("animationController")
-
-internal fun View.getAnimationController(): ViewAnimationController {
-    var controller = getTag(animationControllerKey) as? ViewAnimationController
-    if (controller == null) {
-        controller = ViewAnimationController(this)
-        setTag(animationControllerKey, controller)
-    }
-
-    return controller
-}
-
 private val inTransitionKey = tagKey("inTransition")
 @PublishedApi
 internal var View.inTransition: ViewTransition?
@@ -57,49 +41,6 @@ internal var View.outTransition: ViewTransition?
     set(value) {
         setTag(outTransitionKey, value)
     }
-
-internal class ViewAnimationController(val view: View) {
-
-    private var current: ViewTransition? = null
-
-    fun add(container: ViewGroup, index: Int) {
-        performTransition(container, ViewTransition.Direction.In, index)
-    }
-
-    fun remove(container: ViewGroup) {
-        performTransition(container, ViewTransition.Direction.Out, null)
-    }
-
-    fun cancelCurrent() {
-        current?.cancel()
-        current = null
-    }
-
-    private fun performTransition(
-        container: ViewGroup,
-        direction: ViewTransition.Direction,
-        index: Int?
-    ) {
-        cancelCurrent()
-        val transition = getTransition(direction)
-        current = transition
-        transition.execute(container, view, direction, index) { current = null }
-    }
-
-    private fun getTransition(direction: ViewTransition.Direction): ViewTransition {
-        var transition = when(direction) {
-            ViewTransition.Direction.In -> view.inTransition
-            ViewTransition.Direction.Out -> view.outTransition
-        } ?: DefaultViewTransition()
-        if (transition.hasBeenUsed) {
-            transition = transition.copy()
-        }
-
-        transition.hasBeenUsed = true
-
-        return transition
-    }
-}
 
 abstract class ViewTransition {
 

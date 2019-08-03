@@ -19,7 +19,9 @@ interface Route {
 
 }
 
-fun Route(content: ViewComposition.() -> Unit) = object : Route {
+fun Route(
+    content: ViewComposition.() -> Unit
+) = object : Route {
     override fun ViewComposition.content() {
         content.invoke(this)
     }
@@ -42,14 +44,8 @@ class Navigator(
         }
     }
 
-    fun ViewComposition.content() {
-        state.value.lastOrNull()?._content(this)
-    }
-
-    fun _content(viewComposition: ViewComposition) {
-        with(viewComposition) {
-            content()
-        }
+    fun content(viewComposition: ViewComposition) {
+        state.value.lastOrNull()?._content(viewComposition)
     }
 
     companion object {
@@ -61,5 +57,5 @@ class Navigator(
 fun ViewComposition.Navigator(startRoute: Route, onExit: () -> Unit) {
     val state = +state { Navigator.createInitialState(startRoute) }
     val navigator = Navigator(state, onExit)
-    NavigatorAmbient.Provider(navigator) { navigator._content(this) }
+    NavigatorAmbient.Provider(navigator) { navigator.content(this) }
 }

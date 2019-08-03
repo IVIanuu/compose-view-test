@@ -10,7 +10,6 @@ import androidx.compose.ambient
 import com.ivianuu.compose.HorizontalViewTransition
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.Transitions
-import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.ViewGroup
 import com.ivianuu.compose.disposeComposition
@@ -34,14 +33,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 },
                 children = {
-                    Transitions(transition = HorizontalViewTransition()) {
-                        Navigator(
-                            startRoute = Route {
+                    Navigator(
+                        startRoute = Route {
+                            Transitions(transition = HorizontalViewTransition()) {
                                 Counter(1)
-                            },
-                            onExit = { finish() }
-                        )
-                    }
+                            }
+                        },
+                        onExit = { finish() }
+                    )
                 }
             )
         }

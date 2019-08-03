@@ -35,7 +35,7 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
         stack.push(_current)
         _current = instance
 
-        opsStack.add(ops)
+        opsStack += ops
         ops = mutableListOf()
     }
     override fun Any.insertAt(index: Int, instance: Any) {
@@ -57,55 +57,46 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
             println("ops $ops")
         }
 
-        ops.forEach { op ->
-            when(op) {
-                is Op.Insert -> {
-                    val container = when(parent) {
-                        is ViewGroup -> parent
-                        is Compose.Root -> parent.container
-                        else -> invalidNode(this)
-                    }
+        val container = when (parent) {
+            is ViewGroup -> parent
+            is Compose.Root -> parent.container
+            else -> invalidNode(this)
+        }
 
-                    (op.instance as View).getAnimationController().add(container, op.index)
+        val viewManager = container.getViewManager()
+
+        val newViews = viewManager.views.toMutableList()
+
+        ops.forEach { op ->
+            when (op) {
+                is Op.Insert -> {
+                    newViews.add(op.index, op.instance as View)
                 }
                 is Op.Move -> {
-                    val container = when(this) {
-                        is ViewGroup -> this
-                        is Compose.Root -> container
-                        else -> invalidNode(this)
-                    }
-
                     if (op.from > op.to) {
                         var currentFrom = op.from
                         var currentTo = op.to
                         repeat(op.count) {
-                            val view = container.getChildAt(currentFrom)
-                            container.removeViewAt(currentFrom)
-                            container.addView(view, currentTo)
+                            Collections.swap(newViews, currentFrom, currentTo)
                             currentFrom++
                             currentTo++
                         }
                     } else {
                         repeat(op.count) {
-                            val view = container.getChildAt(op.from)
-                            container.removeViewAt(op.from)
-                            container.addView(view, op.to - 1)
+                            Collections.swap(newViews, op.from, op.to - 1)
                         }
                     }
                 }
                 is Op.Remove -> {
-                    val container = when(this) {
-                        is ViewGroup -> this
-                        is Compose.Root -> container
-                        else -> invalidNode(this)
-                    }
-
                     // can be null when the composition get's disposed
-                    val children = (op.index..op.count).mapNotNull { container.getChildAt(it) }
-                    children.forEach { it.getAnimationController().remove(container) }
+                    for (i in op.index + op.count - 1 downTo op.index) {
+                        newViews.removeAt(i)
+                    }
                 }
             }
         }
+
+        viewManager.setViews(newViews)
 
         ops = opsStack.pop()
     }
@@ -130,7 +121,8 @@ class ViewComposer(
 class ViewComposition(val composer: ViewComposer) {
 
     @Suppress("NOTHING_TO_INLINE")
-    inline operator fun <V> Effect<V>.unaryPlus(): V = resolve(this@ViewComposition.composer)
+    inline operator fun <V> Effect<V>.unaryPlus(): V =
+        resolve(this@ViewComposition.composer, sourceLocation().hashCode())
 
     inline fun <T : View> emit(
         key: Any,
