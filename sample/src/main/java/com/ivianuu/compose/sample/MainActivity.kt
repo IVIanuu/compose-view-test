@@ -18,16 +18,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setViewContent {
-            CraneWrapper(key = "crane") {
+            CraneWrapper {
                 Scaffold(
-                    key = "scaffold",
                     appBar = {
                         InflateView<Toolbar>(
-                            key = "toolbar",
                             layoutRes = R.layout.app_bar,
                             update = {
-                            title = "Compose sample"
-                        })
+                                node.title = "Compose sample"
+                            })
                     },
                     content = {
                         Navigator(
@@ -52,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
 private fun ViewComposition.Counter(count: Int) {
     val navigator = +ambient(NavigatorAmbient)
-    InflateView<View>("counter", R.layout.counter) {
+    InflateView<View>(R.layout.counter) {
         node.title.text = "Count: $count"
         node.inc.setOnClickListener {
             navigator.push(Route {

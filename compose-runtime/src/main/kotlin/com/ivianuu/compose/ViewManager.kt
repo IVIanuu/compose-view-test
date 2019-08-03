@@ -30,6 +30,7 @@ internal class ViewManager(val container: ViewGroup) {
         if (newViews == views) return
 
         val oldViews = views.toList()
+        val removedViews = oldViews.filter { it !in newViews }
 
         views.clear()
         views += newViews
@@ -39,16 +40,14 @@ internal class ViewManager(val container: ViewGroup) {
 
         // check if we should animate the top views
         val replacingTopViews = newTopView != null && (oldTopView == null
-                || oldTopView != newTopView)
+                || (oldTopView != newTopView && oldTopView !in newViews))
 
         // Remove all views which are not present anymore from top to bottom
-        oldViews
+        removedViews
             .dropLast(if (replacingTopViews) 1 else 0)
             .reversed()
-            .filterNot { it in newViews }
             .forEach { view ->
                 cancelTransition(view)
-
                 performTransition(
                     from = view,
                     to = null,
@@ -103,8 +102,6 @@ internal class ViewManager(val container: ViewGroup) {
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
-
-        println("perform transition container $container from $from to $to")
 
         handlerToUse.execute(
             container,

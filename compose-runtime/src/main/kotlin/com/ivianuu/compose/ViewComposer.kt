@@ -42,7 +42,7 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
         if (current != this) {
             currentStack.push(current)
             current = this
-            println("start $this instance $instance")
+            println("start $this")
             opsStack.push(ops)
             ops = mutableListOf()
         }
@@ -69,12 +69,14 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
                 else -> invalidNode(this)
             }
 
-            println("container for $this is $container")
+            println("container for $instance is $container")
 
             val viewManager = container.getViewManager()
 
             val oldViews = viewManager.views
             val newViews = oldViews.toMutableList()
+
+            println("ops $ops old views $oldViews")
 
             var insertCount = 0
             var removeCount = 0
@@ -108,6 +110,8 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
                     }
                 }
             }
+
+            println("ops $ops new views $newViews")
 
             viewManager.setViews(newViews, insertCount >= removeCount)
         }
