@@ -22,7 +22,7 @@ import java.util.*
 private fun invalidNode(node: Any): Nothing =
     error("Unsupported node type ${node.javaClass.simpleName}")
 
-class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
+class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 
     private sealed class Op {
         data class Insert(val index: Int, val instance: Any) : Op()
@@ -39,25 +39,26 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
     }
 
     override fun Any.insertAt(index: Int, instance: Any) {
+        //println("$this insert $current")
         if (current != this) {
             currentStack.push(current)
             current = this
-            println("start $this")
+            //println("start $this")
             opsStack.push(ops)
             ops = mutableListOf()
         }
 
-        println("insert $this index $index instance $instance")
+        //println("insert $this index $index instance $instance")
         ops.add(Op.Insert(index, instance))
     }
 
     override fun Any.move(from: Int, to: Int, count: Int) {
-        println("move $this from $from to $to count $count")
+        //println("move $this from $from to $to count $count")
         ops.add(Op.Move(from, to, count))
     }
 
     override fun Any.removeAt(index: Int, count: Int) {
-        println("remove at $this index $index count $count")
+        //println("remove at $this index $index count $count")
         ops.add(Op.Remove(index, count))
     }
 
@@ -69,14 +70,14 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
                 else -> invalidNode(this)
             }
 
-            println("container for $instance is $container")
+            //println("container for $instance is $container")
 
             val viewManager = container.getViewManager()
 
             val oldViews = viewManager.views
             val newViews = oldViews.toMutableList()
 
-            println("ops $ops old views $oldViews")
+            //println("$this ops site ${ops.size} ops $ops old views $oldViews")
 
             var insertCount = 0
             var removeCount = 0
@@ -111,15 +112,13 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
                 }
             }
 
-            println("ops $ops new views $newViews")
+            //println("$this ops size ${ops.size} ops $ops new views $newViews")
 
             viewManager.setViews(newViews, insertCount >= removeCount)
         }
 
         if (!opsStack.isEmpty()) ops = opsStack.pop()
         if (!currentStack.isEmpty()) current = currentStack.pop()
-
-        println("ended $this $instance ops stack is $opsStack")
     }
 }
 

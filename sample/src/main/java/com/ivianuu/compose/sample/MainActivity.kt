@@ -28,14 +28,14 @@ class MainActivity : AppCompatActivity() {
                             })
                     },
                     content = {
-                        Navigator(
-                            startRoute = Route {
-                                Transitions(transition = HorizontalViewTransition()) {
+                        Transitions(HorizontalViewTransition()) {
+                            Navigator(
+                                startRoute = Route {
                                     Counter(1)
-                                }
-                            },
-                            onExit = { finish() }
-                        )
+                                },
+                                onExit = { finish() }
+                            )
+                        }
                     }
                 )
             }
@@ -54,9 +54,7 @@ private fun ViewComposition.Counter(count: Int) {
         node.title.text = "Count: $count"
         node.inc.setOnClickListener {
             navigator.push(Route {
-                Transitions(HorizontalViewTransition()) {
-                    Counter(count + 1)
-                }
+                Counter(count + 1)
             })
         }
         node.dec.setOnClickListener { navigator.pop() }

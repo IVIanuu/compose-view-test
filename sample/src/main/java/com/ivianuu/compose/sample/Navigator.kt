@@ -1,8 +1,7 @@
 package com.ivianuu.compose.sample
 
 import androidx.compose.Ambient
-import androidx.compose.State
-import androidx.compose.state
+import androidx.compose.Recompose
 import com.ivianuu.compose.ViewComposition
 
 val NavigatorAmbient = Ambient.of<Navigator>()
@@ -28,34 +27,42 @@ fun Route(
 }
 
 class Navigator(
-    private val state: State<List<Route>>,
-    private val onExit: () -> Unit
+    private val startRoute: Route,
+    private val onExit: () -> Unit,
+    private val unit: Unit
 ) {
 
+    private val backStack = mutableListOf<Route>()
+    lateinit var recompose: () -> Unit
+
+    init {
+        backStack.add(startRoute)
+    }
+
     fun push(route: Route) {
-        state.value = state.value.toMutableList().apply { add(route) }
+        backStack.add(route)
+        recompose()
     }
 
     fun pop() {
-        if (state.value.size > 1) {
-            state.value = state.value.toMutableList().apply { removeAt(lastIndex) }
+        if (backStack.size > 1) {
+            backStack.removeAt(backStack.lastIndex)
+            recompose()
         } else {
             onExit()
         }
     }
 
-    fun content(viewComposition: ViewComposition) {
-        state.value.lastOrNull()?._content(viewComposition)
-    }
-
-    companion object {
-        fun createInitialState(startRoute: Route) = listOf(startRoute)
+    fun content(viewComposition: ViewComposition) = Recompose { recompose ->
+        this@Navigator.recompose = recompose
+        backStack.lastOrNull()?._content(viewComposition)
     }
 
 }
 
 fun ViewComposition.Navigator(startRoute: Route, onExit: () -> Unit) {
-    val state = +state { Navigator.createInitialState(startRoute) }
-    val navigator = Navigator(state, onExit)
-    NavigatorAmbient.Provider(navigator) { navigator.content(this) }
+    val navigator = Navigator(startRoute, onExit, Unit)
+    NavigatorAmbient.Provider(navigator) {
+        navigator.content(this)
+    }
 }

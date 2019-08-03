@@ -93,17 +93,17 @@ internal class ViewManager(val container: ViewGroup) {
         isPush: Boolean,
         transition: ViewTransition?
     ) {
-        val handlerToUse = when {
+        val transitionToUse = when {
             transition == null -> DefaultViewTransition()
             transition.hasBeenUsed -> transition.copy()
             else -> transition
         }
-        handlerToUse.hasBeenUsed = true
+        transitionToUse.hasBeenUsed = true
 
         from?.let { cancelTransition(it) }
-        to?.let { runningTransitions[it] = handlerToUse }
+        to?.let { runningTransitions[it] = transitionToUse }
 
-        handlerToUse.execute(
+        transitionToUse.execute(
             container,
             from,
             to,

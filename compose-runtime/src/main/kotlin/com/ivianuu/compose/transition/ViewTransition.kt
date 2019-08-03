@@ -79,7 +79,6 @@ class DefaultViewTransition : ViewTransition() {
         isPush: Boolean,
         onComplete: () -> Unit
     ) {
-        println("execute transition container $container from $from to $to")
         if (from != null) container.removeView(from)
         if (to != null && to.parent == null) {
             container.addView(to)
