@@ -31,7 +31,7 @@ object Build {
 object Publishing {
     const val groupId = "com.ivianuu.compose"
     const val vcsUrl = "https://github.com/IVIanuu/compose"
-    const val version = "${Build.versionName}-dev-4"
+    const val version = "${Build.versionName}-dev4"
 }
 
 object Versions {
@@ -40,13 +40,7 @@ object Versions {
     const val androidxAppCompat = "1.1.0-rc01"
     const val androidxUi = "1.0.0-alpha01"
 
-    const val autoService = "1.0-rc6"
-
     const val bintray = "1.8.4"
-
-    const val buildConfig = "1.1.8"
-
-    const val jarJar = "1.0.1"
 
     const val kotlin = "1.3.41"
 
@@ -59,15 +53,8 @@ object Deps {
     const val androidxAppCompat = "androidx.appcompat:appcompat:${Versions.androidxAppCompat}"
     const val androidxUiMaterial = "androidx.ui:ui-material:${Versions.androidxUi}"
 
-    const val autoService = "com.google.auto.service:auto-service:${Versions.autoService}"
-
     const val bintrayGradlePlugin =
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:${Versions.bintray}"
-
-    const val buildConfigPlugin =
-        "gradle.plugin.de.fuerstenau:BuildConfigPlugin:${Versions.buildConfig}"
-
-    const val jarJarGradlePlugin = "org.anarres.jarjar:jarjar-gradle:${Versions.jarJar}"
 
     const val kotlinCompiler = "org.jetbrains.kotlin:kotlin-compiler:${Versions.kotlin}"
     const val kotlinCompilerEmbeddable = "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"
