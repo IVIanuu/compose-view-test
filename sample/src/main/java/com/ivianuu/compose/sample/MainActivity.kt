@@ -13,7 +13,8 @@ import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.disposeComposition
 import com.ivianuu.compose.setViewContent
 import com.ivianuu.compose.transition.HorizontalViewTransition
-import com.ivianuu.compose.transition.Transitions
+import com.ivianuu.compose.transition.inTransition
+import com.ivianuu.compose.transition.outTransition
 import kotlinx.android.synthetic.main.counter.view.*
 
 class MainActivity : AppCompatActivity() {
@@ -31,29 +32,27 @@ class MainActivity : AppCompatActivity() {
                             })
                     },
                     content = {
-                        Transitions(HorizontalViewTransition()) {
-                            Navigator(
-                                startRoute = Route {
-                                    +onActive {
-                                        println("on active")
+                        Navigator(
+                            startRoute = Route {
+                                +onActive {
+                                    println("on active")
 
-                                        onDispose {
-                                            println("on dispose")
-                                        }
+                                    onDispose {
+                                        println("on dispose")
                                     }
+                                }
 
-                                    +onCommit {
-                                        println("on commit")
-                                    }
+                                +onCommit {
+                                    println("on commit")
+                                }
 
-                                    +onPreCommit {
-                                        println("on pre commit")
-                                    }
-                                    Counter(1)
-                                },
-                                onExit = { finish() }
-                            )
-                        }
+                                +onPreCommit {
+                                    println("on pre commit")
+                                }
+                                Counter(1)
+                            },
+                            onExit = { finish() }
+                        )
                     }
                 )
             }
@@ -69,6 +68,9 @@ class MainActivity : AppCompatActivity() {
 private fun ViewComposition.Counter(count: Int) {
     val navigator = +ambient(NavigatorAmbient)
     InflateView<View>(R.layout.counter) {
+        node.inTransition = HorizontalViewTransition()
+        node.outTransition = HorizontalViewTransition()
+
         node.title.text = "Count: $count"
         node.inc.setOnClickListener {
             navigator.push(Route(isFloating = true) {

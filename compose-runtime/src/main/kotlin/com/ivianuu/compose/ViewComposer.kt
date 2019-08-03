@@ -11,11 +11,6 @@ import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewUpdater
-import androidx.compose.ambient
-import com.ivianuu.compose.transition.InTransitionAmbient
-import com.ivianuu.compose.transition.OutTransitionAmbient
-import com.ivianuu.compose.transition.inTransition
-import com.ivianuu.compose.transition.outTransition
 import com.ivianuu.compose.util.sourceLocation
 import java.util.*
 
@@ -161,9 +156,6 @@ class ViewComposition(val composer: ViewComposer) {
         }
 
         update?.let { ViewUpdater(this, node).it() }
-
-        node.inTransition = +ambient(InTransitionAmbient)
-        node.outTransition = +ambient(OutTransitionAmbient)
 
         if (children != null) {
             node as ViewGroup
