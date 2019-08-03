@@ -60,7 +60,11 @@ private fun ViewComposition.Counter(count: Int) {
     ) {
         node.title.text = "Count: $count"
         node.inc.setOnClickListener {
-            navigator.push(Route { Counter(count + 1) })
+            navigator.push(Route {
+                Transitions(transition = HorizontalViewTransition()) {
+                    Counter(count + 1)
+                }
+            })
         }
         node.dec.setOnClickListener { navigator.pop() }
     }

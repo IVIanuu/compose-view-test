@@ -1,75 +1,60 @@
 package com.ivianuu.compose
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewPropertyAnimator
 
-open class HorizontalViewTransition : ViewTransition() {
+open class HorizontalViewTransition : AnimatorViewTransition() {
 
-    private var canceled = false
-    private var changeData: ChangeData? = null
-    private var animator: ViewPropertyAnimator? = null
-    private var onReadyOrAbortedListener: OnReadyOrAbortedListener? = null
+    override fun getAnimator(changeData: ChangeData): Animator {
+        val (_, from, to, isPush) = changeData
 
-    override fun execute(
-        container: ViewGroup,
-        view: View,
-        direction: Direction,
-        index: Int?,
-        onComplete: () -> Unit
-    ) {
-        changeData = ChangeData(container, view, direction, index, onComplete)
+        val animatorSet = AnimatorSet()
 
-        when(direction) {
-            Direction.In -> {
-                container.addView(view, index!!)
-                onReadyOrAbortedListener = OnReadyOrAbortedListener(view) {
-                    if (!canceled) {
-                        view.translationX = -view.width.toFloat()
-                        view.animate()
-                            .translationX(0f)
-                            .withEndAction { onComplete() }
-                            .start()
-                    } else {
-                        onComplete()
-                    }
-                }
+        if (isPush) {
+            if (from != null) {
+                animatorSet.play(
+                    ObjectAnimator.ofFloat(
+                        from,
+                        View.TRANSLATION_X,
+                        -from.width.toFloat()
+                    )
+                )
             }
-            Direction.Out -> {
-                onReadyOrAbortedListener = OnReadyOrAbortedListener(view) {
-                    if (!canceled) {
-                        view.animate()
-                            .translationX(-view.width.toFloat())
-                            .withEndAction {
-                                container.removeView(view)
-                                onComplete()
-                            }
-                            .start()
-                    } else {
-                        container.removeView(view)
-                        onComplete()
-                    }
-                }
+            if (to != null) {
+                animatorSet.play(
+                    ObjectAnimator.ofFloat(
+                        to,
+                        View.TRANSLATION_X,
+                        to.width.toFloat(),
+                        0f
+                    )
+                )
+            }
+        } else {
+            if (from != null) {
+                animatorSet.play(
+                    ObjectAnimator.ofFloat(
+                        from,
+                        View.TRANSLATION_X,
+                        from.width.toFloat()
+                    )
+                )
+            }
+            if (to != null) {
+                animatorSet.play(
+                    ObjectAnimator.ofFloat(
+                        to,
+                        View.TRANSLATION_X,
+                        -to.width.toFloat(),
+                        0f
+                    )
+                )
             }
         }
-    }
 
-    override fun cancel() {
-        canceled = true
-        when {
-            animator != null -> {
-                animator?.cancel()
-                changeData!!.container.removeView(changeData!!.view)
-                changeData?.onComplete?.invoke()
-            }
-            onReadyOrAbortedListener != null -> {
-                onReadyOrAbortedListener?.onReadyOrAborted()
-            }
-        }
-        changeData?.let {
-
-        }
-        changeData = null
+        return animatorSet
     }
 
     override fun copy() = HorizontalViewTransition()

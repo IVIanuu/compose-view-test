@@ -48,9 +48,9 @@ abstract class ViewTransition {
 
     abstract fun execute(
         container: ViewGroup,
-        view: View,
-        direction: Direction,
-        index: Int?,
+        from: View?,
+        to: View?,
+        isPush: Boolean,
         onComplete: () -> Unit
     )
 
@@ -60,30 +60,25 @@ abstract class ViewTransition {
 
     data class ChangeData(
         val container: ViewGroup,
-        val view: View,
-        val direction: Direction,
-        val index: Int?,
+        val from: View?,
+        val to: View?,
+        val isPush: Boolean,
         val onComplete: () -> Unit
     )
 
-    enum class Direction {
-        In, Out
-    }
 }
 
 class DefaultViewTransition : ViewTransition() {
 
     override fun execute(
         container: ViewGroup,
-        view: View,
-        direction: Direction,
-        index: Int?,
+        from: View?,
+        to: View?,
+        isPush: Boolean,
         onComplete: () -> Unit
     ) {
-        when(direction) {
-            Direction.In -> container.addView(view, index!!)
-            Direction.Out -> container.removeView(view)
-        }
+        if (from != null) container.removeView(from)
+        if (to != null) container.addView(to)
         onComplete()
     }
 

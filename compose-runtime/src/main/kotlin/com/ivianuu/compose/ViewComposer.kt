@@ -55,48 +55,53 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
 
         if (ops.isNotEmpty()) {
             println("ops $ops")
-        }
 
-        val container = when (parent) {
-            is ViewGroup -> parent
-            is Compose.Root -> parent.container
-            else -> invalidNode(this)
-        }
+            val container = when (parent) {
+                is ViewGroup -> parent
+                is Compose.Root -> parent.container
+                else -> invalidNode(this)
+            }
 
-        val viewManager = container.getViewManager()
+            val viewManager = container.getViewManager()
 
-        val newViews = viewManager.views.toMutableList()
+            val oldViews = viewManager.views
+            val newViews = oldViews.toMutableList()
 
-        ops.forEach { op ->
-            when (op) {
-                is Op.Insert -> {
-                    newViews.add(op.index, op.instance as View)
-                }
-                is Op.Move -> {
-                    if (op.from > op.to) {
-                        var currentFrom = op.from
-                        var currentTo = op.to
-                        repeat(op.count) {
-                            Collections.swap(newViews, currentFrom, currentTo)
-                            currentFrom++
-                            currentTo++
-                        }
-                    } else {
-                        repeat(op.count) {
-                            Collections.swap(newViews, op.from, op.to - 1)
+            var insertCount = 0
+            var removeCount = 0
+
+            ops.forEach { op ->
+                when (op) {
+                    is Op.Insert -> {
+                        newViews.add(op.index, op.instance as View)
+                        insertCount++
+                    }
+                    is Op.Move -> {
+                        if (op.from > op.to) {
+                            var currentFrom = op.from
+                            var currentTo = op.to
+                            repeat(op.count) {
+                                Collections.swap(newViews, currentFrom, currentTo)
+                                currentFrom++
+                                currentTo++
+                            }
+                        } else {
+                            repeat(op.count) {
+                                Collections.swap(newViews, op.from, op.to - 1)
+                            }
                         }
                     }
-                }
-                is Op.Remove -> {
-                    // can be null when the composition get's disposed
-                    for (i in op.index + op.count - 1 downTo op.index) {
-                        newViews.removeAt(i)
+                    is Op.Remove -> {
+                        for (i in op.index + op.count - 1 downTo op.index) {
+                            newViews.removeAt(i)
+                            removeCount++
+                        }
                     }
                 }
             }
-        }
 
-        viewManager.setViews(newViews)
+            viewManager.setViews(newViews, insertCount >= removeCount)
+        }
 
         ops = opsStack.pop()
     }

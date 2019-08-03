@@ -19,66 +19,97 @@ internal fun ViewGroup.getViewManager(): ViewManager {
 internal class ViewManager(val container: ViewGroup) {
 
     val views = mutableListOf<View>()
+    private val runningTransitions = mutableMapOf<View, ViewTransition>()
 
-    fun setViews(newViews: List<View>) {
+    fun setViews(newViews: List<View>, isPush: Boolean) {
+        println("set views $newViews is push $isPush")
         if (newViews == views) return
 
-        println("$container set views $newViews")
         val oldViews = views.toList()
-
-        val removedViews = oldViews.filter { it !in newViews }
-        val addedViews = newViews.filter { it !in oldViews }
-
-        removedViews.forEach { container.removeView(it) }
-        addedViews.forEach { container.addView(it) }
 
         views.clear()
         views += newViews
+
+        val oldTopView = oldViews.lastOrNull()
+        val newTopView = newViews.lastOrNull()
+
+        // check if we should animate the top views
+        val replacingTopViews = newTopView != null && (oldTopView == null
+                || oldTopView != newTopView)
+
+        // Remove all views which are not present anymore from top to bottom
+        oldViews
+            .dropLast(if (replacingTopViews) 1 else 0)
+            .reversed()
+            .filterNot { it in newViews }
+            .forEach { view ->
+                cancelTransition(view)
+
+                performTransition(
+                    from = view,
+                    to = null,
+                    isPush = isPush,
+                    transition = view.outTransition
+                )
+            }
+
+        // Add any new views to the backStack from bottom to top
+        newViews
+            .dropLast(if (replacingTopViews) 1 else 0)
+            .filterNot { it in oldViews }
+            .forEachIndexed { i, view ->
+                performTransition(
+                    from = newViews.getOrNull(i - 1),
+                    to = view,
+                    isPush = true,
+                    transition = view.inTransition
+                )
+            }
+
+        // Replace the old visible top with the new one
+        if (replacingTopViews) {
+            val transition = if (isPush) newTopView?.inTransition
+            else oldTopView?.outTransition
+
+            performTransition(
+                from = oldTopView,
+                to = newTopView,
+                isPush = isPush,
+                transition = transition
+            )
+        }
     }
 
-}
-
-/*
-internal class ViewAnimationController(val view: View) {
-
-    private var current: ViewTransition? = null
-
-    fun add(container: ViewGroup, index: Int) {
-        performTransition(container, ViewTransition.Direction.In, index)
-    }
-
-    fun remove(container: ViewGroup) {
-        performTransition(container, ViewTransition.Direction.Out, null)
-    }
-
-    fun cancelCurrent() {
-        current?.cancel()
-        current = null
+    private fun cancelTransition(view: View) {
+        runningTransitions.remove(view)?.cancel()
     }
 
     private fun performTransition(
-        container: ViewGroup,
-        direction: ViewTransition.Direction,
-        index: Int?
+        from: View?,
+        to: View?,
+        isPush: Boolean,
+        transition: ViewTransition?
     ) {
-        cancelCurrent()
-        val transition = getTransition(direction)
-        current = transition
-        transition.execute(container, view, direction, index) { current = null }
-    }
-
-    private fun getTransition(direction: ViewTransition.Direction): ViewTransition {
-        var transition = when(direction) {
-            ViewTransition.Direction.In -> view.inTransition
-            ViewTransition.Direction.Out -> view.outTransition
-        } ?: DefaultViewTransition()
-        if (transition.hasBeenUsed) {
-            transition = transition.copy()
+        val handlerToUse = when {
+            transition == null -> DefaultViewTransition()
+            transition.hasBeenUsed -> transition.copy()
+            else -> transition
         }
+        handlerToUse.hasBeenUsed = true
 
-        transition.hasBeenUsed = true
+        from?.let { cancelTransition(it) }
+        to?.let { runningTransitions[it] = handlerToUse }
 
-        return transition
+
+
+        handlerToUse.execute(
+            container,
+            from,
+            to,
+            isPush
+        ) {
+            if (to != null) runningTransitions -= to
+        }
     }
+
 }
- */
