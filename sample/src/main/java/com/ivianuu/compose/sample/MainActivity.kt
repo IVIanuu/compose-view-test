@@ -14,7 +14,6 @@ import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.ViewGroup
 import com.ivianuu.compose.disposeComposition
 import com.ivianuu.compose.setViewContent
-import com.ivianuu.compose.sourceLocation
 import kotlinx.android.synthetic.main.counter.view.*
 
 class MainActivity : AppCompatActivity() {
@@ -23,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setViewContent {
             ViewGroup(
-                key = sourceLocation(),
                 ctor = {
                     FrameLayout(this@MainActivity).apply {
                         layoutParams = ViewGroup.LayoutParams(
@@ -54,14 +52,11 @@ class MainActivity : AppCompatActivity() {
 
 private fun ViewComposition.Counter(count: Int) {
     val navigator = +ambient(NavigatorAmbient)
-    InflateView<View>(
-        key = sourceLocation() + count,
-        layoutRes = R.layout.counter
-    ) {
+    InflateView<View>(R.layout.counter) {
         node.title.text = "Count: $count"
         node.inc.setOnClickListener {
             navigator.push(Route {
-                Transitions(transition = HorizontalViewTransition()) {
+                Transitions(HorizontalViewTransition()) {
                     Counter(count + 1)
                 }
             })
