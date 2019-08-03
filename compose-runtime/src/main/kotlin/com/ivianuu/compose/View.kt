@@ -29,7 +29,7 @@ inline fun <T : ViewGroup> ViewComposition.ViewGroupById(
     noinline update: (ViewUpdater<T>.() -> Unit)? = null,
     noinline children: (ViewComposition.() -> Unit)? = null
 ) {
-    ViewGroupById<T>(sourceLocation(), id, update, children)
+    ViewGroupById(sourceLocation(), id, update, children)
 }
 
 fun <T : ViewGroup> ViewComposition.ViewGroupById(
@@ -40,7 +40,10 @@ fun <T : ViewGroup> ViewComposition.ViewGroupById(
 ) {
     ViewGroup(
         key = key,
-        ctor = { it.findViewById(id) },
+        ctor = {
+            println("view group by id $it container id ${it.id} id is $id children ${it.childCount}")
+            it.findViewById(id)
+        },
         update = update,
         children = children
     )

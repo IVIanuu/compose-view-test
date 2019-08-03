@@ -5,6 +5,14 @@ import android.widget.LinearLayout
 import com.ivianuu.compose.InflateViewGroup
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.ViewGroupById
+import com.ivianuu.compose.sourceLocation
+
+inline fun ViewComposition.Scaffold(
+    noinline appBar: (ViewComposition.() -> Unit)? = null,
+    noinline content: (ViewComposition.() -> Unit)? = null
+) {
+    Scaffold(sourceLocation(), appBar, content)
+}
 
 fun ViewComposition.Scaffold(
     key: Any,

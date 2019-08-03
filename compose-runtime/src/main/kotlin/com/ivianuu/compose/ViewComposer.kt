@@ -19,7 +19,7 @@ private fun invalidNode(node: Any): Nothing =
 
 class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
 
-    private val stack = Stack<Any>()
+    val stack = Stack<Any>()
     val current: Any get() = _current
     private var _current: Any = root
 
@@ -32,6 +32,7 @@ class ViewApplyAdapter(root: Any) : ApplyAdapter<Any> {
     private val opsStack = Stack<MutableList<Op>>()
 
     override fun Any.start(instance: Any) {
+        println("start $instance")
         stack.push(_current)
         _current = instance
 
@@ -135,8 +136,10 @@ class ViewComposition(val composer: ViewComposer) {
         update: ViewUpdater<T>.() -> Unit
     ) = with(composer) {
         startNode(key)
+        println("emit $key current ${applyAdapter.current} stack ${applyAdapter.stack}")
         val node = if (inserting) {
-            val container = when(val parent = applyAdapter.current) {
+            val container =
+                when (val parent = applyAdapter.stack.lastOrNull() ?: applyAdapter.current) {
                 is ViewGroup -> parent
                 else -> (parent as Compose.Root).container
             }
@@ -159,8 +162,10 @@ class ViewComposition(val composer: ViewComposer) {
         children: () -> Unit
     ) = with(composer) {
         startNode(key)
+        println("emit $key current ${applyAdapter.current} stack ${applyAdapter.stack}")
         val node = if (inserting) {
-            val container = when(val parent = applyAdapter.current) {
+            val container =
+                when (val parent = applyAdapter.stack.lastOrNull() ?: applyAdapter.current) {
                 is ViewGroup -> parent
                 else -> (parent as Compose.Root).container
             }
