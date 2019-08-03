@@ -8,6 +8,8 @@ val NavigatorAmbient = Ambient.of<Navigator>()
 
 interface Route {
 
+    val isFloating: Boolean
+
     fun ViewComposition.content()
 
     fun _content(viewComposition: ViewComposition) {
@@ -19,8 +21,13 @@ interface Route {
 }
 
 fun Route(
+    isFloating: Boolean = false,
     content: ViewComposition.() -> Unit
 ) = object : Route {
+
+    override val isFloating: Boolean
+        get() = isFloating
+
     override fun ViewComposition.content() {
         content.invoke(this)
     }
@@ -29,7 +36,7 @@ fun Route(
 class Navigator(
     private val startRoute: Route,
     private val onExit: () -> Unit,
-    private val unit: Unit
+    unit: Unit
 ) {
 
     private val backStack = mutableListOf<Route>()
@@ -41,10 +48,13 @@ class Navigator(
 
     fun push(route: Route) {
         backStack.add(route)
+        println("push $route new backstack $backStack")
         recompose()
     }
 
     fun pop() {
+        println("pop $backStack")
+
         if (backStack.size > 1) {
             backStack.removeAt(backStack.lastIndex)
             recompose()
@@ -55,12 +65,26 @@ class Navigator(
 
     fun content(viewComposition: ViewComposition) = Recompose { recompose ->
         this@Navigator.recompose = recompose
-        backStack.lastOrNull()?._content(viewComposition)
+
+        val visibleRoutes = mutableListOf<Route>()
+
+        for (route in backStack.reversed()) {
+            visibleRoutes.add(route)
+            if (!route.isFloating) break
+        }
+
+        println("show visible routes ${visibleRoutes.reversed()}")
+
+        visibleRoutes.reversed()
+            .forEach { it._content(viewComposition) }
     }
 
 }
 
-fun ViewComposition.Navigator(startRoute: Route, onExit: () -> Unit) {
+fun ViewComposition.Navigator(
+    startRoute: Route,
+    onExit: () -> Unit
+) {
     val navigator = Navigator(startRoute, onExit, Unit)
     NavigatorAmbient.Provider(navigator) {
         navigator.content(this)

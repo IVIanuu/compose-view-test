@@ -48,6 +48,7 @@ internal class ViewManager(val container: ViewGroup) {
             .reversed()
             .forEach { view ->
                 cancelTransition(view)
+                println("remove old view $view")
                 performTransition(
                     from = view,
                     to = null,
@@ -59,8 +60,8 @@ internal class ViewManager(val container: ViewGroup) {
         // Add any new views to the backStack from bottom to top
         newViews
             .dropLast(if (replacingTopViews) 1 else 0)
-            .filterNot { it in oldViews }
             .forEachIndexed { i, view ->
+                println("add new view $i $view")
                 performTransition(
                     from = newViews.getOrNull(i - 1),
                     to = view,
@@ -73,6 +74,8 @@ internal class ViewManager(val container: ViewGroup) {
         if (replacingTopViews) {
             val transition = if (isPush) newTopView?.inTransition
             else oldTopView?.outTransition
+
+            println("replace top view new $newTopView old $oldTopView")
 
             performTransition(
                 from = oldTopView,
@@ -99,6 +102,8 @@ internal class ViewManager(val container: ViewGroup) {
             else -> transition
         }
         transitionToUse.hasBeenUsed = true
+
+        println("perform transition container $container from $from to $to is push $isPush transition $transition to use $transitionToUse")
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = transitionToUse }
