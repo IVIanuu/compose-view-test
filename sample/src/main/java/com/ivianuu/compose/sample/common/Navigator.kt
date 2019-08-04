@@ -62,7 +62,8 @@ class Navigator(
         }
     }
 
-    private val backStack = mutableListOf<Route>()
+    val backStack: List<Route> get() = _backStack
+    private val _backStack = mutableListOf<Route>()
     lateinit var recompose: () -> Unit
 
     private var wasPush = true
@@ -71,18 +72,18 @@ class Navigator(
         activity.onUpdate { _, newValue ->
             newValue?.onBackPressedDispatcher?.addCallback(backPressedCallback)
         }
-        backStack.add(startRoute)
+        _backStack.add(startRoute)
     }
 
     fun push(route: Route) {
-        backStack.add(route)
+        _backStack.add(route)
         wasPush = true
         recompose()
     }
 
     fun pop() {
-        if (backStack.size > 1) {
-            backStack.removeAt(backStack.lastIndex)
+        if (_backStack.size > 1) {
+            _backStack.removeAt(_backStack.lastIndex)
             wasPush = false
             recompose()
         } else {
@@ -95,7 +96,7 @@ class Navigator(
 
         val visibleRoutes = mutableListOf<Route>()
 
-        for (route in backStack.reversed()) {
+        for (route in _backStack.reversed()) {
             visibleRoutes.add(route)
             if (!route.isFloating) break
         }
