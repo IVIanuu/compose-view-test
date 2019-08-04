@@ -4,13 +4,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
+import androidx.compose.ComposeAccessor
 import androidx.compose.Composer
 import androidx.compose.Effect
 import androidx.compose.EffectsDsl
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
-import androidx.compose.ViewUpdater
 import com.ivianuu.compose.util.sourceLocation
 import java.util.*
 
@@ -128,33 +128,29 @@ class ViewComposer(
 class ViewComposition(val composer: ViewComposer) {
 
     @Suppress("NOTHING_TO_INLINE")
-    inline operator fun <V> Effect<V>.unaryPlus(): V =
-        resolve(this@ViewComposition.composer, sourceLocation().hashCode())
+    inline operator fun <V> Effect<V>.unaryPlus(): V {
+        check(ComposeAccessor.isComposing(this@ViewComposition.composer)) {
+            "Can only use effects while composing"
+        }
+        return resolve(this@ViewComposition.composer, sourceLocation().hashCode())
+    }
 
-    private var currentContainer = (composer.root as Compose.Root).container
-
-    fun <T : View> emit(
+    fun <T : Component<out View>> emit(
         key: Any,
-        ctor: (ViewGroup) -> T,
-        update: (ViewUpdater<T>.() -> Unit)? = null,
+        ctor: () -> T,
+        update: (T.() -> Unit)? = null, // todo
         children: (ViewComposition.() -> Unit)? = null
     ) = with(composer) {
         startNode(key)
         val node = if (inserting) {
-            ctor(currentContainer).also { emitNode(it) }
+            ctor().also { emitNode(it) }
         } else {
             useNode() as T
         }
 
-        update?.let { ViewUpdater(this, node).it() }
-
-        if (children != null) {
-            node as ViewGroup
-            val previousContainer = currentContainer
-            currentContainer = node
-            children()
-            currentContainer = previousContainer
-        }
+        node._key = key
+        update?.let { node.it() }
+        children?.invoke(this@ViewComposition)
 
         endNode()
     }

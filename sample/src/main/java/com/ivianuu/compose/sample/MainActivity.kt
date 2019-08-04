@@ -17,8 +17,8 @@ class MainActivity : AppCompatActivity() {
                     appBar = {
                         InflateView<Toolbar>(
                             layoutRes = R.layout.app_bar,
-                            update = {
-                                set("Compose sample") { title = it }
+                            updateView = {
+                                title = "Compose sample"
                             })
                     },
                     content = {

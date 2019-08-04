@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.MainThread
 import androidx.compose.Component
+import androidx.compose.ComposeAccessor
 import androidx.compose.CompositionContext
 import androidx.compose.CompositionReference
-import androidx.compose.CurrentComposerAccessor
 
 object Compose {
 
@@ -17,13 +17,15 @@ object Compose {
 
         lateinit var composable: ViewComposition.() -> Unit
         lateinit var composer: CompositionContext
+
         @Suppress("PLUGIN_ERROR")
         override fun compose() {
-            val cc = CurrentComposerAccessor.getCurrentComposerNonNull()
+            val cc = ComposeAccessor.getCurrentComposerNonNull()
             cc.startGroup(0)
             composable(ViewComposition(cc as ViewComposer))
             cc.endGroup()
         }
+
     }
 
     private val TAG_ROOT_COMPONENT = "composeRootComponent".hashCode()

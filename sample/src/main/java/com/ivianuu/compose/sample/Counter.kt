@@ -35,17 +35,13 @@ fun ViewComposition.Counter(count: Int): Route = Route(key = sourceLocation() + 
 
     InflateView<View>(key = sourceLocation() + count, layoutRes = R.layout.counter) {
         val transition = +memo { HorizontalViewTransition() }
-        set(transition) { inTransition = it }
-        set(transition) { outTransition = it }
-        set(color) { setBackgroundColor(it.toArgb()) }
-        set("Count: $count") { title.text = it }
-        set(Unit) {
-            inc.setOnClickListener {
-                navigator.push(Counter(count + 1))
-            }
+        inTransition = transition
+        outTransition = transition
+        setBackgroundColor(color.toArgb())
+        title.text = "Count: $count"
+        inc.setOnClickListener {
+            navigator.push(Counter(count + 1))
         }
-        set(Unit) {
-            dec.setOnClickListener { navigator.pop() }
-        }
+        dec.setOnClickListener { navigator.pop() }
     }
 }
