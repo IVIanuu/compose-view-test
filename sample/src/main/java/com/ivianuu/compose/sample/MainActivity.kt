@@ -78,7 +78,7 @@ private fun ViewComposition.Counter(count: Int) {
 
         node.title.text = "Count: $count"
         node.inc.setOnClickListener {
-            navigator.push(Route(sourceLocation() + count) {
+            navigator.push(Route(key = sourceLocation() + count, isFloating = true) {
                 Counter(count + 1)
             })
         }

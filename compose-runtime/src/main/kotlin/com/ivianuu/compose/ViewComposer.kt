@@ -14,9 +14,6 @@ import androidx.compose.ViewUpdater
 import com.ivianuu.compose.util.sourceLocation
 import java.util.*
 
-private fun invalidNode(node: Any): Nothing =
-    error("Unsupported node type ${node.javaClass.simpleName}")
-
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 
     private sealed class Op {
@@ -66,7 +63,7 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
         val container = when (current) {
             is ViewGroup -> current
             is Compose.Root -> current.container
-            else -> invalidNode(this)
+            else -> error("Unsupported node type ${current.javaClass.simpleName}")
         }
 
         val viewManager = container.getViewManager()
