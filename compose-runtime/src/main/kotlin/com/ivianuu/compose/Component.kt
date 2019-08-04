@@ -77,6 +77,10 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
                 }
 
             view.getViewManager().setViews(childViews, true) // todo check for push
+
+            childViews.forEach {
+                (it.component as Component<View>).updateView(it)
+            }
         }
     }
 
@@ -91,6 +95,7 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
                 }
         }
         view.getViewManager().rebind(childViews)
+        updateView(view)
 
         return view
     }
