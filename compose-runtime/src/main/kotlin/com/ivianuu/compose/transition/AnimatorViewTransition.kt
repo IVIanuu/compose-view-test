@@ -29,8 +29,10 @@ abstract class AnimatorViewTransition : ViewTransition() {
             onComplete
         )
 
-        if (to != null && to.parent == null) {
-            container.addView(to)
+        if (isPush || from == null) {
+            if (to != null) container.addView(to)
+        } else if (to != null && to.parent == null) {
+            container.addView(to, container.indexOfChild(from))
         }
 
         if (to != null

@@ -75,6 +75,7 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
                         .firstOrNull { it.component == child }
                         ?: child.createView(view).also {
                             it.component = child
+                            (child as Component<View>).updateView(it)
                         }
                 }
 
@@ -95,10 +96,11 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
             child.createView(view)
                 .also {
                     it.component = child
+                    (child as Component<View>).updateView(it)
                 }
         }
+
         view.getViewManager().rebind(childViews)
-        updateView(view)
 
         return view
     }

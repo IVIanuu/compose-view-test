@@ -23,7 +23,6 @@ private val Colors = arrayOf(
 private var lastColor: Color? = null
 
 fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
-    val navigator = navigator()
     val color = +memo {
         Colors
             .filter { it != lastColor }
@@ -31,6 +30,8 @@ fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
             .first()
             .also { lastColor = it }
     }
+
+    val navigator = navigator()
 
     val transition = +memo { HorizontalViewTransition() }
 
