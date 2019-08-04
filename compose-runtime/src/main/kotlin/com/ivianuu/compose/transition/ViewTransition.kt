@@ -5,8 +5,9 @@ import android.view.ViewGroup
 import androidx.compose.Ambient
 import com.ivianuu.compose.ViewComposition
 
-val InTransitionAmbient = Ambient.of<ViewTransition?>()
-val OutTransitionAmbient = Ambient.of<ViewTransition?>()
+val InTransitionAmbient = Ambient.of<ViewTransition?>("InTransition")
+val OutTransitionAmbient = Ambient.of<ViewTransition?>("OutTransition")
+val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
 
 fun ViewComposition.Transitions(
     transition: ViewTransition?,

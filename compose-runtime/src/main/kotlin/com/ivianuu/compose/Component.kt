@@ -8,6 +8,7 @@ abstract class Component<T : View> {
 
     internal var inTransition: ViewTransition? = null
     internal var outTransition: ViewTransition? = null
+    internal var wasPush: Boolean = true
 
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
@@ -66,6 +67,7 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
     override fun endChildren() {
         super.endChildren()
+
         views.forEach { view ->
             val childViews = children
                 .map { child ->
@@ -76,7 +78,8 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
                         }
                 }
 
-            view.getViewManager().setViews(childViews, true) // todo check for push
+            view.getViewManager()
+                .setViews(childViews, childViews.lastOrNull()?.component?.wasPush ?: true)
 
             childViews.forEach {
                 (it.component as Component<View>).updateView(it)

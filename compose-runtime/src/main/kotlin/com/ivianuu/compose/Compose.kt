@@ -5,7 +5,7 @@ import androidx.compose.ComposeAccessor
 
 class CompositionContext(composable: ViewComposition.() -> Unit) {
 
-    private val root = Root(this)
+    private val root = Root()
 
     internal var container: ViewGroup? = null
         private set
@@ -52,7 +52,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
 
 }
 
-internal class Root(val context: CompositionContext) : ViewGroupComponent<ViewGroup>() {
+internal class Root : ViewGroupComponent<ViewGroup>() {
 
     var composable: (ViewComposition.() -> Unit)? = null
     lateinit var composeContext: androidx.compose.CompositionContext

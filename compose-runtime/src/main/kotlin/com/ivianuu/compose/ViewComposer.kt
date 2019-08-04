@@ -12,6 +12,7 @@ import androidx.compose.SlotTable
 import androidx.compose.ambient
 import com.ivianuu.compose.transition.InTransitionAmbient
 import com.ivianuu.compose.transition.OutTransitionAmbient
+import com.ivianuu.compose.transition.TransitionHintsAmbient
 import java.util.*
 
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
@@ -112,6 +113,7 @@ class ViewComposition(val composer: ViewComposer) {
 
         node.inTransition = +ambient(InTransitionAmbient)
         node.outTransition = +ambient(OutTransitionAmbient)
+        node.wasPush = +ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }
         children?.invoke(this@ViewComposition)
