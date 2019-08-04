@@ -12,10 +12,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setViewContent {
-            CraneWrapper {
+            CraneWrapper("crane") {
                 Scaffold(
+                    key = "scaffold",
                     appBar = {
                         InflateView<Toolbar>(
+                            key = "toolbar",
                             layoutRes = R.layout.app_bar,
                             updateView = {
                                 title = "Compose sample"

@@ -16,96 +16,64 @@ import java.util.*
 
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 
-    private sealed class Op {
-        data class Insert(val index: Int, val instance: Any) : Op()
-        data class Move(val from: Int, val to: Int, val count: Int) : Op()
-        data class Remove(val index: Int, val count: Int) : Op()
-    }
-
     private var current = root
     private val currentStack = Stack<Any>()
-    private var ops = mutableListOf<Op>()
-    private val opsStack = Stack<MutableList<Op>>()
 
     override fun Any.start(instance: Any) {
         currentStack.push(current)
         current = this
-        opsStack.push(ops)
-        ops = mutableListOf()
+        when (this) {
+            is Compose.Root -> {
+            }
+            is GroupComponent<out ViewGroup> -> beginChildren()
+        }
     }
 
     override fun Any.insertAt(index: Int, instance: Any) {
-        ops.add(Op.Insert(index, instance))
+        when (this) {
+            is Compose.Root -> {
+            }
+            is GroupComponent<out ViewGroup> -> addChild(index, instance as Component<out View>)
+            else -> error("Unexpected node $this")
+        }
     }
 
     override fun Any.move(from: Int, to: Int, count: Int) {
-        ops.add(Op.Move(from, to, count))
+        when (this) {
+            is Compose.Root -> {
+            }
+            is GroupComponent<out ViewGroup> -> {
+                repeat(count) {
+                    moveChild(from, to)
+                }
+            }
+            else -> error("Unexpected node $this")
+        }
     }
 
     override fun Any.removeAt(index: Int, count: Int) {
-        ops.add(Op.Remove(index, count))
+        when (this) {
+            is Compose.Root -> {
+            }
+            is GroupComponent<out ViewGroup> -> {
+                (index..count).forEach { removeChild(it) }
+            }
+            else -> error("Unexpected node $this")
+        }
     }
 
     override fun Any.end(instance: Any, parent: Any) {
         if (this != current && current == instance) {
-            executeOps()
+            if (instance is GroupComponent<out ViewGroup>) {
+                instance.endChildren()
+            }
             current = currentStack.pop()
-            ops = opsStack.pop()
             if (current == root) {
-                executeOps()
-                ops.clear()
+                // (this as Compose.Root).endChildren()
             }
         }
     }
 
-    private fun executeOps() {
-        val current = current
-        val container = when (current) {
-            is ViewGroup -> current
-            is Compose.Root -> current.container
-            else -> error("Unsupported node type ${current.javaClass.simpleName}")
-        }
-
-        val viewManager = container.getViewManager()
-
-        val oldViews = viewManager.views
-        val newViews = oldViews.toMutableList()
-
-        var insertCount = 0
-        var removeCount = 0
-
-        ops.forEach { op ->
-            when (op) {
-                is Op.Insert -> {
-                    newViews.add(op.index, op.instance as View)
-                    insertCount++
-                }
-                is Op.Move -> {
-                    if (op.from > op.to) {
-                        var currentFrom = op.from
-                        var currentTo = op.to
-                        repeat(op.count) {
-                            Collections.swap(newViews, currentFrom, currentTo)
-                            currentFrom++
-                            currentTo++
-                        }
-                    } else {
-                        repeat(op.count) {
-                            Collections.swap(newViews, op.from, op.to - 1)
-                        }
-                    }
-                }
-                is Op.Remove -> {
-                    for (i in op.index + op.count - 1 downTo op.index) {
-                        newViews.removeAt(i)
-                        removeCount++
-                    }
-                }
-            }
-        }
-
-        viewManager.setViews(newViews, insertCount >= removeCount)
-    }
 }
 
 class ViewComposer(
@@ -149,6 +117,7 @@ class ViewComposition(val composer: ViewComposer) {
         }
 
         node._key = key
+
         update?.let { node.it() }
         children?.invoke(this@ViewComposition)
 

@@ -109,7 +109,7 @@ fun <T : ViewGroup> ViewComposition.ViewGroup(
 ) {
     emit(
         key = key,
-        ctor = { SimpleComponent<T>() },
+        ctor = { SimpleGroupComponent<T>() },
         update = {
             this.createView = createView
             this.updateView = updateView
@@ -141,6 +141,18 @@ fun <T : View> ViewComposition.View(
 }
 
 private class SimpleComponent<T : View> : Component<T>() {
+
+    lateinit var createView: (ViewGroup) -> T
+    var updateView: (T.() -> Unit)? = null
+
+    override fun createView(container: ViewGroup): T = createView.invoke(container)
+
+    override fun updateView(view: T) {
+        updateView?.invoke(view)
+    }
+}
+
+private class SimpleGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
     lateinit var createView: (ViewGroup) -> T
     var updateView: (T.() -> Unit)? = null

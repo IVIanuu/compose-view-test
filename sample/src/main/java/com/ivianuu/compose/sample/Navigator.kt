@@ -23,12 +23,12 @@ interface Route {
 
 }
 
-inline fun Route(
+inline fun ViewComposition.Route(
     isFloating: Boolean = false,
     noinline compose: ViewComposition.() -> Unit
 ) = Route(sourceLocation(), isFloating, compose)
 
-fun Route(
+fun ViewComposition.Route(
     key: Any,
     isFloating: Boolean = false,
     content: ViewComposition.() -> Unit
