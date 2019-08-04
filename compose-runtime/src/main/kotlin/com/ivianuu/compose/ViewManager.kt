@@ -4,8 +4,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.ivianuu.compose.transition.DefaultViewTransition
 import com.ivianuu.compose.transition.ViewTransition
-import com.ivianuu.compose.transition.inTransition
-import com.ivianuu.compose.transition.outTransition
 
 private val viewManagerKey = tagKey("viewManager")
 
@@ -72,7 +70,7 @@ internal class ViewManager(val container: ViewGroup) {
                     from = view,
                     to = null,
                     isPush = isPush,
-                    transition = view.outTransition
+                    transition = view.component?.outTransition
                 )
             }
 
@@ -85,14 +83,14 @@ internal class ViewManager(val container: ViewGroup) {
                     from = addedViews.getOrNull(i - 1),
                     to = view,
                     isPush = true,
-                    transition = view.inTransition
+                    transition = view.component?.inTransition
                 )
             }
 
         // Replace the old visible top with the new one
         if (replacingTopViews) {
-            val transition = if (isPush) newTopView?.inTransition
-            else oldTopView?.outTransition
+            val transition = if (isPush) newTopView?.component?.inTransition
+            else oldTopView?.component?.outTransition
 
             println("${container.component?.key} replace top new ${newTopView?.component?.key} old ${oldTopView?.component?.key}")
 

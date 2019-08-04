@@ -3,8 +3,6 @@ package com.ivianuu.compose
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ComposeAccessor
-import com.ivianuu.compose.transition.inTransition
-import com.ivianuu.compose.transition.outTransition
 
 class CompositionContext(composable: ViewComposition.() -> Unit) {
 
@@ -89,8 +87,6 @@ internal class Root(val context: CompositionContext) : GroupComponent<ViewGroup>
                     .firstOrNull { it.component == child }
                     ?: child.createView(container).also {
                         it.component = child
-                        it.inTransition = child.inTransition
-                        it.outTransition = child.outTransition
                     }
             }
 
@@ -105,8 +101,6 @@ internal class Root(val context: CompositionContext) : GroupComponent<ViewGroup>
             child.createView(container)
                 .also {
                     it.component = child
-                    it.inTransition = child.inTransition
-                    it.outTransition = child.outTransition
                 }
         }
         container.getViewManager().rebind(views)

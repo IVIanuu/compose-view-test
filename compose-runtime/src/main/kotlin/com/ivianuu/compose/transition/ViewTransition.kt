@@ -4,24 +4,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Ambient
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.tagKey
 
 val InTransitionAmbient = Ambient.of<ViewTransition?>()
 val OutTransitionAmbient = Ambient.of<ViewTransition?>()
-
-private val inTransitionKey = tagKey("inTransition")
-var View.inTransition: ViewTransition?
-    get() = getTag(inTransitionKey) as? ViewTransition
-    set(value) {
-        setTag(inTransitionKey, value)
-    }
-
-private val outTransitionKey = tagKey("inTransition")
-var View.outTransition: ViewTransition?
-    get() = getTag(outTransitionKey) as? ViewTransition
-    set(value) {
-        setTag(outTransitionKey, value)
-    }
 
 fun ViewComposition.Transitions(
     transition: ViewTransition?,
