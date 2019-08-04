@@ -17,9 +17,9 @@ enum class HomeItem(
     val route: ViewComposition.() -> Route
 ) {
     Counter(
-        "Counter",
-        Color.Magenta,
-        { Counter(1, Color.Magenta) }
+        title = "Counter",
+        color = Color.Magenta,
+        route = { Counter() }
     )
 }
 

@@ -15,15 +15,13 @@ abstract class Component<T : View> {
     internal var _parent: Component<*>? = null
     val parent: Component<*> get() = _parent ?: error("Not mounted ${javaClass.canonicalName}")
 
+    open fun update() {
+    }
+
     abstract fun createView(container: ViewGroup): T
 
     open fun updateView(view: T) {
         println("update view $key $view")
-        try {
-            error("")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     open fun destroyView(view: T) {
@@ -67,7 +65,12 @@ abstract class GroupComponent<T : View> : Component<T>() {
 
 abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
-    private val views = mutableListOf<ViewGroup>()
+    private val views = mutableListOf<T>()
+
+    override fun update() {
+        super.update()
+        views.forEach { updateView(it) }
+    }
 
     override fun endChildren() {
         super.endChildren()

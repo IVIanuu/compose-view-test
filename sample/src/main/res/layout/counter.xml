@@ -5,25 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:id="@+id/counter"
-    android:background="@color/colorPrimary">
+    android:id="@+id/counter">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Count: 1"/>
+        tools:text="Count: 1"
+        android:textAppearance="?textAppearanceHeadline4" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/inc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Inc"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/dec"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Dec"/>
 
 </LinearLayout>

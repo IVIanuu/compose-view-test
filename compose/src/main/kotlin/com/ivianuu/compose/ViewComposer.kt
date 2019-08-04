@@ -18,6 +18,7 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
     private val currentStack = Stack<Any>()
 
     override fun Any.start(instance: Any) {
+        println("start $this instance $instance")
         currentStack.push(current)
         current = this
         if (this is GroupComponent<*>) {
@@ -114,6 +115,7 @@ class ViewComposition(val composer: ViewComposer) {
 
         update?.let { node.it() }
         children?.invoke(this@ViewComposition)
+        node.update() // todo
 
         endNode()
     }
