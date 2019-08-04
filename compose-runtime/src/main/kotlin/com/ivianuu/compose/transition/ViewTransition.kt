@@ -2,7 +2,7 @@ package com.ivianuu.compose.transition
 
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.util.tagKey
+import com.ivianuu.compose.tagKey
 
 private val inTransitionKey = tagKey("inTransition")
 var View.inTransition: ViewTransition?

@@ -1,7 +1,5 @@
 package com.ivianuu.compose
 
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
 import androidx.compose.ComposeAccessor
@@ -11,7 +9,6 @@ import androidx.compose.EffectsDsl
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
-import com.ivianuu.compose.util.sourceLocation
 import java.util.*
 
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
@@ -22,27 +19,21 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
     override fun Any.start(instance: Any) {
         currentStack.push(current)
         current = this
-        when (this) {
-            is Compose.Root -> {
-            }
-            is GroupComponent<out ViewGroup> -> beginChildren()
+        if (this is GroupComponent<*>) {
+            beginChildren()
         }
     }
 
     override fun Any.insertAt(index: Int, instance: Any) {
         when (this) {
-            is Compose.Root -> {
-            }
-            is GroupComponent<out ViewGroup> -> addChild(index, instance as Component<out View>)
+            is GroupComponent<*> -> addChild(index, instance as Component<*>)
             else -> error("Unexpected node $this")
         }
     }
 
     override fun Any.move(from: Int, to: Int, count: Int) {
         when (this) {
-            is Compose.Root -> {
-            }
-            is GroupComponent<out ViewGroup> -> {
+            is GroupComponent<*> -> {
                 repeat(count) {
                     moveChild(from, to)
                 }
@@ -53,9 +44,7 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 
     override fun Any.removeAt(index: Int, count: Int) {
         when (this) {
-            is Compose.Root -> {
-            }
-            is GroupComponent<out ViewGroup> -> {
+            is GroupComponent<*> -> {
                 (index..count).forEach { removeChild(it) }
             }
             else -> error("Unexpected node $this")
@@ -64,12 +53,12 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 
     override fun Any.end(instance: Any, parent: Any) {
         if (this != current && current == instance) {
-            if (instance is GroupComponent<out ViewGroup>) {
+            if (instance is GroupComponent<*>) {
                 instance.endChildren()
             }
             current = currentStack.pop()
             if (current == root) {
-                // (this as Compose.Root).endChildren()
+                (current as GroupComponent<*>).endChildren()
             }
         }
     }
@@ -103,7 +92,7 @@ class ViewComposition(val composer: ViewComposer) {
         return resolve(this@ViewComposition.composer, sourceLocation().hashCode())
     }
 
-    fun <T : Component<out View>> emit(
+    fun <T : Component<*>> emit(
         key: Any,
         ctor: () -> T,
         update: (T.() -> Unit)? = null, // todo

@@ -1,102 +1,117 @@
 package com.ivianuu.compose
 
-import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import androidx.annotation.MainThread
-import androidx.compose.Component
 import androidx.compose.ComposeAccessor
-import androidx.compose.CompositionContext
-import androidx.compose.CompositionReference
 
-object Compose {
+class CompositionContext(composable: ViewComposition.() -> Unit) {
 
-    class Root(val container: ViewGroup) : Component() {
-        fun update() = composer.compose()
+    private val root = Root(this)
 
-        lateinit var composable: ViewComposition.() -> Unit
-        lateinit var composer: CompositionContext
+    internal var container: ViewGroup? = null
+        private set
 
+    init {
+        root.composeContext = androidx.compose.CompositionContext.prepare(
+            root.composeComponent,
+            null
+        ) { ViewComposer(root, recomposer = this) }
+        root.compose()
+    }
+
+    fun setContainer(container: ViewGroup) {
+        this.container = container
+        root.attachToContainer()
+    }
+
+    fun removeContainer() {
+        root.detachFromContainer()
+        this.container = null
+    }
+
+    fun setComposable(composable: ViewComposition.() -> Unit) {
+        root.composable = composable
+        root.compose()
+    }
+
+    fun dispose() {
+        removeContainer()
+        // todo must be improved
+        root.composable = null
+        root.compose()
+    }
+
+}
+
+internal class Root(val context: CompositionContext) : GroupComponent<ViewGroup>() {
+
+    init {
+        _key = "Root"
+    }
+
+    var composable: (ViewComposition.() -> Unit)? = null
+    lateinit var composeContext: androidx.compose.CompositionContext
+
+    fun compose() = composeContext.compose()
+
+    val composeComponent = object : androidx.compose.Component() {
         @Suppress("PLUGIN_ERROR")
         override fun compose() {
             val cc = ComposeAccessor.getCurrentComposerNonNull()
             cc.startGroup(0)
-            composable(ViewComposition(cc as ViewComposer))
+            composable?.invoke(ViewComposition(cc as ViewComposer))
             cc.endGroup()
         }
-
     }
 
-    private val TAG_ROOT_COMPONENT = "composeRootComponent".hashCode()
+    override fun createView(container: ViewGroup): ViewGroup =
+        error("")
 
-    private fun getRootComponent(view: View): Component? {
-        return view.getTag(TAG_ROOT_COMPONENT) as? Component
+    override fun endChildren() {
+        super.endChildren()
+        val container = context.container ?: return
+        val views = children
+            .map { child ->
+                container.children()
+                    .firstOrNull { it.component == child }
+                    ?: child.createView(container).also {
+                        it.component = child
+                    }
+            }
+
+        container.getViewManager().setViews(views, true) // todo check for push
     }
 
-    internal fun setRoot(view: View, component: Component) {
-        view.setTag(TAG_ROOT_COMPONENT, component)
-    }
-
-    @MainThread
-    fun composeInto(
-        container: ViewGroup,
-        composable: ViewComposition.() -> Unit
-    ): CompositionContext? {
-        var root = getRootComponent(container) as? Root
-        if (root == null) {
-            container.removeAllViews()
-            root = Root(container)
-            root.composable = composable
-            setRoot(container, root)
-            val cc = CompositionContext.prepare(
-                root,
-                null
-            ) { ViewComposer(root, recomposer = this) }
-            root.composer = cc
-            root.update()
-            return cc
-        } else {
-            root.composable = composable
-            root.update()
+    fun attachToContainer() {
+        val container = context.container ?: return
+        val views = children.map { child ->
+            child.createView(container)
+                .also { it.component = child }
         }
-        return null
+        container.getViewManager().rebind(views)
+        updateView(container)
     }
 
-    @MainThread
-    fun disposeComposition(container: ViewGroup, parent: CompositionReference? = null) {
-        // temporary easy way to call correct lifecycles on everything
-        // need to remove compositionContext from context map as well
-        composeInto(container) { }
-        container.setTag(TAG_ROOT_COMPONENT, null)
-    }
-
-}
-
-fun Activity.setViewContent(composable: ViewComposition.() -> Unit): CompositionContext? {
-    // If there is already a FrameLayout in the root, we assume we want to compose
-    // into it instead of create a new one. This allows for `setContent` to be
-    // called multiple times.
-    val root = window
-        .decorView
-        .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? ViewGroup
-        ?: FrameLayout(this).also {
-            setContentView(it)
+    fun detachFromContainer() {
+        val container = context.container ?: return
+        val unprocessedChildren = children.toMutableList()
+        container.children().forEach {
+            unprocessedChildren.remove(it.component)
+            (it.component as Component<View>).destroyView(it)
         }
-    return root.setViewContent(composable)
+        check(unprocessedChildren.isEmpty()) { unprocessedChildren }
+        container.removeAllViews()
+    }
+
+    override fun updateView(view: ViewGroup) {
+        super.updateView(view)
+        val container = context.container ?: return
+        children
+            .map { child ->
+                container.children()
+                    .first { it.component == child }
+            }
+            .forEach { (it.component as Component<View>).updateView(it) }
+    }
+
 }
-
-fun Activity.disposeComposition() {
-    val view = window
-        .decorView
-        .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? ViewGroup
-        ?: error("No root view found")
-    Compose.disposeComposition(view, null)
-}
-
-fun ViewGroup.setViewContent(composable:  ViewComposition.() -> Unit): CompositionContext? =
-    Compose.composeInto(this, composable)
-
-fun ViewGroup.disposeComposition() = Compose.disposeComposition(this, null)

@@ -3,7 +3,6 @@ package com.ivianuu.compose
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.util.sourceLocation
 
 inline fun <T : View> ViewComposition.ViewById(
     id: Int,
@@ -109,7 +108,7 @@ fun <T : ViewGroup> ViewComposition.ViewGroup(
 ) {
     emit(
         key = key,
-        ctor = { SimpleGroupComponent<T>() },
+        ctor = { SimpleViewGroupComponent<T>() },
         update = {
             this.createView = createView
             this.updateView = updateView
@@ -152,7 +151,7 @@ private class SimpleComponent<T : View> : Component<T>() {
     }
 }
 
-private class SimpleGroupComponent<T : ViewGroup> : GroupComponent<T>() {
+private class SimpleViewGroupComponent<T : ViewGroup> : ViewGroupComponent<T>() {
 
     lateinit var createView: (ViewGroup) -> T
     var updateView: (T.() -> Unit)? = null
@@ -160,6 +159,7 @@ private class SimpleGroupComponent<T : ViewGroup> : GroupComponent<T>() {
     override fun createView(container: ViewGroup): T = createView.invoke(container)
 
     override fun updateView(view: T) {
+        super.updateView(view)
         updateView?.invoke(view)
     }
 }

@@ -6,7 +6,6 @@ import com.ivianuu.compose.transition.DefaultViewTransition
 import com.ivianuu.compose.transition.ViewTransition
 import com.ivianuu.compose.transition.inTransition
 import com.ivianuu.compose.transition.outTransition
-import com.ivianuu.compose.util.tagKey
 
 private val viewManagerKey = tagKey("viewManager")
 
@@ -25,6 +24,20 @@ internal class ViewManager(val container: ViewGroup) {
 
     val views = mutableListOf<View>()
     private val runningTransitions = mutableMapOf<View, ViewTransition>()
+
+    fun rebind(views: List<View>) {
+        this.views.clear()
+        this.views += views
+
+        views.forEach {
+            performTransition(
+                null,
+                it,
+                true,
+                null
+            )
+        }
+    }
 
     fun setViews(newViews: List<View>, isPush: Boolean) {
         if (newViews == views) return

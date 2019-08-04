@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.util.OnReadyOrAbortedListener
 
 abstract class AnimatorViewTransition : ViewTransition() {
 

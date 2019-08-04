@@ -6,10 +6,10 @@ import android.view.ViewGroup
 abstract class Component<T : View> {
 
     internal var _key: Any? = null
-    val key: Any get() = _key ?: error("Not mounted")
+    val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
 
-    internal var _parent: Component<out View>? = null
-    val parent: Component<out View> get() = _parent ?: error("Not mounted")
+    internal var _parent: Component<*>? = null
+    val parent: Component<*> get() = _parent ?: error("Not mounted ${javaClass.canonicalName}")
 
     abstract fun createView(container: ViewGroup): T
 
@@ -21,16 +21,16 @@ abstract class Component<T : View> {
 
 }
 
-abstract class GroupComponent<T : ViewGroup> : Component<T>() {
+abstract class GroupComponent<T : View> : Component<T>() {
 
-    private val _children = mutableListOf<Component<out View>>()
-    val children: List<Component<out View>> get() = _children
+    private val _children = mutableListOf<Component<*>>()
+    val children: List<Component<*>> get() = _children
 
     open fun beginChildren() {
         println("begin children $key")
     }
 
-    open fun addChild(index: Int, child: Component<out View>) {
+    open fun addChild(index: Int, child: Component<*>) {
         println("insert child $key index $index child ${child.key}")
         _children.add(index, child)
         child._parent = this
@@ -54,51 +54,39 @@ abstract class GroupComponent<T : ViewGroup> : Component<T>() {
 
 }
 
-/*
-     val current = current
-        val container = when (current) {
-            is ViewGroup -> current
-            is Compose.Root -> current.container
-            else -> error("Unsupported node type ${current.javaClass.simpleName}")
-        }
+abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
-        val viewManager = container.getViewManager()
+    override fun updateView(view: T) {
+        super.updateView(view)
 
-        val oldViews = viewManager.views
-        val newViews = oldViews.toMutableList()
-
-        var insertCount = 0
-        var removeCount = 0
-
-        ops.forEach { op ->
-            when (op) {
-                is Op.Insert -> {
-                    newViews.add(op.index, op.instance as View)
-                    insertCount++
-                }
-                is Op.Move -> {
-                    if (op.from > op.to) {
-                        var currentFrom = op.from
-                        var currentTo = op.to
-                        repeat(op.count) {
-                            Collections.swap(newViews, currentFrom, currentTo)
-                            currentFrom++
-                            currentTo++
-                        }
-                    } else {
-                        repeat(op.count) {
-                            Collections.swap(newViews, op.from, op.to - 1)
-                        }
+        val views = children
+            .map { child ->
+                view.children()
+                    .firstOrNull { it.component == child }
+                    ?: child.createView(view).also {
+                        it.component = child
                     }
-                }
-                is Op.Remove -> {
-                    for (i in op.index + op.count - 1 downTo op.index) {
-                        newViews.removeAt(i)
-                        removeCount++
-                    }
-                }
             }
-        }
 
-        viewManager.setViews(newViews, insertCount >= removeCount)
- */
+        view.getViewManager().setViews(views, true) // todo check for push
+
+        children
+            .map { child ->
+                view.children()
+                    .first { it.component == child }
+            }
+            .forEach { (it.component as Component<View>).updateView(it) }
+    }
+
+    override fun destroyView(view: T) {
+        super.destroyView(view)
+        val unprocessedChildren = children.toMutableList()
+        view.children().forEach {
+            unprocessedChildren.remove(it.component)
+            (it.component as Component<View>).destroyView(it)
+        }
+        check(unprocessedChildren.isEmpty()) { unprocessedChildren }
+        view.removeAllViews()
+    }
+
+}

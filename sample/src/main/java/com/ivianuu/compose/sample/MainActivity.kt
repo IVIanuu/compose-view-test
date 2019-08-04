@@ -3,15 +3,28 @@ package com.ivianuu.compose.sample
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.ivianuu.compose.CompositionContext
 import com.ivianuu.compose.InflateView
-import com.ivianuu.compose.disposeComposition
-import com.ivianuu.compose.setViewContent
+
+class ContextHolder : ViewModel() {
+    val context = CompositionContext {
+    }
+}
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var context: CompositionContext
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setViewContent {
+
+        context = ViewModelProvider(
+            this,
+            ViewModelProvider.NewInstanceFactory()
+        ).get(ContextHolder::class.java).context
+        context.setComposable {
             CraneWrapper("crane") {
                 Scaffold(
                     key = "scaffold",
@@ -32,10 +45,16 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+
+        context.setContainer(findViewById(android.R.id.content))
     }
 
     override fun onDestroy() {
-        disposeComposition()
+        if (isChangingConfigurations) {
+            context.removeContainer()
+        } else {
+            context.dispose()
+        }
         super.onDestroy()
     }
 }

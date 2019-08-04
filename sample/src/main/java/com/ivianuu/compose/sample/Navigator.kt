@@ -3,7 +3,7 @@ package com.ivianuu.compose.sample
 import androidx.compose.Ambient
 import androidx.compose.Recompose
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.util.sourceLocation
+import com.ivianuu.compose.sourceLocation
 
 val NavigatorAmbient = Ambient.of<Navigator>()
 
