@@ -3,10 +3,13 @@ package com.ivianuu.compose.sample
 import androidx.compose.Ambient
 import androidx.compose.Recompose
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.util.sourceLocation
 
 val NavigatorAmbient = Ambient.of<Navigator>()
 
 interface Route {
+
+    val key: Any
 
     val isFloating: Boolean
 
@@ -20,10 +23,19 @@ interface Route {
 
 }
 
+inline fun Route(
+    isFloating: Boolean = false,
+    noinline content: ViewComposition.() -> Unit
+) = Route(sourceLocation(), isFloating, content)
+
 fun Route(
+    key: Any,
     isFloating: Boolean = false,
     content: ViewComposition.() -> Unit
 ) = object : Route {
+
+    override val key: Any
+        get() = key
 
     override val isFloating: Boolean
         get() = isFloating
@@ -71,7 +83,11 @@ class Navigator(
         }
 
         visibleRoutes.reversed()
-            .forEach { it._content(viewComposition) }
+            .forEach {
+                viewComposition.group(it.key) {
+                    it._content(viewComposition)
+                }
+            }
     }
 
 }

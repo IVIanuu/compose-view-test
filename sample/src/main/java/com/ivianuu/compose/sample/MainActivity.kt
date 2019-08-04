@@ -5,6 +5,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.ambient
+import androidx.compose.state
+import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.disposeComposition
@@ -48,15 +50,35 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+private val Colors = arrayOf(
+    Color.Aqua,
+    Color.Fuchsia,
+    Color.Red,
+    Color.Green,
+    Color.Cyan,
+    Color.Magenta
+)
+
+private var lastColor: Color? = null
+
 private fun ViewComposition.Counter(count: Int) {
     val navigator = +ambient(NavigatorAmbient)
-    InflateView<View>(sourceLocation() + count, R.layout.counter) {
+    val (color) = +state {
+        Colors
+            .filter { it != lastColor }
+            .shuffled()
+            .first()
+            .also { lastColor = it }
+    }
+    InflateView<View>(key = sourceLocation() + count, layoutRes = R.layout.counter) {
         node.inTransition = HorizontalViewTransition()
         node.outTransition = HorizontalViewTransition()
 
+        node.setBackgroundColor(color.toArgb())
+
         node.title.text = "Count: $count"
         node.inc.setOnClickListener {
-            navigator.push(Route {
+            navigator.push(Route(sourceLocation() + count) {
                 Counter(count + 1)
             })
         }
