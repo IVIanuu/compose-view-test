@@ -70,17 +70,7 @@ private class ComposeRecyclerViewAdapter :
         return component.key.hashCode()
     }
 
-    override fun getItemId(position: Int): Long {
-        return getItem(position).key.hashCode().toLong()
-    }
-
-    override fun onCurrentListChanged(
-        previousList: MutableList<Component<*>>,
-        currentList: MutableList<Component<*>>
-    ) {
-        super.onCurrentListChanged(previousList, currentList)
-        println("on current list changed ${previousList.size} curr ${currentList.size}")
-    }
+    override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView)
 

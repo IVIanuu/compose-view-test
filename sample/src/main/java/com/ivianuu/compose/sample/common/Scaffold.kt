@@ -24,11 +24,11 @@ fun ViewComposition.Scaffold(
         key = key,
         layoutRes = R.layout.scaffold
     ) {
-        ViewGroupById<FrameLayout>("app bar", R.id.app_bar) {
+        ViewGroupById<FrameLayout>(R.id.app_bar) {
             appBar?.invoke(this@Scaffold)
         }
 
-        ViewGroupById<FrameLayout>("content", R.id.content) {
+        ViewGroupById<FrameLayout>(R.id.content) {
             content?.invoke(this@Scaffold)
         }
     }

@@ -1,13 +1,12 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
-import androidx.compose.ambient
 import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.sample.common.NavigatorAmbient
 import com.ivianuu.compose.sample.common.Route
+import com.ivianuu.compose.sample.common.navigator
 import com.ivianuu.compose.transition.HorizontalViewTransition
 import com.ivianuu.compose.transition.Transitions
 import kotlinx.android.synthetic.main.counter.view.*
@@ -24,7 +23,7 @@ private val Colors = arrayOf(
 private var lastColor: Color? = null
 
 fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
-    val navigator = +ambient(NavigatorAmbient)
+    val navigator = navigator()
     val color = +memo {
         Colors
             .filter { it != lastColor }

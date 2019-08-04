@@ -29,12 +29,10 @@ class MainActivity : AppCompatActivity() {
         ).get(ContextHolder::class.java).context
 
         context.setComposable {
-            CraneWrapper("crane") {
+            CraneWrapper {
                 Scaffold(
-                    key = "scaffold",
                     appBar = {
                         InflateView<Toolbar>(
-                            key = "toolbar",
                             layoutRes = R.layout.app_bar,
                             updateView = {
                                 title = "Compose sample"

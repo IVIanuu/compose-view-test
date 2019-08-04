@@ -6,22 +6,23 @@ import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.sample.common.RecyclerView
 import com.ivianuu.compose.sample.common.Route
+import com.ivianuu.compose.sample.common.navigator
 
 fun ViewComposition.List() = Route {
-    println("ttt build list")
-    val (items, setItems) = +state {
-        println("ttt init state")
-        (1 until 100).map { "Title: $it" }
-    }
+    val itemsState = +state { (1 until 100).map { "Title: $it" } }
 
     RecyclerView {
-        println("ttt build recycler view size ${items.size}")
-        items.forEach { item ->
+        val navigator = navigator()
+
+        ListItem(text = "Go back", onClick = {
+            navigator.pop()
+        })
+
+        itemsState.value.forEach { item ->
             ListItem(text = item, onClick = {
-                val newItems = items.toMutableList()
+                val newItems = itemsState.value.toMutableList()
                     .apply { remove(item) }
-                println("ttt set new items")
-                setItems(newItems)
+                itemsState.value = newItems
             })
         }
     }
