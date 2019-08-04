@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:id="@+id/counter">
+    android:id="@+id/counter"
+    android:background="@color/colorPrimary">
 
     <TextView
         android:id="@+id/title"

@@ -2,7 +2,6 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.transition.DefaultViewTransition
 import com.ivianuu.compose.transition.ViewTransition
 import com.ivianuu.compose.util.tagKey
 
@@ -24,97 +23,33 @@ internal class ViewManager(val container: ViewGroup) {
     val views = mutableListOf<View>()
     private val runningTransitions = mutableMapOf<View, ViewTransition>()
 
-    fun setViews(newViews: List<View>, isPush: Boolean) {
-        if (newViews == views) return
-
-        val oldViews = views.toList()
-        val removedViews = oldViews.filter { it !in newViews }
-
-        views.clear()
-        views += newViews
-
-        oldViews.forEach { container.removeView(it) }
-        newViews.forEach {
-            if (it.parent == null) container.addView(it)
+    fun addView(index: Int, view: View) {
+        if (view.parent == null) {
+            container.addView(view, index)
         }
+    }
 
-        /*
-
-        val oldTopView = oldViews.lastOrNull()
-        val newTopView = newViews.lastOrNull()
-
-        // check if we should animate the top views
-        val replacingTopViews = newTopView != null && (oldTopView == null
-                || (oldTopView != newTopView && oldTopView !in newViews))
-
-        // Remove all views which are not present anymore from top to bottom
-        removedViews
-            .dropLast(if (replacingTopViews) 1 else 0)
-            .reversed()
-            .forEach { view ->
-                cancelTransition(view)
-                performTransition(
-                    from = view,
-                    to = null,
-                    isPush = isPush,
-                    transition = view.outTransition
-                )
+    fun moveViews(from: Int, to: Int, count: Int) {
+        if (from > to) {
+            var currentFrom = from
+            var currentTo = to
+            repeat(count) {
+                val view = container.getChildAt(currentFrom)
+                container.removeViewAt(currentFrom)
+                container.addView(view, currentTo)
+                currentFrom++
+                currentTo++
             }
-
-        // Add any new views to the backStack from bottom to top
-        newViews
-            .dropLast(if (replacingTopViews) 1 else 0)
-            .forEachIndexed { i, view ->
-                performTransition(
-                    from = newViews.getOrNull(i - 1),
-                    to = view,
-                    isPush = true,
-                    transition = view.inTransition
-                )
+        } else {
+            repeat(count) {
+                val view = container.getChildAt(from)
+                container.removeViewAt(from)
+                container.addView(view, to - 1)
             }
-
-        // Replace the old visible top with the new one
-        if (replacingTopViews) {
-            val transition = if (isPush) newTopView?.inTransition
-            else oldTopView?.outTransition
-
-            performTransition(
-                from = oldTopView,
-                to = newTopView,
-                isPush = isPush,
-                transition = transition
-            )
-        }*/
-    }
-
-    private fun cancelTransition(view: View) {
-        runningTransitions.remove(view)?.cancel()
-    }
-
-    private fun performTransition(
-        from: View?,
-        to: View?,
-        isPush: Boolean,
-        transition: ViewTransition?
-    ) {
-        val transitionToUse = when {
-            transition == null -> DefaultViewTransition()
-            transition.hasBeenUsed -> transition.copy()
-            else -> transition
-        }
-        transitionToUse.hasBeenUsed = true
-
-        from?.let { cancelTransition(it) }
-        to?.let { runningTransitions[it] = transitionToUse }
-
-        transitionToUse.execute(
-            container,
-            from,
-            to,
-            isPush
-        ) {
-            if (to != null) runningTransitions -= to
         }
     }
 
+    fun removeViews(index: Int, count: Int) {
+        container.removeViews(index, count)
+    }
 }

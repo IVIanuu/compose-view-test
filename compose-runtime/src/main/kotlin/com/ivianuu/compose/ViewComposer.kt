@@ -12,126 +12,47 @@ import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewUpdater
 import com.ivianuu.compose.util.sourceLocation
-import java.util.*
 
 private fun invalidNode(node: Any): Nothing =
     error("Unsupported node type ${node.javaClass.simpleName}")
 
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 
-    private sealed class Op {
-        data class Insert(val index: Int, val instance: Any) : Op()
-        data class Move(val from: Int, val to: Int, val count: Int) : Op()
-        data class Remove(val index: Int, val count: Int) : Op()
-    }
-
-    private var current = root
-    private val currentStack = Stack<Any>()
-    private var ops = mutableListOf<Op>()
-    private val opsStack = Stack<MutableList<Op>>()
-    private var startedChildren = 0
-    private val startedChildrenStack = Stack<Int>()
-
     override fun Any.start(instance: Any) {
-        currentStack.push(current)
-        current = this
-        opsStack.push(ops)
-        ops = mutableListOf()
-        startedChildrenStack.push(startedChildren)
-        startedChildren = 0
-        println("start $this")
     }
 
     override fun Any.insertAt(index: Int, instance: Any) {
-        println("insert $this index $index instance $instance")
-        ops.add(Op.Insert(index, instance))
-        startedChildren++
+        val container = when (this) {
+            is ViewGroup -> this
+            is Compose.Root -> container
+            else -> invalidNode(this)
+        }
+
+        container.getViewManager().addView(index, instance as View)
     }
 
     override fun Any.move(from: Int, to: Int, count: Int) {
-        println("move $this from $from to $to count $count")
-        ops.add(Op.Move(from, to, count))
+        val container = when (this) {
+            is ViewGroup -> this
+            is Compose.Root -> container
+            else -> invalidNode(this)
+        }
+
+        container.getViewManager().moveViews(from, to, count)
+
     }
 
     override fun Any.removeAt(index: Int, count: Int) {
-        println("remove at $this index $index count $count")
-        ops.add(Op.Remove(index, count))
+        val container = when (this) {
+            is ViewGroup -> this
+            is Compose.Root -> container
+            else -> invalidNode(this)
+        }
+
+        container.removeViews(index, count)
     }
 
     override fun Any.end(instance: Any, parent: Any) {
-        fun goUp() {
-            println("go up $current")
-            if (!opsStack.isEmpty()) ops = opsStack.pop() else ops.clear()
-            if (!currentStack.isEmpty()) current = currentStack.pop()
-            if (!startedChildrenStack.isEmpty()) startedChildren = startedChildrenStack.pop()
-            println("gone up to $current")
-        }
-
-        if (this != current) {
-            goUp()
-        }
-
-        startedChildren--
-
-        println("end $this instance $instance started children $startedChildren ops ${ops.size}")
-
-        if (ops.isNotEmpty() && startedChildren == 0) {
-            println("execute ops $this")
-            val container = when (this) {
-                is ViewGroup -> this
-                is Compose.Root -> container
-                else -> invalidNode(this)
-            }
-
-            val viewManager = container.getViewManager()
-
-            val oldViews = viewManager.views
-            val newViews = oldViews.toMutableList()
-
-            var insertCount = 0
-            var removeCount = 0
-
-            println("current views $this $newViews")
-
-            ops.forEach { op ->
-                println("execute op $this $op")
-                when (op) {
-                    is Op.Insert -> {
-                        newViews.add(op.index, op.instance as View)
-                        insertCount++
-                    }
-                    is Op.Move -> {
-                        if (op.from > op.to) {
-                            var currentFrom = op.from
-                            var currentTo = op.to
-                            repeat(op.count) {
-                                Collections.swap(newViews, currentFrom, currentTo)
-                                currentFrom++
-                                currentTo++
-                            }
-                        } else {
-                            repeat(op.count) {
-                                Collections.swap(newViews, op.from, op.to - 1)
-                            }
-                        }
-                    }
-                    is Op.Remove -> {
-                        for (i in op.index + op.count - 1 downTo op.index) {
-                            newViews.removeAt(i)
-                            removeCount++
-                        }
-                    }
-                }
-            }
-
-            println("new views $this $newViews")
-
-            viewManager.setViews(newViews, insertCount >= removeCount)
-
-            goUp()
-        } else if (startedChildren == 0) {
-            goUp()
-        }
     }
 
 }
