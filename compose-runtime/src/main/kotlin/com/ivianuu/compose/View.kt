@@ -155,6 +155,7 @@ private class SimpleComponent<T : View> : Component<T>() {
     override fun createView(container: ViewGroup): T = createView.invoke(container)
 
     override fun updateView(view: T) {
+        super.updateView(view)
         updateView?.invoke(view)
     }
 }

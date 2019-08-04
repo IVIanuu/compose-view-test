@@ -29,7 +29,7 @@ abstract class GroupComponent<T : View> : Component<T>() {
     val children: List<Component<*>> get() = _children
 
     open fun beginChildren() {
-        println("begin children $key")
+        println("begin children $key current children ${children.map { it.key }}")
     }
 
     open fun addChild(index: Int, child: Component<*>) {
@@ -51,7 +51,7 @@ abstract class GroupComponent<T : View> : Component<T>() {
     }
 
     open fun endChildren() {
-        println("end children $key")
+        println("end children $key children ${children.map { it.key }}")
     }
 
 }
@@ -82,10 +82,7 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
         val childViews = children.map { child ->
             child.createView(view)
-                .also {
-                    println("$key created view $it for child ${child.key}")
-                    it.component = child
-                }
+                .also { it.component = child }
         }
         view.getViewManager().rebind(childViews)
 
@@ -99,12 +96,8 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
         children
             .map { child ->
-                println("search view for child ${child.key} view children ${view.children()} view children components ${view.children().map { it.component?.key }}")
                 view.children()
-                    .first {
-                        println("child ${it.component} child $child")
-                        it.component == child
-                    }
+                    .first { it.component == child }
             }
             .forEach { (it.component as Component<View>).updateView(it) }
     }

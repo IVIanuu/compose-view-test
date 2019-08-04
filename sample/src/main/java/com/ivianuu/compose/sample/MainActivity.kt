@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
             this,
             ViewModelProvider.NewInstanceFactory()
         ).get(ContextHolder::class.java).context
+
         context.setComposable {
             CraneWrapper("crane") {
                 Scaffold(
@@ -44,6 +45,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 )
             }
+        }
+
+        if (savedInstanceState == null) {
+            context.compose()
         }
 
         context.setContainer(findViewById(android.R.id.content))

@@ -29,14 +29,15 @@ internal class ViewManager(val container: ViewGroup) {
         this.views.clear()
         this.views += views
 
-        views.forEach {
-            performTransition(
-                null,
-                it,
-                true,
-                null
-            )
-        }
+        views
+            .forEach {
+                performTransition(
+                    null,
+                    it,
+                    true,
+                    null
+                )
+            }
     }
 
     fun setViews(newViews: List<View>, isPush: Boolean) {
@@ -61,6 +62,7 @@ internal class ViewManager(val container: ViewGroup) {
             .dropLast(if (replacingTopViews) 1 else 0)
             .reversed()
             .forEach { view ->
+                println("${container.component?.key} remove view ${view.component?.key}")
                 cancelTransition(view)
                 performTransition(
                     from = view,
@@ -74,8 +76,9 @@ internal class ViewManager(val container: ViewGroup) {
         addedViews
             .dropLast(if (replacingTopViews) 1 else 0)
             .forEachIndexed { i, view ->
+                println("${container.component?.key} add view ${view.component?.key}")
                 performTransition(
-                    from = newViews.getOrNull(i - 1),
+                    from = addedViews.getOrNull(i - 1),
                     to = view,
                     isPush = true,
                     transition = view.inTransition
@@ -86,6 +89,8 @@ internal class ViewManager(val container: ViewGroup) {
         if (replacingTopViews) {
             val transition = if (isPush) newTopView?.inTransition
             else oldTopView?.outTransition
+
+            println("${container.component?.key} replace top new ${newTopView?.component?.key} old ${oldTopView?.component?.key}")
 
             performTransition(
                 from = oldTopView,

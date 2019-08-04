@@ -83,6 +83,7 @@ class Navigator(
         }
 
         visibleRoutes.reversed()
+            .also { println("compose routes ${it.map { it.key }}") }
             .forEach {
                 viewComposition.group(it.key) {
                     it._compose(viewComposition)

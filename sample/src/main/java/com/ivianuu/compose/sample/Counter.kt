@@ -6,7 +6,6 @@ import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.sourceLocation
 import com.ivianuu.compose.transition.HorizontalViewTransition
 import com.ivianuu.compose.transition.inTransition
 import com.ivianuu.compose.transition.outTransition
@@ -23,7 +22,7 @@ private val Colors = arrayOf(
 
 private var lastColor: Color? = null
 
-fun ViewComposition.Counter(count: Int): Route = Route(key = sourceLocation() + count) {
+fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
     val navigator = +ambient(NavigatorAmbient)
     val color = +memo {
         Colors
