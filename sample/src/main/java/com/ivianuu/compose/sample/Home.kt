@@ -20,6 +20,11 @@ enum class HomeItem(
         title = "Counter",
         color = Color.Magenta,
         route = { Counter() }
+    ),
+    Pager(
+        title = "Pager",
+        color = Color.Cyan,
+        route = { Pager() }
     )
 }
 
