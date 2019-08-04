@@ -2,8 +2,14 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
+import com.ivianuu.compose.transition.ViewTransition
+import com.ivianuu.compose.transition.inTransition
+import com.ivianuu.compose.transition.outTransition
 
 abstract class Component<T : View> {
+
+    internal var inTransition: ViewTransition? = null
+    internal var outTransition: ViewTransition? = null
 
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
@@ -69,6 +75,8 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
                         .firstOrNull { it.component == child }
                         ?: child.createView(view).also {
                             it.component = child
+                            it.inTransition = child.inTransition
+                            it.outTransition = child.outTransition
                         }
                 }
 
@@ -82,7 +90,11 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
         val childViews = children.map { child ->
             child.createView(view)
-                .also { it.component = child }
+                .also {
+                    it.component = child
+                    it.inTransition = child.inTransition
+                    it.outTransition = child.outTransition
+                }
         }
         view.getViewManager().rebind(childViews)
 

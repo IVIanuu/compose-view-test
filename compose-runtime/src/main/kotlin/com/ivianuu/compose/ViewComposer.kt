@@ -9,6 +9,9 @@ import androidx.compose.EffectsDsl
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
+import androidx.compose.ambient
+import com.ivianuu.compose.transition.InTransitionAmbient
+import com.ivianuu.compose.transition.OutTransitionAmbient
 import java.util.*
 
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
@@ -106,6 +109,9 @@ class ViewComposition(val composer: ViewComposer) {
         }
 
         node._key = key
+
+        node.inTransition = +ambient(InTransitionAmbient)
+        node.outTransition = +ambient(OutTransitionAmbient)
 
         update?.let { node.it() }
         children?.invoke(this@ViewComposition)

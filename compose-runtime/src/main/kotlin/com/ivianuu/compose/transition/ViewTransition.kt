@@ -2,7 +2,12 @@ package com.ivianuu.compose.transition
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.Ambient
+import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.tagKey
+
+val InTransitionAmbient = Ambient.of<ViewTransition?>()
+val OutTransitionAmbient = Ambient.of<ViewTransition?>()
 
 private val inTransitionKey = tagKey("inTransition")
 var View.inTransition: ViewTransition?
@@ -17,6 +22,25 @@ var View.outTransition: ViewTransition?
     set(value) {
         setTag(outTransitionKey, value)
     }
+
+fun ViewComposition.Transitions(
+    transition: ViewTransition?,
+    children: ViewComposition.() -> Unit
+) {
+    Transitions(inTransition = transition, outTransition = transition, children = children)
+}
+
+fun ViewComposition.Transitions(
+    inTransition: ViewTransition? = null,
+    outTransition: ViewTransition? = null,
+    children: ViewComposition.() -> Unit
+) {
+    InTransitionAmbient.Provider(inTransition) {
+        OutTransitionAmbient.Provider(outTransition) {
+            children()
+        }
+    }
+}
 
 abstract class ViewTransition {
 

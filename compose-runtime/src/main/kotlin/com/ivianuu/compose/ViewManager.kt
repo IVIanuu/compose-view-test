@@ -26,6 +26,8 @@ internal class ViewManager(val container: ViewGroup) {
     private val runningTransitions = mutableMapOf<View, ViewTransition>()
 
     fun rebind(views: List<View>) {
+        println("${container.component?.key} rebind")
+
         this.views.clear()
         this.views += views
 
@@ -41,6 +43,8 @@ internal class ViewManager(val container: ViewGroup) {
     }
 
     fun setViews(newViews: List<View>, isPush: Boolean) {
+        println("${container.component?.key} set views")
+
         if (newViews == views) return
 
         val oldViews = views.toList()
@@ -117,6 +121,8 @@ internal class ViewManager(val container: ViewGroup) {
             else -> transition
         }
         transitionToUse.hasBeenUsed = true
+
+        println("perform transition from ${from?.component?.key} to ${to?.component?.key} is push $isPush transition $transitionToUse")
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = transitionToUse }
