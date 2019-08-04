@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.ivianuu.compose.CompositionContext
 import com.ivianuu.compose.InflateView
+import com.ivianuu.compose.sample.common.CraneWrapper
+import com.ivianuu.compose.sample.common.Navigator
+import com.ivianuu.compose.sample.common.Scaffold
 
 class ContextHolder : ViewModel() {
     val context = CompositionContext {

@@ -1,4 +1,4 @@
-package com.ivianuu.compose.sample
+package com.ivianuu.compose.sample.common
 
 import androidx.compose.Ambient
 import androidx.compose.Recompose

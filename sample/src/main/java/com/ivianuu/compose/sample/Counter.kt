@@ -6,6 +6,8 @@ import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.sample.common.NavigatorAmbient
+import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.transition.HorizontalViewTransition
 import com.ivianuu.compose.transition.Transitions
 import kotlinx.android.synthetic.main.counter.view.*
@@ -41,6 +43,9 @@ fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
                 navigator.push(Counter(count + 1))
             }
             dec.setOnClickListener { navigator.pop() }
+            list.setOnClickListener {
+                navigator.push(List())
+            }
         }
     }
 }
