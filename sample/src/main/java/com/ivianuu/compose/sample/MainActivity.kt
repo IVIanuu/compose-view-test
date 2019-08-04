@@ -5,9 +5,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.ambient
-import androidx.compose.onActive
-import androidx.compose.onCommit
-import androidx.compose.onPreCommit
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.disposeComposition
@@ -34,21 +31,6 @@ class MainActivity : AppCompatActivity() {
                     content = {
                         Navigator(
                             startRoute = Route {
-                                +onActive {
-                                    println("on active")
-
-                                    onDispose {
-                                        println("on dispose")
-                                    }
-                                }
-
-                                +onCommit {
-                                    println("on commit")
-                                }
-
-                                +onPreCommit {
-                                    println("on pre commit")
-                                }
                                 Counter(1)
                             },
                             onExit = { finish() }

@@ -29,21 +29,23 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
     private val currentStack = Stack<Any>()
     private var ops = mutableListOf<Op>()
     private val opsStack = Stack<MutableList<Op>>()
+    private var startedChildren = 0
+    private val startedChildrenStack = Stack<Int>()
 
     override fun Any.start(instance: Any) {
+        currentStack.push(current)
+        current = this
+        opsStack.push(ops)
+        ops = mutableListOf()
+        startedChildrenStack.push(startedChildren)
+        startedChildren = 0
+        println("start $this")
     }
 
     override fun Any.insertAt(index: Int, instance: Any) {
-        if (current != this) {
-            currentStack.push(current)
-            current = this
-            println("start $this")
-            opsStack.push(ops)
-            ops = mutableListOf()
-        }
-
         println("insert $this index $index instance $instance")
         ops.add(Op.Insert(index, instance))
+        startedChildren++
     }
 
     override fun Any.move(from: Int, to: Int, count: Int) {
@@ -57,27 +59,42 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
     }
 
     override fun Any.end(instance: Any, parent: Any) {
-        println("end $this instance $instance parent $parent")
-        if (ops.isNotEmpty()) {
+        fun goUp() {
+            println("go up $current")
+            if (!opsStack.isEmpty()) ops = opsStack.pop() else ops.clear()
+            if (!currentStack.isEmpty()) current = currentStack.pop()
+            if (!startedChildrenStack.isEmpty()) startedChildren = startedChildrenStack.pop()
+            println("gone up to $current")
+        }
+
+        if (this != current) {
+            goUp()
+        }
+
+        startedChildren--
+
+        println("end $this instance $instance started children $startedChildren ops ${ops.size}")
+
+        if (ops.isNotEmpty() && startedChildren == 0) {
+            println("execute ops $this")
             val container = when (this) {
                 is ViewGroup -> this
                 is Compose.Root -> container
                 else -> invalidNode(this)
             }
 
-            println("container for $instance is $container")
-
             val viewManager = container.getViewManager()
 
             val oldViews = viewManager.views
             val newViews = oldViews.toMutableList()
 
-            println("$this ops site ${ops.size} ops $ops old views $oldViews")
-
             var insertCount = 0
             var removeCount = 0
 
+            println("current views $this $newViews")
+
             ops.forEach { op ->
+                println("execute op $this $op")
                 when (op) {
                     is Op.Insert -> {
                         newViews.add(op.index, op.instance as View)
@@ -107,15 +124,16 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
                 }
             }
 
-            println("$this ops size ${ops.size} ops $ops new views $newViews")
+            println("new views $this $newViews")
 
             viewManager.setViews(newViews, insertCount >= removeCount)
-        }
 
-        ops.clear()
-        if (!opsStack.isEmpty()) ops = opsStack.pop()
-        if (!currentStack.isEmpty()) current = currentStack.pop()
+            goUp()
+        } else if (startedChildren == 0) {
+            goUp()
+        }
     }
+
 }
 
 class ViewComposer(

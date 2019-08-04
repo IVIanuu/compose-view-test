@@ -11,5 +11,6 @@ apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/mv
 
 dependencies {
     api(Deps.androidxUiMaterial)
+    api(Deps.kotlinReflect)
     api(Deps.kotlinStdLib)
 }

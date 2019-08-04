@@ -4,8 +4,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.ivianuu.compose.transition.DefaultViewTransition
 import com.ivianuu.compose.transition.ViewTransition
-import com.ivianuu.compose.transition.inTransition
-import com.ivianuu.compose.transition.outTransition
 import com.ivianuu.compose.util.tagKey
 
 private val viewManagerKey = tagKey("viewManager")
@@ -35,6 +33,13 @@ internal class ViewManager(val container: ViewGroup) {
         views.clear()
         views += newViews
 
+        oldViews.forEach { container.removeView(it) }
+        newViews.forEach {
+            if (it.parent == null) container.addView(it)
+        }
+
+        /*
+
         val oldTopView = oldViews.lastOrNull()
         val newTopView = newViews.lastOrNull()
 
@@ -48,7 +53,6 @@ internal class ViewManager(val container: ViewGroup) {
             .reversed()
             .forEach { view ->
                 cancelTransition(view)
-                println("remove old view $view")
                 performTransition(
                     from = view,
                     to = null,
@@ -61,7 +65,6 @@ internal class ViewManager(val container: ViewGroup) {
         newViews
             .dropLast(if (replacingTopViews) 1 else 0)
             .forEachIndexed { i, view ->
-                println("add new view $i $view")
                 performTransition(
                     from = newViews.getOrNull(i - 1),
                     to = view,
@@ -75,15 +78,13 @@ internal class ViewManager(val container: ViewGroup) {
             val transition = if (isPush) newTopView?.inTransition
             else oldTopView?.outTransition
 
-            println("replace top view new $newTopView old $oldTopView")
-
             performTransition(
                 from = oldTopView,
                 to = newTopView,
                 isPush = isPush,
                 transition = transition
             )
-        }
+        }*/
     }
 
     private fun cancelTransition(view: View) {
@@ -102,8 +103,6 @@ internal class ViewManager(val container: ViewGroup) {
             else -> transition
         }
         transitionToUse.hasBeenUsed = true
-
-        println("perform transition container $container from $from to $to is push $isPush transition $transition to use $transitionToUse")
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = transitionToUse }

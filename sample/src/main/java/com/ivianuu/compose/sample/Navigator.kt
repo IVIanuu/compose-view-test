@@ -48,13 +48,10 @@ class Navigator(
 
     fun push(route: Route) {
         backStack.add(route)
-        println("push $route new backstack $backStack")
         recompose()
     }
 
     fun pop() {
-        println("pop $backStack")
-
         if (backStack.size > 1) {
             backStack.removeAt(backStack.lastIndex)
             recompose()
@@ -72,8 +69,6 @@ class Navigator(
             visibleRoutes.add(route)
             if (!route.isFloating) break
         }
-
-        println("show visible routes ${visibleRoutes.reversed()}")
 
         visibleRoutes.reversed()
             .forEach { it._content(viewComposition) }
