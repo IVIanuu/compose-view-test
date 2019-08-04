@@ -52,4 +52,5 @@ internal class ViewManager(val container: ViewGroup) {
     fun removeViews(index: Int, count: Int) {
         container.removeViews(index, count)
     }
+
 }

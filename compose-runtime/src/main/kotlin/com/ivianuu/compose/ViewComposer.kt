@@ -18,10 +18,16 @@ private fun invalidNode(node: Any): Nothing =
 
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 
+    init {
+        println("start $root")
+    }
+
     override fun Any.start(instance: Any) {
+        println("start $this instance $instance")
     }
 
     override fun Any.insertAt(index: Int, instance: Any) {
+        println("insert $this index $index instance $instance")
         val container = when (this) {
             is ViewGroup -> this
             is Compose.Root -> container
@@ -32,6 +38,8 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
     }
 
     override fun Any.move(from: Int, to: Int, count: Int) {
+        println("move $this from $from to $to count $count")
+
         val container = when (this) {
             is ViewGroup -> this
             is Compose.Root -> container
@@ -39,20 +47,22 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
         }
 
         container.getViewManager().moveViews(from, to, count)
-
     }
 
     override fun Any.removeAt(index: Int, count: Int) {
+        println("remove $this index $index count $count")
+
         val container = when (this) {
             is ViewGroup -> this
             is Compose.Root -> container
             else -> invalidNode(this)
         }
 
-        container.removeViews(index, count)
+        container.getViewManager().removeViews(index, count)
     }
 
     override fun Any.end(instance: Any, parent: Any) {
+        println("end $this instance $instance")
     }
 
 }
@@ -69,6 +79,7 @@ class ViewComposer(
     init {
         FrameManager.ensureStarted()
     }
+
 }
 
 @Suppress("UNCHECKED_CAST")

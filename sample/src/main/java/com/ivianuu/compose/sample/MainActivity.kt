@@ -12,6 +12,7 @@ import com.ivianuu.compose.setViewContent
 import com.ivianuu.compose.transition.HorizontalViewTransition
 import com.ivianuu.compose.transition.inTransition
 import com.ivianuu.compose.transition.outTransition
+import com.ivianuu.compose.util.sourceLocation
 import kotlinx.android.synthetic.main.counter.view.*
 
 class MainActivity : AppCompatActivity() {
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
 private fun ViewComposition.Counter(count: Int) {
     val navigator = +ambient(NavigatorAmbient)
-    InflateView<View>(R.layout.counter) {
+    InflateView<View>(sourceLocation() + count, R.layout.counter) {
         node.inTransition = HorizontalViewTransition()
         node.outTransition = HorizontalViewTransition()
 
