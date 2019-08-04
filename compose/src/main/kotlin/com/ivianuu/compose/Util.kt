@@ -8,14 +8,14 @@ inline fun sourceLocation(): String {
     return "${element.className}:${element.methodName}:${element.lineNumber}"
 }
 
-internal fun ViewGroup.children(): List<View> = (0 until childCount)
+fun ViewGroup.children(): List<View> = (0 until childCount)
     .map { getChildAt(it) }
 
 internal fun tagKey(key: String): Int = (3 shl 24) or key.hashCode()
 
 private val componentKey = tagKey("component")
 
-internal var View.component: Component<*>?
+var View.component: Component<*>?
     get() = getTag(componentKey) as? Component<*>
     set(value) {
         setTag(componentKey, value)

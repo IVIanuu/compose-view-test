@@ -1,10 +1,14 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
+import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
+import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.common.FadeViewTransition
 import com.ivianuu.compose.sample.common.Route
+import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.ViewPager
 import kotlinx.android.synthetic.main.page.view.*
 
@@ -33,10 +37,18 @@ val AllColors = arrayOf(
 )
 
 fun ViewComposition.Pager() = Route {
-    ViewPager {
-        (1..5).forEach { i ->
-            Page(i, AllColors.toList().shuffled()[i])
-        }
+    val transition = +memo { FadeViewTransition() }
+    Transitions(transition = transition) {
+        Scaffold(
+            appBar = { AppBar("Pager") },
+            content = {
+                ViewPager {
+                    (1..5).forEach { i ->
+                        Page(i, AllColors.toList().shuffled()[i])
+                    }
+                }
+            }
+        )
     }
 }
 
