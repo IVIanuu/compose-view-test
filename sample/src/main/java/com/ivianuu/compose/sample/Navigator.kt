@@ -13,11 +13,11 @@ interface Route {
 
     val isFloating: Boolean
 
-    fun ViewComposition.content()
+    fun ViewComposition.compose()
 
-    fun _content(viewComposition: ViewComposition) {
+    fun _compose(viewComposition: ViewComposition) {
         with(viewComposition) {
-            content()
+            compose()
         }
     }
 
@@ -25,8 +25,8 @@ interface Route {
 
 inline fun Route(
     isFloating: Boolean = false,
-    noinline content: ViewComposition.() -> Unit
-) = Route(sourceLocation(), isFloating, content)
+    noinline compose: ViewComposition.() -> Unit
+) = Route(sourceLocation(), isFloating, compose)
 
 fun Route(
     key: Any,
@@ -40,7 +40,7 @@ fun Route(
     override val isFloating: Boolean
         get() = isFloating
 
-    override fun ViewComposition.content() {
+    override fun ViewComposition.compose() {
         content.invoke(this)
     }
 }
@@ -85,7 +85,7 @@ class Navigator(
         visibleRoutes.reversed()
             .forEach {
                 viewComposition.group(it.key) {
-                    it._content(viewComposition)
+                    it._compose(viewComposition)
                 }
             }
     }

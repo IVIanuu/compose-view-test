@@ -39,6 +39,7 @@ object Versions {
 
     const val androidxAppCompat = "1.1.0-rc01"
     const val androidxUi = "1.0.0-alpha01"
+    const val androidxRecyclerView = "1.1.0-beta01"
 
     const val bintray = "1.8.4"
 
@@ -51,7 +52,9 @@ object Deps {
     const val androidGradlePlugin = "com.android.tools.build:gradle:${Versions.androidGradlePlugin}"
 
     const val androidxAppCompat = "androidx.appcompat:appcompat:${Versions.androidxAppCompat}"
-    const val androidxUiMaterial = "androidx.ui:ui-material:${Versions.androidxUi}"
+    const val androidxRecyclerView =
+        "androidx.recyclerview:recyclerview:${Versions.androidxRecyclerView}"
+    const val androidxUiCore = "androidx.ui:ui-core:${Versions.androidxUi}"
 
     const val bintrayGradlePlugin =
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:${Versions.bintray}"

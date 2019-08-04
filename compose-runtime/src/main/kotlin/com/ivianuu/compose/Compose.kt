@@ -80,7 +80,6 @@ fun Activity.setViewContent(composable: ViewComposition.() -> Unit): Composition
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? ViewGroup
         ?: FrameLayout(this).also {
-            it.id = android.R.id.content
             setContentView(it)
         }
     return root.setViewContent(composable)
