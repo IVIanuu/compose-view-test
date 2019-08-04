@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@+id/transition_root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/transition_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/transition_title"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="96dp"
+        android:gravity="center_horizontal"
+        android:transitionName="title" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_arrow_forward"
+        app:elevation="0dp"
+        app:pressedTranslationZ="0dp"
+        android:transitionName="dot" />
+
+</FrameLayout>

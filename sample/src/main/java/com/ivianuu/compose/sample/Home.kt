@@ -9,6 +9,7 @@ import com.ivianuu.compose.sample.common.RecyclerView
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.navigator
+import com.ivianuu.compose.sample.transition.TransitionDemos
 import kotlinx.android.synthetic.main.home_item.view.*
 
 enum class HomeItem(
@@ -25,6 +26,11 @@ enum class HomeItem(
         title = "Pager",
         color = Color.Cyan,
         route = { Pager() }
+    ),
+    Transition(
+        title = "Transitions",
+        color = Color.Red,
+        route = { TransitionDemos() }
     )
 }
 

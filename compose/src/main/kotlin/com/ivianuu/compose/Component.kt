@@ -117,11 +117,17 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
         super.updateView(view)
 
         children
-            .map { child ->
+            .forEach { child ->
                 view.children()
-                    .first { it.component == child }
+                    .firstOrNull { it.component == child }
+                    ?.also {
+                        (child as Component<View>).updateView(it)
+                    }
+                    ?: child.createView(view).also {
+                        it.component = child
+                        (child as Component<View>).updateView(it)
+                    }
             }
-            .forEach { (it.component as Component<View>).updateView(it) }
     }
 
     override fun destroyView(view: T) {

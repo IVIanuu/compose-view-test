@@ -91,6 +91,14 @@ class Navigator(
         }
     }
 
+    fun popToRoot() {
+        val root = _backStack.first()
+        _backStack.clear()
+        _backStack.add(root)
+        wasPush = false
+        recompose()
+    }
+
     fun content(viewComposition: ViewComposition) = Recompose { recompose ->
         this@Navigator.recompose = recompose
 
