@@ -2,7 +2,6 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.transition.ViewTransition
 
 abstract class Component<T : View> {
 

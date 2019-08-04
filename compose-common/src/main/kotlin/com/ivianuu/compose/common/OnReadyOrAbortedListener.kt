@@ -1,4 +1,4 @@
-package com.ivianuu.compose.transition
+package com.ivianuu.compose.common
 
 import android.view.View
 import android.view.ViewTreeObserver

@@ -4,11 +4,10 @@ import android.view.View
 import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
+import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.navigator
-import com.ivianuu.compose.transition.HorizontalViewTransition
-import com.ivianuu.compose.transition.Transitions
 import kotlinx.android.synthetic.main.counter.view.*
 
 private val Colors = arrayOf(
@@ -33,7 +32,7 @@ fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
 
     val navigator = navigator()
 
-    val transition = +memo { HorizontalViewTransition() }
+    val transition = +memo { com.ivianuu.compose.common.HorizontalViewTransition() }
 
     Transitions(transition = transition) {
         InflateView<View>(key = "Counter $count", layoutRes = R.layout.counter) {

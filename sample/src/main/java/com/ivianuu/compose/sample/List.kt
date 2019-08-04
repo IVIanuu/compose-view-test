@@ -6,16 +6,15 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.compose.state
 import com.ivianuu.compose.InflateView
-import com.ivianuu.compose.VerticalViewTransition
+import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.ViewGroup
 import com.ivianuu.compose.sample.common.RecyclerView
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.navigator
-import com.ivianuu.compose.transition.Transitions
 
 fun ViewComposition.List() = Route {
-    Transitions(VerticalViewTransition()) {
+    Transitions(com.ivianuu.compose.common.VerticalViewTransition()) {
         val itemsState = +state { (1 until 100).map { "Title: $it" } }
 
         ViewGroup(

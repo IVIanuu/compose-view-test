@@ -8,7 +8,7 @@ inline fun sourceLocation(): String {
     return "${element.className}:${element.methodName}:${element.lineNumber}"
 }
 
-fun ViewGroup.children(): List<View> = (0 until childCount)
+internal fun ViewGroup.children(): List<View> = (0 until childCount)
     .map { getChildAt(it) }
 
 internal fun tagKey(key: String): Int = (3 shl 24) or key.hashCode()

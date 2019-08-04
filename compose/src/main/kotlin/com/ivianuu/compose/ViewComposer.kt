@@ -10,9 +10,6 @@ import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ambient
-import com.ivianuu.compose.transition.InTransitionAmbient
-import com.ivianuu.compose.transition.OutTransitionAmbient
-import com.ivianuu.compose.transition.TransitionHintsAmbient
 import java.util.*
 
 class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {

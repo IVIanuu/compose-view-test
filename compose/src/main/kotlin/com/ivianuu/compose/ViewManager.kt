@@ -2,8 +2,6 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.transition.DefaultViewTransition
-import com.ivianuu.compose.transition.ViewTransition
 
 private val viewManagerKey = tagKey("viewManager")
 

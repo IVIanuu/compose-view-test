@@ -1,10 +1,9 @@
-package com.ivianuu.compose
+package com.ivianuu.compose.common
 
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
-import com.ivianuu.compose.transition.AnimatorViewTransition
 
 open class VerticalViewTransition : AnimatorViewTransition() {
 

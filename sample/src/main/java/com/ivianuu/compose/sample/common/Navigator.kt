@@ -3,9 +3,9 @@ package com.ivianuu.compose.sample.common
 import androidx.compose.Ambient
 import androidx.compose.Recompose
 import androidx.compose.ambient
+import com.ivianuu.compose.TransitionHintsAmbient
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.sourceLocation
-import com.ivianuu.compose.transition.TransitionHintsAmbient
 
 val NavigatorAmbient = Ambient.of<Navigator>()
 

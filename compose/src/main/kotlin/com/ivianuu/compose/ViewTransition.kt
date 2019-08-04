@@ -1,9 +1,8 @@
-package com.ivianuu.compose.transition
+package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Ambient
-import com.ivianuu.compose.ViewComposition
 
 val InTransitionAmbient = Ambient.of<ViewTransition?>("InTransition")
 val OutTransitionAmbient = Ambient.of<ViewTransition?>("OutTransition")
