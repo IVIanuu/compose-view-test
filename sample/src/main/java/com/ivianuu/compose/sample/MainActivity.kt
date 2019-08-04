@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                     },
                     content = {
                         Navigator(
-                            startRoute = Counter(1),
+                            startRoute = Counter(1, nextColor()),
                             onExit = { finish() }
                         )
                     }

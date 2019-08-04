@@ -21,15 +21,16 @@ private val Colors = arrayOf(
 
 private var lastColor: Color? = null
 
-fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
-    val color = +memo {
-        Colors
-            .filter { it != lastColor }
-            .shuffled()
-            .first()
-            .also { lastColor = it }
-    }
+fun nextColor() = Colors
+    .filter { it != lastColor }
+    .shuffled()
+    .first()
+    .also { lastColor = it }
 
+fun ViewComposition.Counter(
+    count: Int,
+    color: Color
+): Route = Route(key = "Count $count") {
     val navigator = navigator()
 
     val transition = +memo { com.ivianuu.compose.common.HorizontalViewTransition() }
@@ -39,7 +40,7 @@ fun ViewComposition.Counter(count: Int): Route = Route(key = "Count $count") {
             setBackgroundColor(color.toArgb())
             title.text = "Count: $count"
             inc.setOnClickListener {
-                navigator.push(Counter(count + 1))
+                navigator.push(Counter(count + 1, nextColor()))
             }
             dec.setOnClickListener { navigator.pop() }
             list.setOnClickListener {

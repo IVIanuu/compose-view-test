@@ -1,8 +1,10 @@
 package com.ivianuu.compose
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlin.reflect.KClass
 
 inline fun <T : View> ViewComposition.ViewById(
     id: Int,
@@ -100,6 +102,28 @@ fun <T : ViewGroup> ViewComposition.InflateViewGroup(
     )
 }
 
+inline fun <reified T : ViewGroup> ViewComposition.ViewGroup(
+    key: Any = sourceLocation(),
+    noinline updateView: (T.() -> Unit)? = null,
+    noinline children: (ViewComposition.() -> Unit)? = null
+) {
+    ViewGroup(key, T::class, updateView, children)
+}
+
+fun <T : ViewGroup> ViewComposition.ViewGroup(
+    key: Any,
+    type: KClass<T>,
+    updateView: (T.() -> Unit)? = null,
+    children: (ViewComposition.() -> Unit)? = null
+) {
+    ViewGroup(
+        key = key,
+        createView = { type.java.getConstructor(Context::class.java).newInstance(it.context) },
+        updateView = updateView,
+        children = children
+    )
+}
+
 inline fun <T : ViewGroup> ViewComposition.ViewGroup(
     noinline createView: (ViewGroup) -> T,
     noinline updateView: (T.() -> Unit)? = null,
@@ -122,6 +146,25 @@ fun <T : ViewGroup> ViewComposition.ViewGroup(
             this.updateView = updateView
         },
         children = children
+    )
+}
+
+inline fun <reified T : View> ViewComposition.View(
+    key: Any = sourceLocation(),
+    noinline updateView: (T.() -> Unit)? = null
+) {
+    View(key, T::class, updateView)
+}
+
+fun <T : View> ViewComposition.View(
+    key: Any,
+    type: KClass<T>,
+    updateView: (T.() -> Unit)? = null
+) {
+    View(
+        key = key,
+        createView = { type.java.getConstructor(Context::class.java).newInstance(it.context) },
+        updateView = updateView
     )
 }
 

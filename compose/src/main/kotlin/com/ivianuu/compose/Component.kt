@@ -72,6 +72,9 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
                 .map { child ->
                     view.children()
                         .firstOrNull { it.component == child }
+                        ?.also {
+                            (child as Component<View>).updateView(it)
+                        }
                         ?: child.createView(view).also {
                             it.component = child
                             (child as Component<View>).updateView(it)
@@ -80,10 +83,6 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
             view.getViewManager()
                 .setViews(childViews, childViews.lastOrNull()?.component?.wasPush ?: true)
-
-            childViews.forEach {
-                (it.component as Component<View>).updateView(it)
-            }
         }
     }
 
