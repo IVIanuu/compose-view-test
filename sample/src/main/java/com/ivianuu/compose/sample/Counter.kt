@@ -6,7 +6,9 @@ import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.common.HorizontalViewTransition
 import com.ivianuu.compose.sample.common.Route
+import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.navigator
 import kotlinx.android.synthetic.main.counter.view.*
 
@@ -33,19 +35,21 @@ fun ViewComposition.Counter(
 ): Route = Route(key = "Count $count") {
     val navigator = navigator()
 
-    val transition = +memo { com.ivianuu.compose.common.HorizontalViewTransition() }
+    val transition = +memo { HorizontalViewTransition() }
 
     Transitions(transition = transition) {
-        InflateView<View>(key = "Counter $count", layoutRes = R.layout.counter) {
-            setBackgroundColor(color.toArgb())
-            title.text = "Count: $count"
-            inc.setOnClickListener {
-                navigator.push(Counter(count + 1, nextColor()))
+        Scaffold(
+            appBar = { AppBar("Counter") },
+            content = {
+                InflateView<View>(layoutRes = R.layout.counter, updateView = {
+                    setBackgroundColor(color.toArgb())
+                    title.text = "Count: $count"
+                    inc.setOnClickListener {
+                        navigator.push(Counter(count + 1, nextColor()))
+                    }
+                    dec.setOnClickListener { navigator.pop() }
+                })
             }
-            dec.setOnClickListener { navigator.pop() }
-            list.setOnClickListener {
-                navigator.push(List())
-            }
-        }
+        )
     }
 }

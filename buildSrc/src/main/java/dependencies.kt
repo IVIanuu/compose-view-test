@@ -46,6 +46,8 @@ object Versions {
     const val kotlin = "1.3.41"
 
     const val mavenGradle = "2.1"
+
+    const val materialComponents = "1.1.0-alpha07"
 }
 
 object Deps {
@@ -65,6 +67,9 @@ object Deps {
     const val kotlinGradlePluginApi = "org.jetbrains.kotlin:kotlin-gradle-plugin-api:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
+
+    const val materialComponents =
+        "com.google.android.material:material:${Versions.materialComponents}"
 
     const val mavenGradlePlugin =
         "com.github.dcendents:android-maven-gradle-plugin:${Versions.mavenGradle}"

@@ -19,6 +19,11 @@ abstract class Component<T : View> {
 
     open fun updateView(view: T) {
         println("update view $key $view")
+        try {
+            error("")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     open fun destroyView(view: T) {

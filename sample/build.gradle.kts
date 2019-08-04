@@ -13,4 +13,5 @@ dependencies {
     implementation(Deps.androidxRecyclerView)
     implementation(project(":compose"))
     implementation(project(":compose-common"))
+    implementation(Deps.materialComponents)
 }

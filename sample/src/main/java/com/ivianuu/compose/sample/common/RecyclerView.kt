@@ -57,7 +57,6 @@ private class ComposeRecyclerViewAdapter :
         val component =
             lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
         val view = component.createView(parent)
-        (component as Component<View>).updateView(view)
         return Holder(view)
     }
 

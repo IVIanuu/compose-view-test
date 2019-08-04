@@ -1,5 +1,7 @@
 package com.ivianuu.compose.sample.common
 
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.Ambient
 import androidx.compose.Recompose
 import androidx.compose.ambient
@@ -50,10 +52,15 @@ fun ViewComposition.Route(
 }
 
 class Navigator(
-    private val startRoute: Route,
-    private val onExit: () -> Unit,
-    unit: Unit
+    private val activity: Ref<ComponentActivity?>,
+    private val startRoute: Route
 ) {
+
+    private val backPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            pop()
+        }
+    }
 
     private val backStack = mutableListOf<Route>()
     lateinit var recompose: () -> Unit
@@ -61,6 +68,9 @@ class Navigator(
     private var wasPush = true
 
     init {
+        activity.onUpdate { _, newValue ->
+            newValue?.onBackPressedDispatcher?.addCallback(backPressedCallback)
+        }
         backStack.add(startRoute)
     }
 
@@ -76,7 +86,7 @@ class Navigator(
             wasPush = false
             recompose()
         } else {
-            onExit()
+            activity()?.finish()
         }
     }
 
@@ -103,11 +113,9 @@ class Navigator(
 
 }
 
-fun ViewComposition.Navigator(
-    startRoute: Route,
-    onExit: () -> Unit
-) {
-    val navigator = Navigator(startRoute, onExit, Unit)
+fun ViewComposition.Navigator(startRoute: ViewComposition.() -> Route) {
+    val activity = +ambient(ActivityRefAmbient)
+    val navigator = Navigator(activity as Ref<ComponentActivity?>, startRoute())
     NavigatorAmbient.Provider(navigator) {
         navigator.content(this)
     }
