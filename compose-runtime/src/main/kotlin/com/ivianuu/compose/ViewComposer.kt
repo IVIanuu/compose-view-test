@@ -45,7 +45,7 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
     override fun Any.removeAt(index: Int, count: Int) {
         when (this) {
             is GroupComponent<*> -> {
-                (index..count).forEach { removeChild(it) }
+                (index until count).forEach { removeChild(it) }
             }
             else -> error("Unexpected node $this")
         }

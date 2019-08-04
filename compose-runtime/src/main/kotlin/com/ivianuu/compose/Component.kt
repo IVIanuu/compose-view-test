@@ -14,9 +14,11 @@ abstract class Component<T : View> {
     abstract fun createView(container: ViewGroup): T
 
     open fun updateView(view: T) {
+        println("update view $key $view")
     }
 
     open fun destroyView(view: T) {
+        println("destroy view $key $view")
     }
 
 }
@@ -56,24 +58,53 @@ abstract class GroupComponent<T : View> : Component<T>() {
 
 abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
+    private val views = mutableListOf<ViewGroup>()
+
+    override fun endChildren() {
+        super.endChildren()
+        views.forEach { view ->
+            val childViews = children
+                .map { child ->
+                    view.children()
+                        .firstOrNull { it.component == child }
+                        ?: child.createView(view).also {
+                            it.component = child
+                        }
+                }
+
+            view.getViewManager().setViews(childViews, true) // todo check for push
+        }
+    }
+
+    final override fun createView(container: ViewGroup): T {
+        val view = createViewGroup(container)
+        views.add(view)
+
+        val childViews = children.map { child ->
+            child.createView(view)
+                .also {
+                    println("$key created view $it for child ${child.key}")
+                    it.component = child
+                }
+        }
+        view.getViewManager().rebind(childViews)
+
+        return view
+    }
+
+    protected abstract fun createViewGroup(container: ViewGroup): T
+
     override fun updateView(view: T) {
         super.updateView(view)
 
-        val views = children
-            .map { child ->
-                view.children()
-                    .firstOrNull { it.component == child }
-                    ?: child.createView(view).also {
-                        it.component = child
-                    }
-            }
-
-        view.getViewManager().setViews(views, true) // todo check for push
-
         children
             .map { child ->
+                println("search view for child ${child.key} view children ${view.children()} view children components ${view.children().map { it.component?.key }}")
                 view.children()
-                    .first { it.component == child }
+                    .first {
+                        println("child ${it.component} child $child")
+                        it.component == child
+                    }
             }
             .forEach { (it.component as Component<View>).updateView(it) }
     }
@@ -81,12 +112,17 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
     override fun destroyView(view: T) {
         super.destroyView(view)
         val unprocessedChildren = children.toMutableList()
-        view.children().forEach {
-            unprocessedChildren.remove(it.component)
-            (it.component as Component<View>).destroyView(it)
+        view.children().forEach { childView ->
+            val component = childView.component as Component<View>
+            unprocessedChildren.remove(component)
+            component.destroyView(childView)
+            childView.component = null
+            if (!childView.byId) {
+                view.removeView(childView)
+            }
         }
         check(unprocessedChildren.isEmpty()) { unprocessedChildren }
-        view.removeAllViews()
+        views.remove(view)
     }
 
 }

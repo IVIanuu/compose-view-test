@@ -20,3 +20,11 @@ internal var View.component: Component<*>?
     set(value) {
         setTag(componentKey, value)
     }
+
+private val byIdKey = tagKey("byId")
+
+internal var View.byId: Boolean
+    get() = getTag(byIdKey) as? Boolean ?: false
+    set(value) {
+        setTag(byIdKey, value)
+    }

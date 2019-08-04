@@ -18,7 +18,11 @@ fun <T : View> ViewComposition.ViewById(
 ) {
     View(
         key = key,
-        createView = { it.findViewById(id) },
+        createView = { container ->
+            container.findViewById<T>(id).also {
+                it.byId = true
+            }
+        },
         updateView = updateView
     )
 }
@@ -39,7 +43,11 @@ fun <T : ViewGroup> ViewComposition.ViewGroupById(
 ) {
     ViewGroup(
         key = key,
-        createView = { it.findViewById(id) },
+        createView = { container ->
+            container.findViewById<T>(id).also {
+                it.byId = true
+            }
+        },
         updateView = updateView,
         children = children
     )
@@ -156,7 +164,7 @@ private class SimpleViewGroupComponent<T : ViewGroup> : ViewGroupComponent<T>() 
     lateinit var createView: (ViewGroup) -> T
     var updateView: (T.() -> Unit)? = null
 
-    override fun createView(container: ViewGroup): T = createView.invoke(container)
+    override fun createViewGroup(container: ViewGroup): T = createView.invoke(container)
 
     override fun updateView(view: T) {
         super.updateView(view)

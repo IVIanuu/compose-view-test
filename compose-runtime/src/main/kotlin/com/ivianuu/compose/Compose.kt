@@ -16,6 +16,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
             root.composeComponent,
             null
         ) { ViewComposer(root, recomposer = this) }
+        root.composable = composable
         root.compose()
     }
 
@@ -70,6 +71,7 @@ internal class Root(val context: CompositionContext) : GroupComponent<ViewGroup>
     override fun endChildren() {
         super.endChildren()
         val container = context.container ?: return
+
         val views = children
             .map { child ->
                 container.children()
@@ -80,19 +82,25 @@ internal class Root(val context: CompositionContext) : GroupComponent<ViewGroup>
             }
 
         container.getViewManager().setViews(views, true) // todo check for push
+        updateView(container)
     }
 
     fun attachToContainer() {
+        println("$key attach to container")
         val container = context.container ?: return
         val views = children.map { child ->
             child.createView(container)
-                .also { it.component = child }
+                .also {
+                    println("created view $it for child ${child.key}")
+                    it.component = child
+                }
         }
         container.getViewManager().rebind(views)
         updateView(container)
     }
 
     fun detachFromContainer() {
+        println("$key detach to container")
         val container = context.container ?: return
         val unprocessedChildren = children.toMutableList()
         container.children().forEach {
