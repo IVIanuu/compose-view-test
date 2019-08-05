@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
 
-abstract class SharedElementViewTransition : TransitionViewTransition() {
+abstract class SharedElementChangeHandler : TransitionChangeHandler() {
 
     private val sharedElementNames = mutableMapOf<String, String>()
     private val waitForTransitionNames = mutableListOf<String>()

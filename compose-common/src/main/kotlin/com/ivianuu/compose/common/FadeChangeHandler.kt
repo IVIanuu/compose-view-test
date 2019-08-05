@@ -4,22 +4,15 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
-import android.view.ViewGroup
-import com.ivianuu.compose.ViewTransition
+import com.ivianuu.compose.ViewChangeHandler
 
-class FadeViewTransition : AnimatorViewTransition() {
+class FadeChangeHandler : AnimatorChangeHandler() {
 
     private var addedToView = false
 
-    override fun execute(
-        container: ViewGroup,
-        from: View?,
-        to: View?,
-        isPush: Boolean,
-        onComplete: () -> Unit
-    ) {
-        addedToView = to != null && to.parent == null
-        super.execute(container, from, to, isPush, onComplete)
+    override fun execute(changeData: ChangeData) {
+        addedToView = changeData.to != null && changeData.to!!.parent == null
+        super.execute(changeData)
     }
 
     override fun getAnimator(changeData: ChangeData): Animator {
@@ -39,6 +32,6 @@ class FadeViewTransition : AnimatorViewTransition() {
         return animator
     }
 
-    override fun copy(): ViewTransition = FadeViewTransition()
+    override fun copy(): ViewChangeHandler = FadeChangeHandler()
 
 }

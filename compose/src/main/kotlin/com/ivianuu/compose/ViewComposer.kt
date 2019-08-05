@@ -109,8 +109,8 @@ class ViewComposition(val composer: ViewComposer) {
 
         node._key = key
 
-        node.inTransition = +ambient(InTransitionAmbient)
-        node.outTransition = +ambient(OutTransitionAmbient)
+        node.inChangeHandler = +ambient(InChangeHandlerAmbient)
+        node.outChangeHandler = +ambient(OutChangeHandlerAmbient)
         node.wasPush = +ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }

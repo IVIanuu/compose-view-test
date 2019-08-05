@@ -19,7 +19,7 @@ internal fun ViewGroup.getViewManager(): ViewManager {
 internal class ViewManager(val container: ViewGroup) {
 
     val views = mutableListOf<View>()
-    private val runningTransitions = mutableMapOf<View, ViewTransition>()
+    private val runningTransitions = mutableMapOf<View, ViewChangeHandler>()
 
     fun rebind(views: List<View>) {
         println("${container.component?.key} rebind")
@@ -29,7 +29,7 @@ internal class ViewManager(val container: ViewGroup) {
 
         views
             .forEach {
-                performTransition(
+                performChange(
                     null,
                     it,
                     true,
@@ -64,11 +64,11 @@ internal class ViewManager(val container: ViewGroup) {
             .forEach { view ->
                 println("${container.component?.key} remove view ${view.component?.key}")
                 cancelTransition(view)
-                performTransition(
+                performChange(
                     from = view,
                     to = null,
                     isPush = isPush,
-                    transition = view.component?.outTransition
+                    changeHandler = view.component?.outChangeHandler
                 )
             }
 
@@ -77,26 +77,26 @@ internal class ViewManager(val container: ViewGroup) {
             .dropLast(if (replacingTopViews) 1 else 0)
             .forEachIndexed { i, view ->
                 println("${container.component?.key} add view ${view.component?.key}")
-                performTransition(
+                performChange(
                     from = addedViews.getOrNull(i - 1),
                     to = view,
                     isPush = true,
-                    transition = view.component?.inTransition
+                    changeHandler = view.component?.inChangeHandler
                 )
             }
 
         // Replace the old visible top with the new one
         if (replacingTopViews) {
-            val transition = if (isPush) newTopView?.component?.inTransition
-            else oldTopView?.component?.outTransition
+            val transition = if (isPush) newTopView?.component?.inChangeHandler
+            else oldTopView?.component?.outChangeHandler
 
             println("${container.component?.key} replace top new ${newTopView?.component?.key} old ${oldTopView?.component?.key}")
 
-            performTransition(
+            performChange(
                 from = oldTopView,
                 to = newTopView,
                 isPush = isPush,
-                transition = transition
+                changeHandler = transition
             )
         }
     }
@@ -105,32 +105,33 @@ internal class ViewManager(val container: ViewGroup) {
         runningTransitions.remove(view)?.cancel()
     }
 
-    private fun performTransition(
+    private fun performChange(
         from: View?,
         to: View?,
         isPush: Boolean,
-        transition: ViewTransition?
+        changeHandler: ViewChangeHandler?
     ) {
-        val transitionToUse = when {
-            transition == null -> DefaultViewTransition()
-            transition.hasBeenUsed -> transition.copy()
-            else -> transition
+        val handlerToUse = when {
+            changeHandler == null -> DefaultViewChangeHandler()
+            changeHandler.hasBeenUsed -> changeHandler.copy()
+            else -> changeHandler
         }
-        transitionToUse.hasBeenUsed = true
+        handlerToUse.hasBeenUsed = true
 
-        println("perform transition from ${from?.component?.key} to ${to?.component?.key} is push $isPush transition $transitionToUse")
+        println("perform changeHandler from ${from?.component?.key} to ${to?.component?.key} is push $isPush changeHandler $handlerToUse")
 
         from?.let { cancelTransition(it) }
-        to?.let { runningTransitions[it] = transitionToUse }
+        to?.let { runningTransitions[it] = handlerToUse }
 
-        transitionToUse.execute(
-            container,
-            from,
-            to,
-            isPush
-        ) {
-            if (to != null) runningTransitions -= to
-        }
+        val changeData = ViewChangeHandler.ChangeData(
+            container = container,
+            from = from,
+            to = to,
+            isPush = isPush,
+            onComplete = { if (to != null) runningTransitions -= to }
+        )
+
+        handlerToUse.execute(changeData)
     }
 
 }

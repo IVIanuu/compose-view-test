@@ -1,4 +1,4 @@
-package com.ivianuu.compose.sample.transition
+package com.ivianuu.compose.sample.handler
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -6,12 +6,12 @@ import android.animation.ObjectAnimator
 import android.util.Property
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import com.ivianuu.compose.common.AnimatorViewTransition
+import com.ivianuu.compose.common.AnimatorChangeHandler
 
-class FlipTransition(
+class FlipChangeHandler(
     private val flipDirection: FlipDirection = FlipDirection.RIGHT,
     private val animationDuration: Long = DEFAULT_ANIMATION_DURATION
-) : AnimatorViewTransition() {
+) : AnimatorChangeHandler() {
 
     enum class FlipDirection(
         val inStartRotation: Float,
@@ -67,7 +67,7 @@ class FlipTransition(
     }
 
     override fun copy() =
-        FlipTransition(flipDirection, animationDuration)
+        FlipChangeHandler(flipDirection, animationDuration)
 
     companion object {
         private const val DEFAULT_ANIMATION_DURATION = 300L

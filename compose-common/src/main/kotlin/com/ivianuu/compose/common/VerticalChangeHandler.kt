@@ -5,7 +5,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
 
-open class VerticalViewTransition : AnimatorViewTransition() {
+open class VerticalChangeHandler : AnimatorChangeHandler() {
 
     override fun getAnimator(changeData: ChangeData): Animator {
         val (_, from, to, isPush) = changeData
@@ -36,6 +36,6 @@ open class VerticalViewTransition : AnimatorViewTransition() {
         return animator
     }
 
-    override fun copy() = VerticalViewTransition()
+    override fun copy() = VerticalChangeHandler()
 
 }

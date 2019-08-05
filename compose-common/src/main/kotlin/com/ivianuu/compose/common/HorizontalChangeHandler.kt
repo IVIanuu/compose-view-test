@@ -5,7 +5,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
 
-open class HorizontalViewTransition : AnimatorViewTransition() {
+open class HorizontalChangeHandler : AnimatorChangeHandler() {
 
     override fun getAnimator(changeData: ChangeData): Animator {
         val (_, from, to, isPush) = changeData
@@ -57,6 +57,6 @@ open class HorizontalViewTransition : AnimatorViewTransition() {
         return animatorSet
     }
 
-    override fun copy() = HorizontalViewTransition()
+    override fun copy() = HorizontalChangeHandler()
 
 }

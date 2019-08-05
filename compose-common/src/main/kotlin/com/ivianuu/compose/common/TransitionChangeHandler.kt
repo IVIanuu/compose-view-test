@@ -2,23 +2,13 @@ package com.ivianuu.compose.common
 
 import android.transition.Transition
 import android.transition.TransitionManager
-import android.view.View
-import android.view.ViewGroup
-import com.ivianuu.compose.ViewTransition
+import com.ivianuu.compose.ViewChangeHandler
 
-abstract class TransitionViewTransition : ViewTransition() {
+abstract class TransitionChangeHandler : ViewChangeHandler() {
 
     private var canceled = false
 
-    override fun execute(
-        container: ViewGroup,
-        from: View?,
-        to: View?,
-        isPush: Boolean,
-        onComplete: () -> Unit
-    ) {
-        val changeData = ChangeData(container, from, to, isPush, onComplete)
-
+    override fun execute(changeData: ChangeData) {
         val transition = getTransition(changeData)
 
         transition.addListener(object : Transition.TransitionListener {
@@ -32,22 +22,22 @@ abstract class TransitionViewTransition : ViewTransition() {
             }
 
             override fun onTransitionCancel(transition: Transition) {
-                onComplete()
+                changeData.onComplete()
             }
 
             override fun onTransitionEnd(transition: Transition) {
-                onComplete()
+                changeData.onComplete()
             }
         })
 
         prepareForTransition(changeData, transition) {
             // todo transition manager needs a fully attached container
-            if (container.isLaidOut) {
-                TransitionManager.beginDelayedTransition(container, transition)
+            if (changeData.container.isLaidOut) {
+                TransitionManager.beginDelayedTransition(changeData.container, transition)
                 executePropertyChanges(changeData, transition)
             } else {
                 executePropertyChanges(changeData, transition)
-                onComplete()
+                changeData.onComplete()
             }
         }
     }

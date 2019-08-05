@@ -1,4 +1,4 @@
-package com.ivianuu.compose.sample.transition
+package com.ivianuu.compose.sample.handler
 
 import android.transition.ArcMotion
 import android.transition.ChangeBounds
@@ -8,11 +8,11 @@ import android.transition.Fade
 import android.transition.Transition
 import android.transition.TransitionSet
 import android.view.View
-import com.ivianuu.compose.common.SharedElementViewTransition
+import com.ivianuu.compose.common.SharedElementChangeHandler
 import com.ivianuu.compose.common.findNamedView
 
-class ArcFadeMoveTransition(private val sharedElementNames: List<String>) :
-    SharedElementViewTransition() {
+class ArcFadeMoveChangeHandler(private val sharedElementNames: List<String>) :
+    SharedElementChangeHandler() {
 
     override fun getExitTransition(changeData: ChangeData): Transition? {
         return Fade(Fade.OUT)
@@ -63,6 +63,6 @@ class ArcFadeMoveTransition(private val sharedElementNames: List<String>) :
     override fun allowTransitionOverlap(isPush: Boolean): Boolean = false
 
     override fun copy() =
-        ArcFadeMoveTransition(sharedElementNames)
+        ArcFadeMoveChangeHandler(sharedElementNames)
 
 }

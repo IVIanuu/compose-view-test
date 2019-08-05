@@ -5,8 +5,8 @@ import android.view.ViewGroup
 
 abstract class Component<T : View> {
 
-    internal var inTransition: ViewTransition? = null
-    internal var outTransition: ViewTransition? = null
+    internal var inChangeHandler: ViewChangeHandler? = null
+    internal var outChangeHandler: ViewChangeHandler? = null
     internal var wasPush: Boolean = true
 
     internal var _key: Any? = null

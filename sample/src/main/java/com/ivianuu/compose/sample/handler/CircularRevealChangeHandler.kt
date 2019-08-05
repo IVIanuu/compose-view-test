@@ -1,12 +1,12 @@
-package com.ivianuu.compose.sample.transition
+package com.ivianuu.compose.sample.handler
 
 import android.animation.Animator
 import android.view.View
 import android.view.ViewAnimationUtils
-import com.ivianuu.compose.common.AnimatorViewTransition
+import com.ivianuu.compose.common.AnimatorChangeHandler
 import kotlin.math.hypot
 
-open class CircularRevealTransition : AnimatorViewTransition {
+open class CircularRevealChangeHandler : AnimatorChangeHandler {
 
     private var cx = 0
     private var cy = 0
@@ -48,5 +48,5 @@ open class CircularRevealTransition : AnimatorViewTransition {
         return animator!!
     }
 
-    override fun copy() = CircularRevealTransition(cx, cy)
+    override fun copy() = CircularRevealChangeHandler(cx, cy)
 }

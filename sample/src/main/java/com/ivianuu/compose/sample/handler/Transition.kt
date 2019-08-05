@@ -1,4 +1,4 @@
-package com.ivianuu.compose.sample.transition
+package com.ivianuu.compose.sample.handler
 
 import android.content.res.ColorStateList
 import android.view.View
@@ -6,11 +6,11 @@ import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.Transitions
+import com.ivianuu.compose.ViewChangeHandler
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.ViewTransition
-import com.ivianuu.compose.common.FadeViewTransition
-import com.ivianuu.compose.common.HorizontalViewTransition
-import com.ivianuu.compose.common.VerticalViewTransition
+import com.ivianuu.compose.common.FadeChangeHandler
+import com.ivianuu.compose.common.HorizontalChangeHandler
+import com.ivianuu.compose.common.VerticalChangeHandler
 import com.ivianuu.compose.sample.R
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.navigator
@@ -22,7 +22,7 @@ private fun ViewComposition.TransitionDemo(transitionDemo: TransitionDemo): Rout
     Route(key = transitionDemo) {
         val transition = +memo { transitionDemo.getTransition() }
 
-        Transitions(transition = transition) {
+        Transitions(changeHandler = transition) {
             val navigator = navigator()
 
             InflateView<View>(
@@ -66,43 +66,45 @@ private enum class TransitionDemo(
         R.layout.transition_demo,
         Color.Gray
     ) {
-        override fun getTransition(): ViewTransition = VerticalViewTransition()
+        override fun getTransition(): ViewChangeHandler = VerticalChangeHandler()
     },
     CIRCULAR(
         "Circular Reveal Animation (on Lollipop and above, else Fade)",
         R.layout.transition_demo,
         Color.Red
     ) {
-        override fun getTransition(): ViewTransition = CircularRevealTransition(0, 0) // todo
+        override fun getTransition(): ViewChangeHandler = CircularRevealChangeHandler(0, 0) // todo
     },
     FADE("Fade Animation", R.layout.transition_demo, Color.Blue) {
-        override fun getTransition(): ViewTransition = FadeViewTransition()
+        override fun getTransition(): ViewChangeHandler = FadeChangeHandler()
     },
     FLIP("Flip Animation", R.layout.transition_demo, Color.Yellow) {
-        override fun getTransition(): ViewTransition = FlipTransition()
+        override fun getTransition(): ViewChangeHandler = FlipChangeHandler()
     },
     HORIZONTAL(
         "Horizontal Slide Animation",
         R.layout.transition_demo,
         Color.Green
     ) {
-        override fun getTransition(): ViewTransition = HorizontalViewTransition()
+        override fun getTransition(): ViewChangeHandler = HorizontalChangeHandler()
     },
     ARC_FADE(
         "Arc/Fade Shared Element Transition (on Lollipop and above, else Fade)",
         R.layout.transition_demo_shared,
         Color.Transparent
     ) {
-        override fun getTransition(): ViewTransition = ArcFadeMoveTransition(listOf("title", "dot"))
+        override fun getTransition(): ViewChangeHandler =
+            ArcFadeMoveChangeHandler(listOf("title", "dot"))
     },
     ARC_FADE_RESET(
         "Arc/Fade Shared Element Transition (on Lollipop and above, else Fade)",
         R.layout.transition_demo,
         Color.Fuchsia
     ) {
-        override fun getTransition(): ViewTransition = ArcFadeMoveTransition(listOf("title", "dot"))
+        override fun getTransition(): ViewChangeHandler =
+            ArcFadeMoveChangeHandler(listOf("title", "dot"))
     };
 
-    abstract fun getTransition(): ViewTransition
+    abstract fun getTransition(): ViewChangeHandler
 
 }

@@ -2,11 +2,9 @@ package com.ivianuu.compose.common
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.view.View
-import android.view.ViewGroup
-import com.ivianuu.compose.ViewTransition
+import com.ivianuu.compose.ViewChangeHandler
 
-abstract class AnimatorViewTransition : ViewTransition() {
+abstract class AnimatorChangeHandler : ViewChangeHandler() {
 
     private var animator: Animator? = null
     private var onReadyOrAbortedListener: OnReadyOrAbortedListener? = null
@@ -15,37 +13,26 @@ abstract class AnimatorViewTransition : ViewTransition() {
     private var canceled = false
     private var completed = false
 
-    override fun execute(
-        container: ViewGroup,
-        from: View?,
-        to: View?,
-        isPush: Boolean,
-        onComplete: () -> Unit
-    ) {
-        changeData = ChangeData(
-            container,
-            from,
-            to,
-            isPush,
-            onComplete
-        )
+    override fun execute(changeData: ChangeData) {
+        this.changeData = changeData
+        with(changeData) {
+            if (isPush || from == null) {
+                if (to != null) container.addView(to)
+            } else if (to != null && to!!.parent == null) {
+                container.addView(to, container.indexOfChild(from))
+            }
 
-        if (isPush || from == null) {
-            if (to != null) container.addView(to)
-        } else if (to != null && to.parent == null) {
-            container.addView(to, container.indexOfChild(from))
-        }
-
-        if (to != null
-            && to.width <= 0
-            && to.height <= 0
-        ) {
-            onReadyOrAbortedListener =
-                OnReadyOrAbortedListener(to) {
-                    performAnimation(changeData!!)
-                }
-        } else {
-            performAnimation(changeData!!)
+            if (to != null
+                && to!!.width <= 0
+                && to!!.height <= 0
+            ) {
+                onReadyOrAbortedListener =
+                    OnReadyOrAbortedListener(to!!) {
+                        performAnimation(changeData)
+                    }
+            } else {
+                performAnimation(changeData)
+            }
         }
     }
 
