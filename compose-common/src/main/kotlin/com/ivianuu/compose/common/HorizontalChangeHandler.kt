@@ -1,13 +1,11 @@
 package com.ivianuu.compose.common
 
-import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
 
-open class HorizontalChangeHandler : AnimatorChangeHandler() {
-
-    override fun getAnimator(changeData: ChangeData): Animator {
+fun HorizontalChangeHandler(duration: Long = AnimatorChangeHandler.NO_DURATION): AnimatorChangeHandler {
+    return AnimatorChangeHandler(duration) { changeData ->
         val (_, from, to, isPush) = changeData
 
         val animatorSet = AnimatorSet()
@@ -54,9 +52,6 @@ open class HorizontalChangeHandler : AnimatorChangeHandler() {
             }
         }
 
-        return animatorSet
+        return@AnimatorChangeHandler animatorSet
     }
-
-    override fun copy() = HorizontalChangeHandler()
-
 }

@@ -5,9 +5,8 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
 
-open class VerticalChangeHandler : AnimatorChangeHandler() {
-
-    override fun getAnimator(changeData: ChangeData): Animator {
+fun VerticalChangeHandler(duration: Long = AnimatorChangeHandler.NO_DURATION): AnimatorChangeHandler {
+    return AnimatorChangeHandler(duration) { changeData ->
         val (_, from, to, isPush) = changeData
 
         val animator = AnimatorSet()
@@ -33,9 +32,6 @@ open class VerticalChangeHandler : AnimatorChangeHandler() {
         }
 
         animator.playTogether(viewAnimators)
-        return animator
+        return@AnimatorChangeHandler animator
     }
-
-    override fun copy() = VerticalChangeHandler()
-
 }

@@ -47,7 +47,9 @@ abstract class ViewChangeHandler {
         val to: View?,
         val isPush: Boolean,
         val onComplete: () -> Unit
-    )
+    ) {
+        val addedToView = to != null && to.parent == null
+    }
 
 }
 

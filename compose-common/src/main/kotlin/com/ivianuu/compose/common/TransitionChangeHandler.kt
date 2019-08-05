@@ -4,12 +4,16 @@ import android.transition.Transition
 import android.transition.TransitionManager
 import com.ivianuu.compose.ViewChangeHandler
 
-abstract class TransitionChangeHandler : ViewChangeHandler() {
+abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) : ViewChangeHandler() {
 
     private var canceled = false
 
     override fun execute(changeData: ChangeData) {
         val transition = getTransition(changeData)
+
+        if (duration != NO_DURATION) {
+            transition.duration = duration
+        }
 
         transition.addListener(object : Transition.TransitionListener {
             override fun onTransitionStart(transition: Transition) {
@@ -46,14 +50,8 @@ abstract class TransitionChangeHandler : ViewChangeHandler() {
         canceled = true
     }
 
-    /**
-     * Returns the [Transition] to use to swap views
-     */
     protected abstract fun getTransition(changeData: ChangeData): Transition
 
-    /**
-     * Called before starting the [transition]
-     */
     protected open fun prepareForTransition(
         changeData: ChangeData,
         transition: Transition,
@@ -62,11 +60,6 @@ abstract class TransitionChangeHandler : ViewChangeHandler() {
         onTransitionPrepared()
     }
 
-    /**N
-     * This should set all view properties needed for the transition to work properly.
-     * By default it removes the [from] view
-     * and adds the [to] view.
-     */
     protected open fun executePropertyChanges(
         changeData: ChangeData,
         transition: Transition?

@@ -4,7 +4,22 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import com.ivianuu.compose.ViewChangeHandler
 
-abstract class AnimatorChangeHandler : ViewChangeHandler() {
+fun AnimatorChangeHandler(
+    duration: Long = AnimatorChangeHandler.NO_DURATION,
+    getAnimator: (ViewChangeHandler.ChangeData) -> Animator
+): AnimatorChangeHandler = SimpleAnimatorChangeHandler(duration, getAnimator)
+
+private class SimpleAnimatorChangeHandler(
+    duration: Long = NO_DURATION,
+    val getAnimator: (ChangeData) -> Animator
+) : AnimatorChangeHandler(duration) {
+    override fun getAnimator(changeData: ChangeData): Animator =
+        getAnimator.invoke(changeData)
+
+    override fun copy() = SimpleAnimatorChangeHandler(duration, getAnimator)
+}
+
+abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : ViewChangeHandler() {
 
     private var animator: Animator? = null
     private var onReadyOrAbortedListener: OnReadyOrAbortedListener? = null
@@ -54,6 +69,9 @@ abstract class AnimatorChangeHandler : ViewChangeHandler() {
         }
 
         animator = getAnimator(changeData).apply {
+            if (this@AnimatorChangeHandler.duration != NO_DURATION) {
+                this.duration = this@AnimatorChangeHandler.duration
+            }
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     complete()
@@ -79,6 +97,10 @@ abstract class AnimatorChangeHandler : ViewChangeHandler() {
         animator = null
         onReadyOrAbortedListener = null
         changeData = null
+    }
+
+    companion object {
+        const val NO_DURATION = -1L
     }
 
 }
