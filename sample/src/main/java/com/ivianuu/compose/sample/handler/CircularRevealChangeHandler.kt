@@ -1,52 +1,49 @@
 package com.ivianuu.compose.sample.handler
 
 import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.view.View
 import android.view.ViewAnimationUtils
+import android.view.ViewGroup
 import com.ivianuu.compose.common.AnimatorChangeHandler
 import kotlin.math.hypot
 
-open class CircularRevealChangeHandler : AnimatorChangeHandler {
+open class CircularRevealChangeHandler(private val id: Int) : AnimatorChangeHandler() {
 
-    private var cx = 0
-    private var cy = 0
+    override fun getAnimator(changeData: ChangeData): Animator {
+        val (_, from, to, isPush) = changeData
+        return if (from != null && to != null) {
+            if (isPush) {
+                val view = from.findViewById<View>(id)
+                val (cx, cy) = getCenter(changeData.container, view)
+                val radius = hypot(to.width.toFloat(), to.height.toFloat())
+                ViewAnimationUtils.createCircularReveal(to, cx, cy, 0f, radius)
+            } else {
+                val view = to.findViewById<View>(id)
+                val (cx, cy) = getCenter(changeData.container, view)
+                val radius = hypot(from.width.toFloat(), from.height.toFloat())
+                ViewAnimationUtils.createCircularReveal(from, cx, cy, radius, 0f)
+            }
+        } else {
+            ObjectAnimator()
+        }
+    }
 
-    constructor(
-        fromView: View,
-        containerView: View
-    ) : super() {
+    override fun copy() = CircularRevealChangeHandler(id)
+
+    private fun getCenter(
+        container: ViewGroup,
+        view: View
+    ): Pair<Int, Int> {
         val fromLocation = IntArray(2)
-        fromView.getLocationInWindow(fromLocation)
+        view.getLocationInWindow(fromLocation)
 
         val containerLocation = IntArray(2)
-        containerView.getLocationInWindow(containerLocation)
+        container.getLocationInWindow(containerLocation)
 
         val relativeLeft = fromLocation[0] - containerLocation[0]
         val relativeTop = fromLocation[1] - containerLocation[1]
 
-        this.cx = fromView.width / 2 + relativeLeft
-        this.cy = fromView.height / 2 + relativeTop
+        return view.width / 2 + relativeLeft to view.height / 2 + relativeTop
     }
-
-    constructor(
-        cx: Int,
-        cy: Int
-    ) : super() {
-        this.cx = cx
-        this.cy = cy
-    }
-
-    override fun getAnimator(changeData: ChangeData): Animator {
-        val (_, from, to, isPush) = changeData
-        val radius = hypot(cx.toFloat(), cy.toFloat())
-        var animator: Animator? = null
-        if (isPush && to != null) {
-            animator = ViewAnimationUtils.createCircularReveal(to, cx, cy, 0f, radius)
-        } else if (!isPush && from != null) {
-            animator = ViewAnimationUtils.createCircularReveal(from, cx, cy, radius, 0f)
-        }
-        return animator!!
-    }
-
-    override fun copy() = CircularRevealChangeHandler(cx, cy)
 }

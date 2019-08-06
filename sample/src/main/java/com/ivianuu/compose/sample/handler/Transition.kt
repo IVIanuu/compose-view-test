@@ -73,7 +73,8 @@ private enum class TransitionDemo(
         R.layout.transition_demo,
         Color.Red
     ) {
-        override fun getTransition(): ViewChangeHandler = CircularRevealChangeHandler(0, 0) // todo
+        override fun getTransition(): ViewChangeHandler =
+            CircularRevealChangeHandler(R.id.next_button)
     },
     FADE("Fade Animation", R.layout.transition_demo, Color.Blue) {
         override fun getTransition(): ViewChangeHandler = FadeChangeHandler()
