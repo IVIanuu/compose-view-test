@@ -54,8 +54,7 @@ internal class ViewManager(val container: ViewGroup) {
         val newTopView = newViews.lastOrNull()
 
         // check if we should animate the top views
-        val replacingTopViews = newTopView != null && (oldTopView == null
-                || (oldTopView != newTopView))
+        val replacingTopViews = newTopView != null && oldTopView != null && newTopView != oldTopView
 
         // Remove all views which are not present anymore from top to bottom
         removedViews
