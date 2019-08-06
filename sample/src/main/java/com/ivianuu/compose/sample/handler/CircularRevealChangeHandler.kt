@@ -8,18 +8,18 @@ import android.view.ViewGroup
 import com.ivianuu.compose.common.AnimatorChangeHandler
 import kotlin.math.hypot
 
-open class CircularRevealChangeHandler(private val id: Int) : AnimatorChangeHandler() {
+open class CircularRevealChangeHandler(private val id: Int? = null) : AnimatorChangeHandler() {
 
     override fun getAnimator(changeData: ChangeData): Animator {
         val (_, from, to, isPush) = changeData
         return if (from != null && to != null) {
             if (isPush) {
-                val view = from.findViewById<View>(id)
+                val view = id?.let { from.findViewById(it) } ?: from
                 val (cx, cy) = getCenter(changeData.container, view)
                 val radius = hypot(to.width.toFloat(), to.height.toFloat())
                 ViewAnimationUtils.createCircularReveal(to, cx, cy, 0f, radius)
             } else {
-                val view = to.findViewById<View>(id)
+                val view = id?.let { to.findViewById(it) } ?: to
                 val (cx, cy) = getCenter(changeData.container, view)
                 val radius = hypot(from.width.toFloat(), from.height.toFloat())
                 ViewAnimationUtils.createCircularReveal(from, cx, cy, radius, 0f)
