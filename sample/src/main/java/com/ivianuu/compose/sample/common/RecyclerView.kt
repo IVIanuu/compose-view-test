@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.GroupComponent
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.component
 import com.ivianuu.compose.sourceLocation
 
 inline fun ViewComposition.RecyclerView(
@@ -57,6 +58,7 @@ private class ComposeRecyclerViewAdapter :
         val component =
             lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
         val view = component.createView(parent)
+        view.component = component
         return Holder(view)
     }
 

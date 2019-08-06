@@ -12,12 +12,12 @@ import androidx.compose.SlotTable
 import androidx.compose.ambient
 import java.util.*
 
-class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
+class ViewApplyAdapter(private val root: GroupComponent<*>) : ApplyAdapter<Component<*>> {
 
-    private var current = root
-    private val currentStack = Stack<Any>()
+    private var current: Component<*> = root
+    private val currentStack = Stack<Component<*>>()
 
-    override fun Any.start(instance: Any) {
+    override fun Component<*>.start(instance: Component<*>) {
         println("start $this instance $instance")
         currentStack.push(current)
         current = this
@@ -26,14 +26,14 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
         }
     }
 
-    override fun Any.insertAt(index: Int, instance: Any) {
+    override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
         when (this) {
             is GroupComponent<*> -> addChild(index, instance as Component<*>)
             else -> error("Unexpected node $this")
         }
     }
 
-    override fun Any.move(from: Int, to: Int, count: Int) {
+    override fun Component<*>.move(from: Int, to: Int, count: Int) {
         when (this) {
             is GroupComponent<*> -> {
                 repeat(count) {
@@ -44,7 +44,7 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
         }
     }
 
-    override fun Any.removeAt(index: Int, count: Int) {
+    override fun Component<*>.removeAt(index: Int, count: Int) {
         when (this) {
             is GroupComponent<*> -> {
                 (index until index + count).forEach { removeChild(it) }
@@ -53,7 +53,7 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
         }
     }
 
-    override fun Any.end(instance: Any, parent: Any) {
+    override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
             if (instance is GroupComponent<*>) {
                 instance.endChildren()
@@ -68,10 +68,10 @@ class ViewApplyAdapter(private val root: Any) : ApplyAdapter<Any> {
 }
 
 class ViewComposer(
-    val root: Any,
-    val applyAdapter: ViewApplyAdapter = ViewApplyAdapter(root),
+    val root: GroupComponent<*>,
+    applyAdapter: ViewApplyAdapter = ViewApplyAdapter(root),
     recomposer: Recomposer
-) : Composer<Any>(
+) : Composer<Component<*>>(
     SlotTable(),
     Applier(root, applyAdapter), recomposer
 ) {

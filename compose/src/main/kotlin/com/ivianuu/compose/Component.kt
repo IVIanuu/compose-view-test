@@ -74,7 +74,6 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
 
     override fun endChildren() {
         super.endChildren()
-
         views.forEach { view ->
             val childViews = children
                 .map { child ->
@@ -97,6 +96,7 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
     final override fun createView(container: ViewGroup): T {
         val view = createViewGroup(container)
         views.add(view)
+        view.component = this
 
         val childViews = children.map { child ->
             child.createView(view)
@@ -112,6 +112,7 @@ abstract class ViewGroupComponent<T : ViewGroup> : GroupComponent<T>() {
     }
 
     protected abstract fun createViewGroup(container: ViewGroup): T
+
 
     override fun updateView(view: T) {
         super.updateView(view)

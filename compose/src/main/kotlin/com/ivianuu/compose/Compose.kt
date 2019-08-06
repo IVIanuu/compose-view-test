@@ -24,11 +24,13 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
         println("Context: set container $container")
         this.container = container
         root.createView(container)
+        container.component = root
     }
 
     fun removeContainer() {
         println("Context: remove container")
         root.destroyView(container!!)
+        container!!.component = null
         this.container = null
     }
 
