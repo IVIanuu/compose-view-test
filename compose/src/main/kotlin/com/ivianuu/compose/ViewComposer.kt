@@ -28,7 +28,7 @@ class ViewApplyAdapter(private val root: GroupComponent<*>) : ApplyAdapter<Compo
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
         when (this) {
-            is GroupComponent<*> -> addChild(index, instance as Component<*>)
+            is GroupComponent<*> -> addChild(index, instance)
             else -> error("Unexpected node $this")
         }
     }
