@@ -32,8 +32,8 @@ super.update()
 views.forEach { updateView(it) }
 }
 
-override fun endChildren() {
-super.endChildren()
+override fun end() {
+super.end()
 
 views.forEach { view ->
 val childViews = children

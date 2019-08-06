@@ -1,19 +1,22 @@
-package com.ivianuu.compose.sample.handler
+package com.ivianuu.compose.sample
 
 import android.content.res.ColorStateList
 import android.view.View
 import androidx.compose.memo
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.Transitions
+import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewChangeHandler
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.common.CircularRevealChangeHandler
 import com.ivianuu.compose.common.FadeChangeHandler
 import com.ivianuu.compose.common.HorizontalChangeHandler
 import com.ivianuu.compose.common.VerticalChangeHandler
-import com.ivianuu.compose.sample.R
+import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.navigator
+import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
+import com.ivianuu.compose.sample.handler.FlipChangeHandler
 import kotlinx.android.synthetic.main.transition_demo.view.*
 
 fun ViewComposition.TransitionDemos() = TransitionDemo(TransitionDemo.values().first())
@@ -25,10 +28,9 @@ private fun ViewComposition.TransitionDemo(transitionDemo: TransitionDemo): Rout
         Transitions(changeHandler = transition) {
             val navigator = navigator()
 
-            InflateView<View>(
-                key = transitionDemo,
-                layoutRes = transitionDemo.layoutRes,
-                updateView = {
+            View<View>(key = transitionDemo) {
+                layoutRes(transitionDemo.layoutRes)
+                updateView {
                     if (transitionDemo.color != Color.Transparent && transition_bg != null) {
                         transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
                     }
@@ -52,7 +54,8 @@ private fun ViewComposition.TransitionDemo(transitionDemo: TransitionDemo): Rout
                             navigator.popToRoot()
                         }
                     }
-                })
+                }
+            }
         }
     }
 
@@ -80,7 +83,8 @@ private enum class TransitionDemo(
         override fun getTransition(): ViewChangeHandler = FadeChangeHandler()
     },
     FLIP("Flip Animation", R.layout.transition_demo, Color.Yellow) {
-        override fun getTransition(): ViewChangeHandler = FlipChangeHandler()
+        override fun getTransition(): ViewChangeHandler =
+            FlipChangeHandler()
     },
     HORIZONTAL(
         "Horizontal Slide Animation",

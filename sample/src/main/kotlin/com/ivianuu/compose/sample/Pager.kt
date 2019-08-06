@@ -3,10 +3,11 @@ package com.ivianuu.compose.sample
 import android.view.View
 import androidx.compose.memo
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.InflateView
 import com.ivianuu.compose.Transitions
+import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.FadeChangeHandler
+import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.ViewPager
@@ -56,8 +57,11 @@ private fun ViewComposition.Page(
     index: Int,
     color: Color
 ) {
-    InflateView<View>(layoutRes = R.layout.page, updateView = {
-        page_bg.setBackgroundColor(color.toArgb())
-        page_text.text = "#$index"
-    })
+    View<View> {
+        layoutRes(R.layout.page)
+        updateView {
+            page_bg.setBackgroundColor(color.toArgb())
+            page_text.text = "#$index"
+        }
+    }
 }

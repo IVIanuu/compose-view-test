@@ -2,9 +2,10 @@ package com.ivianuu.compose.sample.common
 
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import com.ivianuu.compose.InflateViewGroup
+import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.ViewGroupById
+import com.ivianuu.compose.byId
+import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.R
 import com.ivianuu.compose.sourceLocation
 
@@ -20,15 +21,14 @@ fun ViewComposition.Scaffold(
     appBar: (ViewComposition.() -> Unit)? = null,
     content: (ViewComposition.() -> Unit)? = null
 ) {
-    InflateViewGroup<LinearLayout>(
-        key = key,
-        layoutRes = R.layout.scaffold
-    ) {
-        ViewGroupById<FrameLayout>(R.id.app_bar) {
+    View<LinearLayout>(key = key) {
+        layoutRes(R.layout.scaffold)
+        View<FrameLayout> {
+            byId(R.id.app_bar)
             appBar?.invoke(this@Scaffold)
         }
-
-        ViewGroupById<FrameLayout>(R.id.content) {
+        View<FrameLayout> {
+            byId(R.id.content)
             content?.invoke(this@Scaffold)
         }
     }

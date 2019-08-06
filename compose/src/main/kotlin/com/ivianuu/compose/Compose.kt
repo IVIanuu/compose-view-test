@@ -23,14 +23,12 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
     fun setContainer(container: ViewGroup) {
         println("Context: set container $container")
         this.container = container
-        root.createView(container)
-        container.component = root
+        root.performCreateView(container)
     }
 
     fun removeContainer() {
         println("Context: remove container")
         root.destroyView(container!!)
-        container!!.component = null
         this.container = null
     }
 
@@ -75,6 +73,5 @@ internal class Root : ViewGroupComponent<ViewGroup>() {
         }
     }
 
-    override fun createViewGroup(container: ViewGroup): ViewGroup = container
-
+    override fun createView(container: ViewGroup): ViewGroup = container
 }

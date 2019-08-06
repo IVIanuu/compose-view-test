@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.ivianuu.compose.Component
-import com.ivianuu.compose.GroupComponent
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.sourceLocation
 import android.view.ViewGroup.LayoutParams as LayoutParams1
@@ -27,11 +26,11 @@ fun ViewComposition.ViewPager(
     emit(
         key = key,
         ctor = { ViewPagerComponent() },
-        children = children
+        update = { children() }
     )
 }
 
-class ViewPagerComponent : GroupComponent<ViewPager2>() {
+class ViewPagerComponent : Component<ViewPager2>() {
 
     override fun createView(container: ViewGroup): ViewPager2 =
         ViewPager2(container.context).apply {
@@ -51,7 +50,7 @@ private class ComposePagerAdapter :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component = getItem(viewType)
-        val view = component.createView(parent)
+        val view = component.performCreateView(parent)
         return Holder(view)
     }
 

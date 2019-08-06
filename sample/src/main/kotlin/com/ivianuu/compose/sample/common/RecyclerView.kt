@@ -8,9 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.Component
-import com.ivianuu.compose.GroupComponent
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.component
 import com.ivianuu.compose.sourceLocation
 
 inline fun ViewComposition.RecyclerView(
@@ -26,11 +24,11 @@ fun ViewComposition.RecyclerView(
     emit(
         key = key,
         ctor = { RecyclerViewComponent() },
-        children = children
+        update = { children() }
     )
 }
 
-class RecyclerViewComponent : GroupComponent<RecyclerView>() {
+class RecyclerViewComponent : Component<RecyclerView>() {
 
     override fun createView(container: ViewGroup): RecyclerView {
         return RecyclerView(container.context).apply {
@@ -57,8 +55,7 @@ private class ComposeRecyclerViewAdapter :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component =
             lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
-        val view = component.createView(parent)
-        view.component = component
+        val view = component.performCreateView(parent)
         return Holder(view)
     }
 

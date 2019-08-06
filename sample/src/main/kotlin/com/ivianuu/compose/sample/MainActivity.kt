@@ -17,6 +17,6 @@ class MainActivity : AppCompatActivity() {
 
 private fun ViewComposition.App() {
     CraneWrapper {
-        Navigator { Home() }
+        Navigator { Home2() }
     }
 }

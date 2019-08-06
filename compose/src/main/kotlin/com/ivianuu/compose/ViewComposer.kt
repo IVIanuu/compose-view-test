@@ -12,55 +12,39 @@ import androidx.compose.SlotTable
 import androidx.compose.ambient
 import java.util.*
 
-class ViewApplyAdapter(private val root: GroupComponent<*>) : ApplyAdapter<Component<*>> {
+class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<*>> {
 
     private var current: Component<*> = root
     private val currentStack = Stack<Component<*>>()
 
     override fun Component<*>.start(instance: Component<*>) {
-        println("start $this instance $instance")
+        if (current == root) {
+            root.start()
+        }
+
         currentStack.push(current)
         current = this
-        if (this is GroupComponent<*>) {
-            beginChildren()
-        }
+        start()
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
-        when (this) {
-            is GroupComponent<*> -> addChild(index, instance)
-            else -> error("Unexpected node $this")
-        }
+        addChild(index, instance)
     }
 
     override fun Component<*>.move(from: Int, to: Int, count: Int) {
-        when (this) {
-            is GroupComponent<*> -> {
-                repeat(count) {
-                    moveChild(from, to)
-                }
-            }
-            else -> error("Unexpected node $this")
-        }
+        repeat(count) { moveChild(from, to) }
     }
 
     override fun Component<*>.removeAt(index: Int, count: Int) {
-        when (this) {
-            is GroupComponent<*> -> {
-                (index until index + count).forEach { removeChild(it) }
-            }
-            else -> error("Unexpected node $this")
-        }
+        (index until index + count).forEach { removeChild(it) }
     }
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
-            if (instance is GroupComponent<*>) {
-                instance.endChildren()
-            }
+            instance.end()
             current = currentStack.pop()
             if (current == root) {
-                (current as GroupComponent<*>).endChildren()
+                root.end()
             }
         }
     }
@@ -68,7 +52,7 @@ class ViewApplyAdapter(private val root: GroupComponent<*>) : ApplyAdapter<Compo
 }
 
 class ViewComposer(
-    val root: GroupComponent<*>,
+    val root: Component<*>,
     applyAdapter: ViewApplyAdapter = ViewApplyAdapter(root),
     recomposer: Recomposer
 ) : Composer<Component<*>>(
@@ -97,10 +81,10 @@ class ViewComposition(val composer: ViewComposer) {
     fun <T : Component<*>> emit(
         key: Any,
         ctor: () -> T,
-        update: (T.() -> Unit)? = null, // todo
-        children: (ViewComposition.() -> Unit)? = null
+        update: (T.() -> Unit)? = null
     ) = with(composer) {
         startNode(key)
+        println("emit $key inserting ? $inserting")
         val node = if (inserting) {
             ctor().also { emitNode(it) }
         } else {
@@ -114,7 +98,6 @@ class ViewComposition(val composer: ViewComposer) {
         node.wasPush = +ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }
-        children?.invoke(this@ViewComposition)
         node.update() // todo
 
         endNode()

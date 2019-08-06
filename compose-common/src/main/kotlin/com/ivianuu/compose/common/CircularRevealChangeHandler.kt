@@ -1,11 +1,10 @@
-package com.ivianuu.compose.sample.handler
+package com.ivianuu.compose.common
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewGroup
-import com.ivianuu.compose.common.AnimatorChangeHandler
 import kotlin.math.hypot
 
 open class CircularRevealChangeHandler(private val id: Int? = null) : AnimatorChangeHandler() {
@@ -14,12 +13,12 @@ open class CircularRevealChangeHandler(private val id: Int? = null) : AnimatorCh
         val (_, from, to, isPush) = changeData
         return if (from != null && to != null) {
             if (isPush) {
-                val view = id?.let { from.findViewById(it) } ?: from
+                val view = id?.let { from.findViewById<View>(it) } ?: from
                 val (cx, cy) = getCenter(changeData.container, view)
                 val radius = hypot(to.width.toFloat(), to.height.toFloat())
                 ViewAnimationUtils.createCircularReveal(to, cx, cy, 0f, radius)
             } else {
-                val view = id?.let { to.findViewById(it) } ?: to
+                val view = id?.let { to.findViewById<View>(it) } ?: to
                 val (cx, cy) = getCenter(changeData.container, view)
                 val radius = hypot(from.width.toFloat(), from.height.toFloat())
                 ViewAnimationUtils.createCircularReveal(from, cx, cy, radius, 0f)
