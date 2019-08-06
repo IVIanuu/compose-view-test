@@ -118,11 +118,6 @@ internal class ViewManager(val container: ViewGroup) {
         handlerToUse.hasBeenUsed = true
 
         println("${container.component?.key} perform change from ${from?.component?.key} to ${to?.component?.key} is push $isPush changeHandler $handlerToUse")
-        try {
-            error("")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }

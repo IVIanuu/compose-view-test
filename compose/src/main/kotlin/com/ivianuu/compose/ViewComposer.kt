@@ -9,7 +9,6 @@ import androidx.compose.EffectsDsl
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
-import androidx.compose.ambient
 import java.util.*
 
 class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<*>> {
@@ -93,9 +92,9 @@ class ViewComposition(val composer: ViewComposer) {
 
         node._key = key
 
-        node.inChangeHandler = +ambient(InChangeHandlerAmbient)
-        node.outChangeHandler = +ambient(OutChangeHandlerAmbient)
-        node.wasPush = +ambient(TransitionHintsAmbient)
+        node.inChangeHandler = ambient(InChangeHandlerAmbient)
+        node.outChangeHandler = ambient(OutChangeHandlerAmbient)
+        node.wasPush = ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }
         node.update() // todo

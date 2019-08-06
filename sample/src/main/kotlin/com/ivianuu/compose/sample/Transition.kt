@@ -2,7 +2,6 @@ package com.ivianuu.compose.sample
 
 import android.content.res.ColorStateList
 import android.view.View
-import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.View
@@ -13,6 +12,7 @@ import com.ivianuu.compose.common.FadeChangeHandler
 import com.ivianuu.compose.common.HorizontalChangeHandler
 import com.ivianuu.compose.common.VerticalChangeHandler
 import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.navigator
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
@@ -23,7 +23,7 @@ fun ViewComposition.TransitionDemos() = TransitionDemo(TransitionDemo.values().f
 
 private fun ViewComposition.TransitionDemo(transitionDemo: TransitionDemo): Route =
     Route(key = transitionDemo) {
-        val transition = +memo { transitionDemo.getTransition() }
+        val transition = memo { transitionDemo.getTransition() }
 
         Transitions(changeHandler = transition) {
             val navigator = navigator()

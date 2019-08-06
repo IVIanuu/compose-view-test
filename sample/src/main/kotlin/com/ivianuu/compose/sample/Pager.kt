@@ -1,13 +1,13 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
-import androidx.compose.memo
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.FadeChangeHandler
 import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.ViewPager
@@ -38,7 +38,7 @@ val AllColors = arrayOf(
 )
 
 fun ViewComposition.Pager() = Route {
-    val transition = +memo { FadeChangeHandler() }
+    val transition = memo { FadeChangeHandler() }
     Transitions(changeHandler = transition) {
         Scaffold(
             appBar = { AppBar("Pager") },

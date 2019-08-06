@@ -31,6 +31,11 @@ enum class HomeItem(
         title = "Transitions",
         color = Color.Red,
         route = { TransitionDemos() }
+    ),
+    Animation(
+        title = "Animation",
+        color = Color.Yellow,
+        route = { Animation() }
     )
 }
 
