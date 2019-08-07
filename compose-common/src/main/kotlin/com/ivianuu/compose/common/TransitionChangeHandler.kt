@@ -2,9 +2,10 @@ package com.ivianuu.compose.common
 
 import android.transition.Transition
 import android.transition.TransitionManager
-import com.ivianuu.compose.ViewChangeHandler
+import com.ivianuu.compose.ComponentChangeHandler
 
-abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) : ViewChangeHandler() {
+abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) :
+    ComponentChangeHandler() {
 
     private var canceled = false
 

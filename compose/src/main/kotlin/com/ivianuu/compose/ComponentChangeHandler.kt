@@ -4,12 +4,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Ambient
 
-val InChangeHandlerAmbient = Ambient.of<ViewChangeHandler?>("InTransition")
-val OutChangeHandlerAmbient = Ambient.of<ViewChangeHandler?>("OutTransition")
+val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
+val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
 val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
 
 fun ViewComposition.Transitions(
-    changeHandler: ViewChangeHandler?,
+    changeHandler: ComponentChangeHandler?,
     children: ViewComposition.() -> Unit
 ) {
     Transitions(
@@ -20,8 +20,8 @@ fun ViewComposition.Transitions(
 }
 
 fun ViewComposition.Transitions(
-    inChangeHandler: ViewChangeHandler? = null,
-    outChangeHandler: ViewChangeHandler? = null,
+    inChangeHandler: ComponentChangeHandler? = null,
+    outChangeHandler: ComponentChangeHandler? = null,
     children: ViewComposition.() -> Unit
 ) {
     InChangeHandlerAmbient.Provider(inChangeHandler) {
@@ -31,7 +31,7 @@ fun ViewComposition.Transitions(
     }
 }
 
-abstract class ViewChangeHandler {
+abstract class ComponentChangeHandler {
 
     internal var hasBeenUsed = false
 
@@ -39,7 +39,7 @@ abstract class ViewChangeHandler {
 
     abstract fun cancel()
 
-    abstract fun copy(): ViewChangeHandler
+    abstract fun copy(): ComponentChangeHandler
 
     data class ChangeData(
         val container: ViewGroup,
@@ -53,7 +53,7 @@ abstract class ViewChangeHandler {
 
 }
 
-class DefaultViewChangeHandler : ViewChangeHandler() {
+class DefaultChangeHandler : ComponentChangeHandler() {
 
     override fun execute(changeData: ChangeData) {
         with(changeData) {
@@ -63,8 +63,8 @@ class DefaultViewChangeHandler : ViewChangeHandler() {
         }
     }
 
-    override fun copy(): ViewChangeHandler =
-        DefaultViewChangeHandler()
+    override fun copy(): ComponentChangeHandler =
+        DefaultChangeHandler()
 
     override fun cancel() {
     }

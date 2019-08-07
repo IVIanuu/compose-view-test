@@ -18,16 +18,18 @@ internal fun ViewGroup.getViewManager(): ViewManager {
 
 internal class ViewManager(val container: ViewGroup) {
 
-    val views = mutableListOf<View>()
-    private val runningTransitions = mutableMapOf<View, ViewChangeHandler>()
+    val children = mutableListOf<Component<*>>()
+    private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
 
-    fun rebind(views: List<View>) {
-        println("${container.component?.key} rebind")
+    private val viewsByChild = mutableMapOf<Component<*>, View>()
 
-        this.views.clear()
-        this.views += views
+    fun init(children: List<Component<*>>) {
+        println("${container.component?.key} init")
 
-        views
+        this.children.clear()
+        this.children += children
+
+        children
             .forEach {
                 performChange(
                     null,
@@ -38,96 +40,126 @@ internal class ViewManager(val container: ViewGroup) {
             }
     }
 
-    fun setViews(newViews: List<View>, isPush: Boolean) {
-        println("${container.component?.key} set views")
+    fun clear() {
+        children.forEach {
+            performChange(
+                it,
+                null,
+                false,
+                null
+            )
+        }
+    }
 
-        if (newViews == views) return
+    fun update(newChildren: List<Component<*>>, isPush: Boolean) {
+        println("${container.component?.key} set components")
 
-        val oldViews = views.toList()
-        val removedViews = oldViews.filter { it !in newViews }
-        val addedViews = newViews.filter { it !in oldViews }
+        if (children == newChildren) return
 
-        views.clear()
-        views += newViews
+        val oldChildren = children.toList()
+        val removedChildren = oldChildren.filter { it !in newChildren }
+        val addedChildren = newChildren.filter { it !in oldChildren }
 
-        val oldTopView = oldViews.lastOrNull()
-        val newTopView = newViews.lastOrNull()
+        children.clear()
+        children += newChildren
+
+        val oldTopChild = oldChildren.lastOrNull()
+        val newTopChild = newChildren.lastOrNull()
 
         // check if we should animate the top views
-        val replacingTopViews = newTopView != null && oldTopView != null && newTopView != oldTopView
+        val replacingTopChildren =
+            newTopChild != null && oldTopChild != null && newTopChild != oldTopChild
 
         // Remove all views which are not present anymore from top to bottom
-        removedViews
-            .dropLast(if (replacingTopViews) 1 else 0)
+        removedChildren
+            .dropLast(if (replacingTopChildren) 1 else 0)
             .reversed()
-            .forEach { view ->
-                println("${container.component?.key} remove view ${view.component?.key}")
-                cancelTransition(view)
+            .forEach { child ->
+                println("${container.component?.key} remove view ${child.key}")
+                cancelTransition(child)
                 performChange(
-                    from = view,
+                    from = child,
                     to = null,
                     isPush = isPush,
-                    changeHandler = view.component?.outChangeHandler
+                    changeHandler = child.outChangeHandler
                 )
             }
 
         // Add any new views to the backStack from bottom to top
-        addedViews
-            .dropLast(if (replacingTopViews) 1 else 0)
-            .forEachIndexed { i, view ->
-                println("${container.component?.key} add view ${view.component?.key}")
+        addedChildren
+            .dropLast(if (replacingTopChildren) 1 else 0)
+            .forEachIndexed { i, child ->
+                println("${container.component?.key} add view ${child.key}")
                 performChange(
-                    from = addedViews.getOrNull(i - 1),
-                    to = view,
+                    from = addedChildren.getOrNull(i - 1),
+                    to = child,
                     isPush = true,
-                    changeHandler = view.component?.inChangeHandler
+                    changeHandler = child.inChangeHandler
                 )
             }
 
         // Replace the old visible top with the new one
-        if (replacingTopViews) {
-            val transition = if (isPush) newTopView?.component?.inChangeHandler
-            else oldTopView?.component?.outChangeHandler
+        if (replacingTopChildren) {
+            val transition = if (isPush) newTopChild?.inChangeHandler
+            else oldTopChild?.outChangeHandler
 
-            println("${container.component?.key} replace top new ${newTopView?.component?.key} old ${oldTopView?.component?.key}")
+            println("${container.component?.key} replace top new ${newTopChild?.key} old ${oldTopChild?.key}")
 
             performChange(
-                from = oldTopView,
-                to = newTopView,
+                from = oldTopChild,
+                to = newTopChild,
                 isPush = isPush,
                 changeHandler = transition
             )
         }
     }
 
-    private fun cancelTransition(view: View) {
-        runningTransitions.remove(view)?.cancel()
+    private fun cancelTransition(component: Component<*>) {
+        runningTransitions.remove(component)?.cancel()
     }
 
     private fun performChange(
-        from: View?,
-        to: View?,
+        from: Component<*>?,
+        to: Component<*>?,
         isPush: Boolean,
-        changeHandler: ViewChangeHandler?
+        changeHandler: ComponentChangeHandler?
     ) {
         val handlerToUse = when {
-            changeHandler == null -> DefaultViewChangeHandler()
+            changeHandler == null -> DefaultChangeHandler()
             changeHandler.hasBeenUsed -> changeHandler.copy()
             else -> changeHandler
         }
         handlerToUse.hasBeenUsed = true
 
-        println("${container.component?.key} perform change from ${from?.component?.key} to ${to?.component?.key} is push $isPush changeHandler $handlerToUse")
+        println("${container.component?.key} perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse")
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val changeData = ViewChangeHandler.ChangeData(
+        val fromView = viewsByChild[from]
+
+        val toView = if (to != null) {
+            viewsByChild.getOrPut(to) {
+                to.performCreateView(container)
+            }
+        } else {
+            null
+        }
+
+        (to as? Component<View>)?.bindView(toView!!)
+
+        val changeData = ComponentChangeHandler.ChangeData(
             container = container,
-            from = from,
-            to = to,
+            from = fromView,
+            to = toView,
             isPush = isPush,
-            onComplete = { if (to != null) runningTransitions -= to }
+            onComplete = {
+                if (to != null) runningTransitions -= to
+                if (from != null) {
+                    (from as Component<View>).unbindView(fromView!!)
+                    viewsByChild.remove(from)
+                }
+            }
         )
 
         handlerToUse.execute(changeData)

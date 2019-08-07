@@ -5,8 +5,8 @@ import android.view.ViewGroup
 
 abstract class Component<T : View> {
 
-    internal var inChangeHandler: ViewChangeHandler? = null
-    internal var outChangeHandler: ViewChangeHandler? = null
+    internal var inChangeHandler: ComponentChangeHandler? = null
+    internal var outChangeHandler: ComponentChangeHandler? = null
     internal var wasPush: Boolean = true
 
     internal var _key: Any? = null
@@ -27,7 +27,7 @@ abstract class Component<T : View> {
     }
 
     open fun start() {
-        println("start children $key current children ${children.map { it.key }}")
+        println("start $key current children ${children.map { it.key }}")
     }
 
     open fun addChild(index: Int, child: Component<*>) {
@@ -49,7 +49,8 @@ abstract class Component<T : View> {
     }
 
     open fun end() {
-        println("end children $key children ${children.map { it.key }}")
+        println("end $key children ${children.map { it.key }}")
+        update()
     }
 
     protected abstract fun createView(container: ViewGroup): T
@@ -77,38 +78,18 @@ abstract class ViewGroupComponent<T : ViewGroup> : Component<T>() {
 
     override fun performCreateView(container: ViewGroup): T {
         val view = super.performCreateView(container)
-        val childViews = children.map { child ->
-            child.performCreateView(view)
-                .also { (child as Component<View>).bindView(it) }
-        }
-        view.getViewManager().rebind(childViews)
+        view.getViewManager().init(children)
         return view
     }
 
     override fun bindView(view: T) {
         super.bindView(view)
-
-        val childViews = children
-            .map { child ->
-                val childView = view.children()
-                    .firstOrNull { it.component == child }
-                    ?: child.performCreateView(view)
-                (child as Component<View>).bindView(childView)
-                childView
-            }
-
-        view.getViewManager()
-            .setViews(childViews, childViews.lastOrNull()?.component?.wasPush ?: true)
+        view.getViewManager().update(children, children.lastOrNull()?.wasPush ?: true)
     }
 
     override fun unbindView(view: T) {
         super.unbindView(view)
-        children
-            .forEach { child ->
-                val childView = view.children()
-                    .first { it.component == child }
-                (child as Component<View>).unbindView(childView)
-            }
+        view.getViewManager().clear()
     }
 
 }

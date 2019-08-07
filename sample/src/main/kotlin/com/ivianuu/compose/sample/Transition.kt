@@ -3,9 +3,9 @@ package com.ivianuu.compose.sample
 import android.content.res.ColorStateList
 import android.view.View
 import androidx.ui.graphics.Color
+import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewChangeHandler
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.CircularRevealChangeHandler
 import com.ivianuu.compose.common.FadeChangeHandler
@@ -69,21 +69,21 @@ private enum class TransitionDemo(
         R.layout.transition_demo,
         Color.Gray
     ) {
-        override fun getTransition(): ViewChangeHandler = VerticalChangeHandler()
+        override fun getTransition(): ComponentChangeHandler = VerticalChangeHandler()
     },
     CIRCULAR(
         "Circular Reveal Animation (on Lollipop and above, else Fade)",
         R.layout.transition_demo,
         Color.Red
     ) {
-        override fun getTransition(): ViewChangeHandler =
+        override fun getTransition(): ComponentChangeHandler =
             CircularRevealChangeHandler(R.id.next_button)
     },
     FADE("Fade Animation", R.layout.transition_demo, Color.Blue) {
-        override fun getTransition(): ViewChangeHandler = FadeChangeHandler()
+        override fun getTransition(): ComponentChangeHandler = FadeChangeHandler()
     },
     FLIP("Flip Animation", R.layout.transition_demo, Color.Yellow) {
-        override fun getTransition(): ViewChangeHandler =
+        override fun getTransition(): ComponentChangeHandler =
             FlipChangeHandler()
     },
     HORIZONTAL(
@@ -91,14 +91,14 @@ private enum class TransitionDemo(
         R.layout.transition_demo,
         Color.Green
     ) {
-        override fun getTransition(): ViewChangeHandler = HorizontalChangeHandler()
+        override fun getTransition(): ComponentChangeHandler = HorizontalChangeHandler()
     },
     ARC_FADE(
         "Arc/Fade Shared Element Transition (on Lollipop and above, else Fade)",
         R.layout.transition_demo_shared,
         Color.Transparent
     ) {
-        override fun getTransition(): ViewChangeHandler =
+        override fun getTransition(): ComponentChangeHandler =
             ArcFadeMoveChangeHandler(listOf("title", "dot"))
     },
     ARC_FADE_RESET(
@@ -106,10 +106,10 @@ private enum class TransitionDemo(
         R.layout.transition_demo,
         Color.Fuchsia
     ) {
-        override fun getTransition(): ViewChangeHandler =
+        override fun getTransition(): ComponentChangeHandler =
             ArcFadeMoveChangeHandler(listOf("title", "dot"))
     };
 
-    abstract fun getTransition(): ViewChangeHandler
+    abstract fun getTransition(): ComponentChangeHandler
 
 }

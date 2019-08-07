@@ -2,11 +2,11 @@ package com.ivianuu.compose.common
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import com.ivianuu.compose.ViewChangeHandler
+import com.ivianuu.compose.ComponentChangeHandler
 
 fun AnimatorChangeHandler(
     duration: Long = AnimatorChangeHandler.NO_DURATION,
-    getAnimator: (ViewChangeHandler.ChangeData) -> Animator
+    getAnimator: (ComponentChangeHandler.ChangeData) -> Animator
 ): AnimatorChangeHandler = SimpleAnimatorChangeHandler(duration, getAnimator)
 
 private class SimpleAnimatorChangeHandler(
@@ -19,7 +19,7 @@ private class SimpleAnimatorChangeHandler(
     override fun copy() = SimpleAnimatorChangeHandler(duration, getAnimator)
 }
 
-abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : ViewChangeHandler() {
+abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : ComponentChangeHandler() {
 
     private var animator: Animator? = null
     private var onReadyOrAbortedListener: OnReadyOrAbortedListener? = null
