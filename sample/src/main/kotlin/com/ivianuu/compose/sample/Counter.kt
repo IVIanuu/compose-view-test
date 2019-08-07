@@ -1,7 +1,7 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
-import com.ivianuu.compose.Transitions
+import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.HorizontalChangeHandler
@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.counter.view.*
 fun ViewComposition.Counter() = Route {
     val transition = memo { HorizontalChangeHandler() }
 
-    Transitions(changeHandler = transition) {
+    ChangeHandlers(handler = transition) {
         Scaffold(
             appBar = { AppBar("Counter") },
             content = {

@@ -33,7 +33,7 @@ enum class HomeItem(
         route = { Pager() }
     ),
     Transition(
-        title = "Transitions",
+        title = "ChangeHandlers",
         color = Color.Red,
         route = { TransitionDemos() }
     ),

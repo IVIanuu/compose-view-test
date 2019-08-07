@@ -2,7 +2,7 @@ package com.ivianuu.compose.sample
 
 import android.view.View
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.Transitions
+import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.FadeChangeHandler
@@ -42,13 +42,13 @@ val AllColors = arrayOf(
 
 fun ViewComposition.Pager() = Route {
     val transition = memo { FadeChangeHandler() }
-    Transitions(changeHandler = transition) {
+    ChangeHandlers(handler = transition) {
         var selectedPage by state { 0 }
 
         Scaffold(
             appBar = {
                 TabLayout(
-                    selectedTab = selectedPage,
+                    selectedIndex = selectedPage,
                     onTabChanged = { selectedPage = it },
                     children = {
                         (1..5).forEach { i ->

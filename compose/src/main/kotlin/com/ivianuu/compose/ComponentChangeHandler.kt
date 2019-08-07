@@ -8,24 +8,24 @@ val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
 val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
 val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
 
-fun ViewComposition.Transitions(
-    changeHandler: ComponentChangeHandler?,
+fun ViewComposition.ChangeHandlers(
+    handler: ComponentChangeHandler?,
     children: ViewComposition.() -> Unit
 ) {
-    Transitions(
-        inChangeHandler = changeHandler,
-        outChangeHandler = changeHandler,
+    ChangeHandlers(
+        inHandler = handler,
+        outHandler = handler,
         children = children
     )
 }
 
-fun ViewComposition.Transitions(
-    inChangeHandler: ComponentChangeHandler? = null,
-    outChangeHandler: ComponentChangeHandler? = null,
+fun ViewComposition.ChangeHandlers(
+    inHandler: ComponentChangeHandler? = null,
+    outHandler: ComponentChangeHandler? = null,
     children: ViewComposition.() -> Unit
 ) {
-    InChangeHandlerAmbient.Provider(inChangeHandler) {
-        OutChangeHandlerAmbient.Provider(outChangeHandler) {
+    InChangeHandlerAmbient.Provider(inHandler) {
+        OutChangeHandlerAmbient.Provider(outHandler) {
             children()
         }
     }

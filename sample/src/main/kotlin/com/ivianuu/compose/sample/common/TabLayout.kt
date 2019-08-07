@@ -16,11 +16,11 @@ import com.ivianuu.compose.sample.R
 import com.ivianuu.compose.sourceLocation
 
 inline fun ViewComposition.TabLayout(
-    selectedTab: Int,
+    selectedIndex: Int,
     noinline onTabChanged: (Int) -> Unit,
     noinline children: ViewComposition.() -> Unit
 ) {
-    TabLayout(sourceLocation(), selectedTab, onTabChanged, children)
+    TabLayout(sourceLocation(), selectedIndex, onTabChanged, children)
 }
 
 fun ViewComposition.TabLayout(

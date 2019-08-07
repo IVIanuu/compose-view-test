@@ -3,8 +3,8 @@ package com.ivianuu.compose.sample
 import android.content.res.ColorStateList
 import android.view.View
 import androidx.ui.graphics.Color
+import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentChangeHandler
-import com.ivianuu.compose.Transitions
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.CircularRevealChangeHandler
@@ -25,7 +25,7 @@ private fun ViewComposition.TransitionDemo(transitionDemo: TransitionDemo): Rout
     Route(key = transitionDemo) {
         val transition = memo { transitionDemo.getTransition() }
 
-        Transitions(changeHandler = transition) {
+        ChangeHandlers(handler = transition) {
             val navigator = navigator()
 
             View<View>(key = transitionDemo) {
