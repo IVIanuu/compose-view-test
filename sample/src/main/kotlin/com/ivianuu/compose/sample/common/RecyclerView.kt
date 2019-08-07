@@ -33,13 +33,20 @@ class RecyclerViewComponent : Component<RecyclerView>() {
     override fun createView(container: ViewGroup): RecyclerView {
         return RecyclerView(container.context).apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = ComposeRecyclerViewAdapter()
         }
     }
 
     override fun bindView(view: RecyclerView) {
         super.bindView(view)
+        if (view.adapter == null) {
+            view.adapter = ComposeRecyclerViewAdapter()
+        }
         (view.adapter as ComposeRecyclerViewAdapter).submitList(children.toList())
+    }
+
+    override fun unbindView(view: RecyclerView) {
+        view.adapter = null
+        super.unbindView(view)
     }
 
 }

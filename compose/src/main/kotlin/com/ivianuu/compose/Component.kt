@@ -88,8 +88,8 @@ abstract class ViewGroupComponent<T : ViewGroup> : Component<T>() {
     }
 
     override fun unbindView(view: T) {
-        super.unbindView(view)
         view.getViewManager().clear()
+        super.unbindView(view)
     }
 
 }
