@@ -30,7 +30,7 @@ fun <T : View> ViewComposition.View(
                 val dsl = ViewDsl<ViewGroup>().apply(block as ViewDsl<ViewGroup>.() -> Unit)
                 createView = dsl.createView
                 updateViewBlocks = dsl.updateViewBlocks
-                destroyViewBlocks = dsl.destroyViewBlocks
+                unbindViewBlocks = dsl.unbindViewBlocks
             }
         )
     } else {
@@ -40,8 +40,8 @@ fun <T : View> ViewComposition.View(
             update = {
                 val dsl = ViewDsl<T>().apply(block)
                 createView = dsl.createView
-                updateViewBlocks = dsl.updateViewBlocks
-                destroyViewBlocks = dsl.destroyViewBlocks
+                bindViewBlocks = dsl.updateViewBlocks
+                unbindViewBlocks = dsl.unbindViewBlocks
             }
         )
     }
@@ -51,7 +51,7 @@ class ViewDsl<T : View> {
 
     internal var createView: (ViewGroup) -> T by Delegates.notNull()
     internal var updateViewBlocks: MutableList<T.() -> Unit>? = null
-    internal var destroyViewBlocks: MutableList<T.() -> Unit>? = null
+    internal var unbindViewBlocks: MutableList<T.() -> Unit>? = null
 
     fun createView(createView: (ViewGroup) -> T) {
         this.createView = createView
@@ -63,8 +63,8 @@ class ViewDsl<T : View> {
     }
 
     fun destroyView(block: T.() -> Unit) {
-        if (destroyViewBlocks == null) destroyViewBlocks = mutableListOf()
-        destroyViewBlocks!! += block
+        if (unbindViewBlocks == null) unbindViewBlocks = mutableListOf()
+        unbindViewBlocks!! += block
     }
 
 }
@@ -95,38 +95,38 @@ fun <T : View> ViewDsl<T>.byId(id: Int) {
 
 private class ViewDslComponent<T : View> : Component<T>() {
     lateinit var createView: (ViewGroup) -> T
-    var updateViewBlocks: List<T.() -> Unit>? = null
-    var destroyViewBlocks: List<T.() -> Unit>? = null
+    var bindViewBlocks: List<T.() -> Unit>? = null
+    var unbindViewBlocks: List<T.() -> Unit>? = null
 
     override fun createView(container: ViewGroup): T =
         createView.invoke(container)
 
-    override fun updateView(view: T) {
-        super.updateView(view)
-        updateViewBlocks?.forEach { it(view) }
+    override fun bindView(view: T) {
+        super.bindView(view)
+        bindViewBlocks?.forEach { it(view) }
     }
 
-    override fun destroyView(view: T) {
-        super.destroyView(view)
-        destroyViewBlocks?.forEach { it(view) }
+    override fun unbindView(view: T) {
+        super.unbindView(view)
+        unbindViewBlocks?.forEach { it(view) }
     }
 }
 
 private class ViewGroupDslComponent<T : ViewGroup> : ViewGroupComponent<T>() {
     lateinit var createView: (ViewGroup) -> T
     var updateViewBlocks: List<T.() -> Unit>? = null
-    var destroyViewBlocks: List<T.() -> Unit>? = null
+    var unbindViewBlocks: List<T.() -> Unit>? = null
 
     override fun createView(container: ViewGroup): T =
         createView.invoke(container)
 
-    override fun updateView(view: T) {
-        super.updateView(view)
+    override fun bindView(view: T) {
+        super.bindView(view)
         updateViewBlocks?.forEach { it(view) }
     }
 
-    override fun destroyView(view: T) {
-        super.destroyView(view)
-        destroyViewBlocks?.forEach { it(view) }
+    override fun unbindView(view: T) {
+        super.unbindView(view)
+        unbindViewBlocks?.forEach { it(view) }
     }
 }

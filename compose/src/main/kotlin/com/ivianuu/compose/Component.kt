@@ -12,16 +12,18 @@ abstract class Component<T : View> {
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
 
-    internal var _parent: Component<*>? = null
+    private var _parent: Component<*>? = null
     val parent: Component<*> get() = _parent ?: error("Not mounted ${javaClass.canonicalName}")
 
     private val _children = mutableListOf<Component<*>>()
     val children: List<Component<*>> get() = _children
 
-    val views = mutableListOf<T>()
+    val boundViews: Set<T> get() = _boundViews
+    private val _boundViews = mutableSetOf<T>()
 
     open fun update() {
-        views.forEach { updateView(it) }
+        println("update $key bound views ${_boundViews.size}")
+        _boundViews.forEach { bindView(it) }
     }
 
     open fun start() {
@@ -56,83 +58,62 @@ abstract class Component<T : View> {
         println("create view $key $container")
         val view = createView(container)
         view.component = this
-        views.add(view)
-        updateView(view)
+        bindView(view)
         return view
     }
 
-    open fun updateView(view: T) {
-        println("update view $key $view")
+    open fun bindView(view: T) {
+        println("bind view $key $view")
+        _boundViews.add(view)
     }
 
-    open fun destroyView(view: T) {
-        println("destroy view $key $view")
-        view.component = null
+    open fun unbindView(view: T) {
+        println("unbind view $key $view")
+        _boundViews.remove(view)
     }
 
 }
 
 abstract class ViewGroupComponent<T : ViewGroup> : Component<T>() {
 
-    private var firstUpdate = true
+    private var isCreatingView = false
 
     override fun performCreateView(container: ViewGroup): T {
-        firstUpdate = true
+        isCreatingView = true
         val view = super.performCreateView(container)
-        val childViews = children.map { child -> child.performCreateView(view) }
-        view.getViewManager().rebind(childViews)
+        isCreatingView = false
         return view
     }
 
-    override fun end() {
-        super.end()
+    override fun bindView(view: T) {
+        super.bindView(view)
 
-        views.forEach { view ->
-            val childViews = children
-                .map { child ->
-                    view.children()
-                        .firstOrNull { it.component == child }
-                        ?.also { (child as Component<View>).updateView(it) }
-                        ?: child.performCreateView(view)
-                }
-
-            view.getViewManager()
-                .setViews(childViews, childViews.lastOrNull()?.component?.wasPush ?: true)
-        }
-    }
-
-    override fun updateView(view: T) {
-        super.updateView(view)
-
-        if (!firstUpdate) {
-            val childViews = children
-                .map { child ->
-                    view.children()
-                        .firstOrNull { it.component == child }
-                        ?.also { (child as Component<View>).updateView(it) }
-                        ?: child.performCreateView(view)
-                }
-
-            view.getViewManager()
-                .setViews(childViews, childViews.lastOrNull()?.component?.wasPush ?: true)
+        if (isCreatingView) {
+            val childViews = children.map { child -> child.performCreateView(view) }
+            view.getViewManager().rebind(childViews)
         } else {
-            firstUpdate = false
+            val childViews = children
+                .map { child ->
+                    view.children()
+                        .firstOrNull { it.component == child }
+                        ?.also { (child as Component<View>).bindView(it) }
+                        ?: child.performCreateView(view)
+                }
+
+            view.getViewManager()
+                .setViews(childViews, childViews.lastOrNull()?.component?.wasPush ?: true)
         }
     }
 
-    override fun destroyView(view: T) {
-        super.destroyView(view)
-
-        val unprocessedChildren = children.toMutableList()
-        view.children().forEach { childView ->
-            val component = childView.component as Component<View>
-            unprocessedChildren.remove(component)
-            component.destroyView(childView)
-            if (!childView.byId) {
-                view.removeView(childView)
+    override fun unbindView(view: T) {
+        super.unbindView(view)
+        children
+            .forEach { child ->
+                val childView = view.children()
+                    .firstOrNull { it.component == child }
+                    ?: return@forEach
+                (child as Component<View>).unbindView(childView)
             }
-        }
-        check(unprocessedChildren.isEmpty()) { unprocessedChildren }
     }
 
 }

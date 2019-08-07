@@ -22,6 +22,11 @@ enum class HomeItem(
         color = Color.Magenta,
         route = { Counter() }
     ),
+    List(
+        title = "List",
+        color = Color.Maroon,
+        route = { List() }
+    ),
     Pager(
         title = "Pager",
         color = Color.Cyan,

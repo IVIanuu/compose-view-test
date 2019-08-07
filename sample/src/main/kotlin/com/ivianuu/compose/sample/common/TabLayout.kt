@@ -29,7 +29,7 @@ private val views = mutableListOf<TabLayout>()
 
 override fun update() {
 super.update()
-views.forEach { updateView(it) }
+views.forEach { bindView(it) }
 }
 
 override fun end() {
@@ -41,11 +41,11 @@ val childViews = children
 view.children()
 .firstOrNull { it.component == child }
 ?.also {
-(child as Component<View>).updateView(it)
+(child as Component<View>).bindView(it)
 }
 ?: child.createView(view).also {
 it.component = child
-(child as Component<View>).updateView(it)
+(child as Component<View>).bindView(it)
 }
 }
 
@@ -64,31 +64,31 @@ val childViews = children.map { child ->
 child.createView(view)
 .also {
 it.component = child
-(child as Component<View>).updateView(it)
+(child as Component<View>).bindView(it)
 }
 }
 
 return view
 }
 
-override fun updateView(view: TabLayout) {
-super.updateView(view)
+override fun bindView(view: TabLayout) {
+super.bindView(view)
 
 children
 .map { child ->
 view.children()
 .first { it.component == child }
 }
-.forEach { (it.component as Component<View>).updateView(it) }
+.forEach { (it.component as Component<View>).bindView(it) }
 }
 
-override fun destroyView(view: TabLayout) {
-super.destroyView(view)
+override fun unbindView(view: TabLayout) {
+super.unbindView(view)
 val unprocessedChildren = children.toMutableList()
 view.children().forEach { childView ->
 val component = childView.component as Component<View>
 unprocessedChildren.remove(component)
-component.destroyView(childView)
+component.unbindView(childView)
 childView.component = null
 if (!childView.byId) {
 view.removeView(childView)

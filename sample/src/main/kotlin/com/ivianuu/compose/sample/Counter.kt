@@ -19,13 +19,13 @@ fun ViewComposition.Counter() = Route {
         Scaffold(
             appBar = { AppBar("Counter") },
             content = {
-                val (count, setCount) = state { 0 }
+                var count by state { 0 }
                 View<View> {
                     layoutRes(R.layout.counter)
                     updateView {
                         title.text = "Count: $count"
-                        inc.setOnClickListener { setCount(count + 1) }
-                        dec.setOnClickListener { setCount(count - 1) }
+                        inc.setOnClickListener { count = count + 1 }
+                        dec.setOnClickListener { count = count - 1 }
                     }
                 }
             }

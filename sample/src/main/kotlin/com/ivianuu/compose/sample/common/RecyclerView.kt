@@ -37,41 +37,57 @@ class RecyclerViewComponent : Component<RecyclerView>() {
         }
     }
 
-    override fun updateView(view: RecyclerView) {
-        super.updateView(view)
+    override fun bindView(view: RecyclerView) {
+        super.bindView(view)
         (view.adapter as ComposeRecyclerViewAdapter).submitList(children.toList())
     }
+
 }
 
 private class ComposeRecyclerViewAdapter :
     ListAdapter<Component<*>, ComposeRecyclerViewAdapter.Holder>(ITEM_CALLBACK) {
-
-    private var lastItemViewTypeRequest: Component<*>? = null
 
     init {
         setHasStableIds(true)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val component =
-            lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
+        val component = currentList[viewType]
         val view = component.performCreateView(parent)
-        return Holder(view)
+        return Holder(component as Component<View>, view)
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        (getItem(position) as Component<View>).updateView(holder.itemView)
+        holder.bind()
     }
 
-    override fun getItemViewType(position: Int): Int {
-        val component = getItem(position)
-        lastItemViewTypeRequest = component
-        return component.key.hashCode()
+    override fun onViewRecycled(holder: Holder) {
+        super.onViewRecycled(holder)
+        holder.unbind()
     }
 
     override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
 
-    class Holder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
+    class Holder(
+        val component: Component<View>,
+        val view: View
+    ) : RecyclerView.ViewHolder(view) {
+        init {
+            setIsRecyclable(false)
+        }
+
+        fun bind() {
+            component.bindView(view)
+        }
+
+        fun unbind() {
+            component.unbindView(view)
+        }
+    }
 
     private companion object {
         val ITEM_CALLBACK = object : DiffUtil.ItemCallback<Component<*>>() {

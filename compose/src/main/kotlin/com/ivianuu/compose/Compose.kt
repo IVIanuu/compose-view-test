@@ -28,7 +28,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
 
     fun removeContainer() {
         println("Context: remove container")
-        root.destroyView(container!!)
+        root.unbindView(container!!)
         this.container = null
     }
 

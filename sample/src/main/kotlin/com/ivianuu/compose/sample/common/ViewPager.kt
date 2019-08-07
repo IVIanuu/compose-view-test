@@ -38,8 +38,8 @@ class ViewPagerComponent : Component<ViewPager2>() {
             adapter = ComposePagerAdapter()
         }
 
-    override fun updateView(view: ViewPager2) {
-        super.updateView(view)
+    override fun bindView(view: ViewPager2) {
+        super.bindView(view)
         (view.adapter as ComposePagerAdapter).submitList(children.toList())
     }
 
@@ -59,7 +59,7 @@ private class ComposePagerAdapter :
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        (getItem(position) as Component<View>).updateView(holder.itemView)
+        (getItem(position) as Component<View>).bindView(holder.itemView)
     }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView)
