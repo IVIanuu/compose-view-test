@@ -5,7 +5,7 @@ import android.view.ViewGroup
 
 private val viewManagerKey = tagKey("viewManager")
 
-internal fun ViewGroup.getViewManager(): ViewManager {
+fun ViewGroup.getViewManager(): ViewManager {
     var viewManager = getTag(viewManagerKey) as? ViewManager
     if (viewManager == null) {
         viewManager = ViewManager(this)
@@ -16,7 +16,7 @@ internal fun ViewGroup.getViewManager(): ViewManager {
 
 }
 
-internal class ViewManager(val container: ViewGroup) {
+class ViewManager(val container: ViewGroup) {
 
     val children = mutableListOf<Component<*>>()
     private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()

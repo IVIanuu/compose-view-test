@@ -10,6 +10,8 @@ import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
+import com.ivianuu.compose.sample.common.TabItem
+import com.ivianuu.compose.sample.common.TabLayout
 import com.ivianuu.compose.sample.common.ViewPager
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.page.view.*
@@ -41,10 +43,21 @@ val AllColors = arrayOf(
 fun ViewComposition.Pager() = Route {
     val transition = memo { FadeChangeHandler() }
     Transitions(changeHandler = transition) {
+        var selectedPage by state { 0 }
+
         Scaffold(
-            appBar = { AppBar("Pager") },
+            appBar = {
+                TabLayout(
+                    selectedTab = selectedPage,
+                    onTabChanged = { selectedPage = it },
+                    children = {
+                        (1..5).forEach { i ->
+                            TabItem("Tab $i")
+                        }
+                    }
+                )
+            },
             content = {
-                var selectedPage by state { 0 }
                 ViewPager(
                     selectedPage = selectedPage,
                     onPageChanged = { selectedPage = it },
