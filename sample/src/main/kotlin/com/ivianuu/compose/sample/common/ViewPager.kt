@@ -35,12 +35,19 @@ class ViewPagerComponent : Component<ViewPager2>() {
     override fun createView(container: ViewGroup): ViewPager2 =
         ViewPager2(container.context).apply {
             layoutParams = LayoutParams1(MATCH_PARENT, MATCH_PARENT)
-            adapter = ComposePagerAdapter()
         }
 
     override fun bindView(view: ViewPager2) {
         super.bindView(view)
+        if (view.adapter == null) {
+            view.adapter = ComposePagerAdapter()
+        }
         (view.adapter as ComposePagerAdapter).submitList(children.toList())
+    }
+
+    override fun unbindView(view: ViewPager2) {
+        view.adapter = null
+        super.unbindView(view)
     }
 
 }
@@ -48,21 +55,46 @@ class ViewPagerComponent : Component<ViewPager2>() {
 private class ComposePagerAdapter :
     ListAdapter<Component<*>, ComposePagerAdapter.Holder>(ITEM_CALLBACK) {
 
+    init {
+        setHasStableIds(true)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val component = getItem(viewType)
+        val component = currentList[viewType]
         val view = component.performCreateView(parent)
         return Holder(view)
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
-
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        (getItem(position) as Component<View>).bindView(holder.itemView)
+        holder.bind(getItem(position) as Component<View>)
     }
 
-    class Holder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    override fun onViewRecycled(holder: Holder) {
+        super.onViewRecycled(holder)
+        holder.unbind()
+    }
+
+    override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
+
+    override fun getItemViewType(position: Int): Int = position
+
+    class Holder(val view: View) : RecyclerView.ViewHolder(view) {
+
+        private var boundComponent: Component<View>? = null
+
+        fun bind(component: Component<View>) {
+            if (boundComponent != null && boundComponent != component) {
+                unbind()
+            }
+
+            boundComponent = component
+            component.bindView(view)
+        }
+
+        fun unbind() {
+            boundComponent?.unbindView(view)
+        }
+    }
 
     private companion object {
         val ITEM_CALLBACK = object : DiffUtil.ItemCallback<Component<*>>() {
@@ -74,4 +106,5 @@ private class ComposePagerAdapter :
                 oldItem == newItem
         }
     }
+
 }
