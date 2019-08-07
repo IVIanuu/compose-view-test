@@ -14,23 +14,34 @@ import com.ivianuu.compose.sourceLocation
 import android.view.ViewGroup.LayoutParams as LayoutParams1
 
 inline fun ViewComposition.ViewPager(
+    selectedPage: Int,
+    noinline onPageChanged: (Int) -> Unit,
     noinline children: ViewComposition.() -> Unit
 ) {
-    ViewPager(sourceLocation(), children)
+    ViewPager(sourceLocation(), selectedPage, onPageChanged, children)
 }
 
 fun ViewComposition.ViewPager(
     key: Any,
+    selectedPage: Int,
+    onPageChanged: (Int) -> Unit,
     children: ViewComposition.() -> Unit
 ) {
     emit(
         key = key,
         ctor = { ViewPagerComponent() },
-        update = { children() }
+        update = {
+            this.selectedPage = selectedPage
+            this.onPageChanged = onPageChanged
+            children()
+        }
     )
 }
 
 class ViewPagerComponent : Component<ViewPager2>() {
+
+    var selectedPage = 0
+    lateinit var onPageChanged: (Int) -> Unit
 
     override fun createView(container: ViewGroup): ViewPager2 =
         ViewPager2(container.context).apply {
@@ -43,6 +54,13 @@ class ViewPagerComponent : Component<ViewPager2>() {
             view.adapter = ComposePagerAdapter()
         }
         (view.adapter as ComposePagerAdapter).submitList(children.toList())
+        view.currentItem = selectedPage
+        view.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                onPageChanged(position)
+            }
+        })
     }
 
     override fun unbindView(view: ViewPager2) {

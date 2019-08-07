@@ -1,5 +1,10 @@
 package com.ivianuu.compose.sample.common
 
+class TabController {
+
+
+}
+
 /**
 
 import android.view.View
