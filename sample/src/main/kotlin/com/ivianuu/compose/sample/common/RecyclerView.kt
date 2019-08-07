@@ -47,18 +47,21 @@ class RecyclerViewComponent : Component<RecyclerView>() {
 private class ComposeRecyclerViewAdapter :
     ListAdapter<Component<*>, ComposeRecyclerViewAdapter.Holder>(ITEM_CALLBACK) {
 
+    private var lastItemViewTypeRequest: Component<*>? = null
+
     init {
         setHasStableIds(true)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val component = currentList[viewType]
+        val component =
+            lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
         val view = component.performCreateView(parent)
-        return Holder(component as Component<View>, view)
+        return Holder(view)
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind()
+        holder.bind(getItem(position) as Component<View>)
     }
 
     override fun onViewRecycled(holder: Holder) {
@@ -69,23 +72,26 @@ private class ComposeRecyclerViewAdapter :
     override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
 
     override fun getItemViewType(position: Int): Int {
-        return position
+        val component = getItem(position)
+        lastItemViewTypeRequest = component
+        return component.key.hashCode()
     }
 
-    class Holder(
-        val component: Component<View>,
-        val view: View
-    ) : RecyclerView.ViewHolder(view) {
-        init {
-            setIsRecyclable(false)
-        }
+    class Holder(val view: View) : RecyclerView.ViewHolder(view) {
 
-        fun bind() {
+        private var boundComponent: Component<View>? = null
+
+        fun bind(component: Component<View>) {
+            if (boundComponent != null && boundComponent != component) {
+                unbind()
+            }
+
+            boundComponent = component
             component.bindView(view)
         }
 
         fun unbind() {
-            component.unbindView(view)
+            boundComponent?.unbindView(view)
         }
     }
 

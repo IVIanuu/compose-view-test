@@ -24,6 +24,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
         println("Context: set container $container")
         this.container = container
         root.performCreateView(container)
+        root.bindView(container)
     }
 
     fun removeContainer() {
