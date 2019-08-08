@@ -23,7 +23,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
     fun setContainer(container: ViewGroup) {
         println("Context: set container $container")
         this.container = container
-        root.performCreateView(container)
+        root.createView(container)
         root.bindView(container)
     }
 
@@ -74,5 +74,5 @@ internal class Root : ViewGroupComponent<ViewGroup>() {
         }
     }
 
-    override fun createView(container: ViewGroup): ViewGroup = container
+    override fun createViewGroup(container: ViewGroup): ViewGroup = container
 }

@@ -140,7 +140,7 @@ class ViewManager(val container: ViewGroup) {
 
         val toView = if (to != null) {
             viewsByChild.getOrPut(to) {
-                to.performCreateView(container)
+                to.createView(container)
             }
         } else {
             null

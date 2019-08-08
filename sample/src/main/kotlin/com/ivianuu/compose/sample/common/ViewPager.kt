@@ -79,7 +79,7 @@ private class ComposePagerAdapter :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component = currentList[viewType]
-        val view = component.performCreateView(parent)
+        val view = component.createView(parent)
         return Holder(view)
     }
 

@@ -53,12 +53,7 @@ abstract class Component<T : View> {
         update()
     }
 
-    protected abstract fun createView(container: ViewGroup): T
-
-    open fun performCreateView(container: ViewGroup): T {
-        println("create view $key $container")
-        return createView(container)
-    }
+    abstract fun createView(container: ViewGroup): T
 
     open fun bindView(view: T) {
         println("bind view $key $view")
@@ -76,11 +71,13 @@ abstract class Component<T : View> {
 
 abstract class ViewGroupComponent<T : ViewGroup> : Component<T>() {
 
-    override fun performCreateView(container: ViewGroup): T {
-        val view = super.performCreateView(container)
+    override fun createView(container: ViewGroup): T {
+        val view = createViewGroup(container)
         view.getViewManager().init(children)
         return view
     }
+
+    protected abstract fun createViewGroup(container: ViewGroup): T
 
     override fun bindView(view: T) {
         super.bindView(view)

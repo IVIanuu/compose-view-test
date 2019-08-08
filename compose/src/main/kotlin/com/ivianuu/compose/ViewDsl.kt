@@ -117,7 +117,7 @@ private class ViewGroupDslComponent<T : ViewGroup> : ViewGroupComponent<T>() {
     var updateViewBlocks: List<T.() -> Unit>? = null
     var unbindViewBlocks: List<T.() -> Unit>? = null
 
-    override fun createView(container: ViewGroup): T =
+    override fun createViewGroup(container: ViewGroup): T =
         createView.invoke(container)
 
     override fun bindView(view: T) {
