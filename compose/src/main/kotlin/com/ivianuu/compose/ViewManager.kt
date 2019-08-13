@@ -169,8 +169,8 @@ class ViewManager(val container: ViewGroup) {
             isPush = isPush,
             onComplete = {
                 if (to != null) runningTransitions -= to
-                if (from != null) {
-                    (from as Component<View>).unbindView(fromView!!)
+                if (from != null && fromView != null) {
+                    (from as Component<View>).unbindView(fromView)
                     viewsByChild.remove(from)
                 }
             }
