@@ -23,7 +23,7 @@ import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.navigator
 
 fun ViewComposition.AppBar(title: String) {
-    val navigator = navigator()
+    val navigator = +navigator()
     View<MaterialToolbar> {
         layoutRes(R.layout.app_bar)
         bindView {

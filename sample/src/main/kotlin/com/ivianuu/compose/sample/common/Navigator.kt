@@ -29,7 +29,7 @@ import com.ivianuu.compose.sourceLocation
 
 val NavigatorAmbient = Ambient.of<Navigator>()
 
-fun ViewComposition.navigator() = +ambient(NavigatorAmbient)
+fun navigator() = ambient(NavigatorAmbient)
 
 interface Route {
 

@@ -17,6 +17,8 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import androidx.compose.memo
@@ -67,6 +69,10 @@ fun ViewComposition.Pager() = Route {
             appBar = {
                 View<LinearLayout> {
                     bindView {
+                        layoutParams = layoutParams.apply {
+                            width = MATCH_PARENT
+                            height = WRAP_CONTENT
+                        }
                         orientation = VERTICAL
                     }
 
