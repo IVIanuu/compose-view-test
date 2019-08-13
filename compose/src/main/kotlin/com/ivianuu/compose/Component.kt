@@ -26,30 +26,20 @@ abstract class Component<T : View> {
         _boundViews.forEach { bindView(it) }
     }
 
-    open fun start() {
-        println("start $key current children ${children.map { it.key }}")
-    }
+    open fun updateChildren(newChildren: List<Component<*>>) {
+        println("update children $key ${newChildren.map { it.key }}")
 
-    open fun addChild(index: Int, child: Component<*>) {
-        println("insert child $key index $index child ${child.key}")
-        _children.add(index, child)
-        child._parent = this
-    }
+        _children
+            .filter { it !in newChildren }
+            .forEach { it._parent = null }
 
-    open fun moveChild(from: Int, to: Int) {
-        println("move child $key from $from to $to")
-        _children.add(to, _children.removeAt(from))
-    }
+        newChildren
+            .filter { it !in _children }
+            .forEach { it._parent = this }
 
-    open fun removeChild(index: Int) {
-        println("remove child $key index $index")
-        _children.removeAt(index).also {
-            it._parent = null
-        }
-    }
+        _children.clear()
+        _children += newChildren
 
-    open fun end() {
-        println("end $key children ${children.map { it.key }}")
         update()
     }
 
@@ -57,13 +47,13 @@ abstract class Component<T : View> {
 
     open fun bindView(view: T) {
         println("bind view $key $view")
-        _boundViews.add(view)
+        _boundViews += view
         view.component = this
     }
 
     open fun unbindView(view: T) {
         println("unbind view $key $view")
-        _boundViews.remove(view)
+        _boundViews -= view
         view.component = null
     }
 

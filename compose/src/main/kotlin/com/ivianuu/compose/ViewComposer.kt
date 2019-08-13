@@ -17,34 +17,49 @@ class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<
     private var current: Component<*> = root
     private val currentStack = Stack<Component<*>>()
 
-    override fun Component<*>.start(instance: Component<*>) {
-        if (current == root) {
-            root.start()
+    private val childrenByParent =
+        mutableMapOf<Component<*>, MutableList<Component<*>>>()
+
+    private fun MutableMap<Component<*>, MutableList<Component<*>>>.getOrPut(key: Component<*>) =
+        getOrPut(key) {
+            mutableListOf<Component<*>>().apply {
+                addAll(key.children)
+            }
         }
 
+    override fun Component<*>.start(instance: Component<*>) {
         currentStack.push(current)
         current = this
-        start()
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
-        addChild(index, instance)
+        println("$key insert at $index ${instance.key}")
+        childrenByParent.getOrPut(this).add(index, instance)
     }
 
     override fun Component<*>.move(from: Int, to: Int, count: Int) {
-        repeat(count) { moveChild(from, to) }
+        val children = childrenByParent.getOrPut(this)
+        repeat(count) {
+            children.add(to, children.removeAt(from))
+        }
     }
 
     override fun Component<*>.removeAt(index: Int, count: Int) {
-        (index until index + count).forEach { removeChild(it) }
+        val children = childrenByParent.getOrPut(this)
+        (index until index + count).forEach {
+            children.removeAt(it)
+        }
     }
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
-            instance.end()
+            instance.updateChildren(childrenByParent.getOrPut(instance))
             current = currentStack.pop()
+            childrenByParent.remove(instance)
+
             if (current == root) {
-                root.end()
+                root.updateChildren(childrenByParent.getOrPut(root))
+                childrenByParent.remove(root)
             }
         }
     }
