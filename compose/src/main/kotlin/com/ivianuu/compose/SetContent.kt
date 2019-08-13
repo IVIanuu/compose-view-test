@@ -29,19 +29,19 @@ import androidx.lifecycle.ViewModelProvider
 val ActivityRefAmbient = Ambient.of<Ref<Activity?>>()
 
 fun ComponentActivity.setContent(
-    containerProvider: () -> ViewGroup = { findViewById(android.R.id.content) },
+    container: ViewGroup = findViewById(android.R.id.content),
     composable: ViewComposition.() -> Unit
 ) {
     val holder = ViewModelProvider(
         this,
         ContextHolder.Factory(composable)
-    ).get(com.ivianuu.compose.ContextHolder::class.java)
+    ).get(ContextHolder::class.java)
 
     val context = holder.context
     val activityRef = holder.activityRef
 
     activityRef.value = this
-    context.setContainer(containerProvider())
+    context.setContainer(container)
 
     lifecycle.addObserver(object : LifecycleEventObserver {
         override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
