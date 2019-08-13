@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.sample.common
+package com.ivianuu.compose.common
 
 import android.annotation.SuppressLint
 import android.view.View
@@ -53,8 +53,6 @@ fun ViewComposition.RecyclerView(
             if (adapter == null) {
                 adapter = ComposeRecyclerViewAdapter()
             }
-
-            println("bind recycler ${component!!.children.map { it.key }}")
 
             (adapter as ComposeRecyclerViewAdapter).submitList(component!!.children.toList())
         }

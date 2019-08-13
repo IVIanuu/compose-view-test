@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.sample.common
+package com.ivianuu.compose
 
-import android.widget.FrameLayout
-import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.createView
-import com.ivianuu.compose.sourceLocation
+import android.app.Activity
+import androidx.compose.Ambient
 
-inline fun ViewComposition.CraneWrapper(noinline children: ViewComposition.() -> Unit) {
-    CraneWrapper(sourceLocation(), children)
-}
-
-fun ViewComposition.CraneWrapper(key: Any, children: ViewComposition.() -> Unit) {
-    View<FrameLayout>(key) {
-        createView()
-        children()
-    }
-}
+val ActivityRefAmbient = Ambient.of<Ref<Activity?>>()

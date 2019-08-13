@@ -21,8 +21,8 @@ import android.view.View
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.layoutRes
-import com.ivianuu.compose.sample.common.RecyclerView
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.navigator

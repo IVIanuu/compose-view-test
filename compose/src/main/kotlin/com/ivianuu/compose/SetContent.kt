@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.sample.common
+package com.ivianuu.compose
 
 import android.app.Activity
 import android.view.ViewGroup
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.ivianuu.compose.CompositionContext
-import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.sample.MainActivity
 
-fun MainActivity.setContent(
+fun ComponentActivity.setContent(
     containerProvider: () -> ViewGroup = { findViewById(android.R.id.content) },
     composable: ViewComposition.() -> Unit
 ) {
     val holder = ViewModelProvider(
         this,
         ContextHolder.Factory(composable)
-    ).get(ContextHolder::class.java)
+    ).get(com.ivianuu.compose.ContextHolder::class.java)
 
     val context = holder.context
     val activityRef = holder.activityRef

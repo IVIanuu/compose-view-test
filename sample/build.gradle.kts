@@ -27,7 +27,6 @@ apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/kt
 
 dependencies {
     implementation(Deps.androidxAppCompat)
-    implementation(Deps.androidxRecyclerView)
     implementation(project(":compose"))
     implementation(project(":compose-common"))
     implementation(Deps.materialComponents)

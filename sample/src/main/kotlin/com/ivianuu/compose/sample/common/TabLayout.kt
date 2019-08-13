@@ -93,6 +93,8 @@ fun ViewComposition.TabLayout(
                 }
             removeAllTabs()
         }
+
+        children()
     }
 }
 

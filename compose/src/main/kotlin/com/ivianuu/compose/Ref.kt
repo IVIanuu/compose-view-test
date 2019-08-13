@@ -14,9 +14,25 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.sample.common
+package com.ivianuu.compose
 
-import android.app.Activity
-import androidx.compose.Ambient
+typealias RefUpdateCallback<T> = (oldValue: T, newValue: T) -> Unit
 
-val ActivityRefAmbient = Ambient.of<Ref<Activity?>>()
+class Ref<T>(value: T) {
+
+    var value: T = value
+        set(value) {
+            val oldValue = field
+            field = value
+            callbacks.toList().forEach { it(oldValue, value) }
+        }
+
+    private val callbacks = mutableListOf<RefUpdateCallback<T>>()
+
+    operator fun invoke(): T = value
+
+    fun onUpdate(callback: RefUpdateCallback<T>): () -> Unit {
+        callbacks.add(callback)
+        return { callbacks.remove(callback) }
+    }
+}
