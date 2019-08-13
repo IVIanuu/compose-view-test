@@ -17,8 +17,13 @@
 package com.ivianuu.compose.sample
 
 import android.os.Bundle
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.createView
 import com.ivianuu.compose.sample.common.Navigator
 import com.ivianuu.compose.setContent
 
@@ -31,5 +36,19 @@ class MainActivity : AppCompatActivity() {
 }
 
 private fun ViewComposition.App() {
-    Navigator { Home2() }
+    View<FrameLayout>("CraneWrapper ${System.currentTimeMillis()}") {
+        createView()
+
+        bindView {
+            layoutParams =
+                (layoutParams ?: ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)).apply {
+                    width = MATCH_PARENT
+                    height = MATCH_PARENT
+                }
+        }
+
+        Navigator {
+            Home2()
+        }
+    }
 }

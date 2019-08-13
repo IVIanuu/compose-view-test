@@ -47,6 +47,8 @@ fun ViewComposition.TabLayout(
     View<TabLayout>(key = key) {
         layoutRes(R.layout.tab_layout)
 
+        manageChildren = true
+
         bindView {
             component!!.children
                 .mapIndexed { i, child ->
@@ -63,7 +65,7 @@ fun ViewComposition.TabLayout(
                 }
                 .forEach { (child, tab) ->
                     (tab.customView as ViewGroup).getViewManager()
-                        .update(listOf(child), true) // todo
+                        .update(listOf(child))
                 }
 
             while (tabCount > component!!.children.size) {

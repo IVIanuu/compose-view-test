@@ -40,7 +40,7 @@ class ViewManager(val container: ViewGroup) {
     private val viewsByChild = mutableMapOf<Component<*>, View>()
 
     fun init(children: List<Component<*>>) {
-        log { "${container.component?.key} init" }
+        log { "view manager ${container.component?.key} init ${children.map { it.key }}" }
 
         this.children.clear()
         this.children += children
@@ -57,6 +57,8 @@ class ViewManager(val container: ViewGroup) {
     }
 
     fun clear() {
+        log { "view manager ${container.component?.key} clear ${children.map { it.key }}" }
+
         children.forEach {
             performChange(
                 it,
@@ -67,8 +69,8 @@ class ViewManager(val container: ViewGroup) {
         }
     }
 
-    fun update(newChildren: List<Component<*>>, isPush: Boolean) {
-        log { "${container.component?.key} set components" }
+    fun update(newChildren: List<Component<*>>) {
+        log { "view manager ${container.component?.key} update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 
         if (children == newChildren) return
 
@@ -85,18 +87,18 @@ class ViewManager(val container: ViewGroup) {
         // check if we should animate the top views
         val replacingTopChildren =
             newTopChild != null && oldTopChild != null && newTopChild != oldTopChild
+        val isPush = replacingTopChildren && newTopChild !in oldChildren
 
         // Remove all views which are not present anymore from top to bottom
         removedChildren
             .dropLast(if (replacingTopChildren) 1 else 0)
             .reversed()
             .forEach { child ->
-                log { "${container.component?.key} remove view ${child.key}" }
                 cancelTransition(child)
                 performChange(
                     from = child,
                     to = null,
-                    isPush = isPush,
+                    isPush = false,
                     changeHandler = child.outChangeHandler
                 )
             }
@@ -105,7 +107,6 @@ class ViewManager(val container: ViewGroup) {
         addedChildren
             .dropLast(if (replacingTopChildren) 1 else 0)
             .forEachIndexed { i, child ->
-                log { "${container.component?.key} add view ${child.key}" }
                 performChange(
                     from = addedChildren.getOrNull(i - 1),
                     to = child,
@@ -118,8 +119,6 @@ class ViewManager(val container: ViewGroup) {
         if (replacingTopChildren) {
             val transition = if (isPush) newTopChild?.inChangeHandler
             else oldTopChild?.outChangeHandler
-
-            log { "${container.component?.key} replace top new ${newTopChild?.key} old ${oldTopChild?.key}" }
 
             performChange(
                 from = oldTopChild,
@@ -147,7 +146,7 @@ class ViewManager(val container: ViewGroup) {
         }
         handlerToUse.hasBeenUsed = true
 
-        log { "${container.component?.key} perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
+        log { "view manager ${container.component?.key} perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }

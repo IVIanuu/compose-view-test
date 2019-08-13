@@ -44,17 +44,20 @@ class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<
         }
 
     override fun Component<*>.start(instance: Component<*>) {
+        log { "composition $key start" }
         currentStack.push(current)
         current = this
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
+        log { "composition $key insert at $index ${instance.key}" }
         childrenByParent.getOrPut(this).add(index, instance)
     }
 
     override fun Component<*>.move(from: Int, to: Int, count: Int) {
         val children = childrenByParent.getOrPut(this)
         repeat(count) {
+            log { "composition $key move from $from to $to" }
             children.add(to, children.removeAt(from))
         }
     }
@@ -62,12 +65,14 @@ class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<
     override fun Component<*>.removeAt(index: Int, count: Int) {
         val children = childrenByParent.getOrPut(this)
         (index until index + count).forEach {
+            log { "composition $key remove at $it" }
             children.removeAt(it)
         }
     }
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
+            log { "composition $key end" }
             instance.updateChildren(childrenByParent.getOrPut(instance))
             current = currentStack.pop()
             childrenByParent.remove(instance)
@@ -126,7 +131,6 @@ class ViewComposition(val composer: ViewComposer) {
         // todo remove
         node.inChangeHandler = +ambient(InChangeHandlerAmbient)
         node.outChangeHandler = +ambient(OutChangeHandlerAmbient)
-        node.wasPush = +ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }
         node.update()

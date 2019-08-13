@@ -23,7 +23,6 @@ abstract class Component<T : View> {
 
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
-    internal var wasPush: Boolean = true
 
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
@@ -43,7 +42,7 @@ abstract class Component<T : View> {
     }
 
     open fun updateChildren(newChildren: List<Component<*>>) {
-        log { "update children $key ${newChildren.map { it.key }}" }
+        log { "update children $key new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
 
         _children
             .filter { it !in newChildren }
@@ -91,8 +90,7 @@ abstract class Component<T : View> {
     protected open fun updateChildViews(view: T) {
         log { "update child views $key ${view.javaClass} children ${children.map { it.key }}" }
         if (view !is ViewGroup) return
-        view.getViewManager()
-            .update(children, children.lastOrNull()?.wasPush ?: true)
+        view.getViewManager().update(children)
     }
 
     protected open fun clearChildViews(view: T) {
