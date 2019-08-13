@@ -20,7 +20,6 @@ fun <T : View> ViewComposition.View(
     key: Any,
     block: ViewDsl<T>.() -> Unit
 ) {
-    log { "view dsl $key" }
     emit<ViewDslComponent<T>>(
         key = key,
         ctor = { ViewDslComponent() },
@@ -44,6 +43,10 @@ class ViewDsl<T : View> {
 
     fun createView(createView: (ViewGroup) -> T) {
         this.createView = createView
+    }
+
+    inline fun <V> set(value: V, crossinline block: T.(V) -> Unit) {
+        bindView { block(value) }
     }
 
     fun bindView(block: T.() -> Unit) {

@@ -20,6 +20,7 @@ fun ViewComposition.Counter() = Route {
             appBar = { AppBar("Counter") },
             content = {
                 var count by +state { 0 }
+                count // lol
                 View<View> {
                     layoutRes(R.layout.counter)
                     bindView {
