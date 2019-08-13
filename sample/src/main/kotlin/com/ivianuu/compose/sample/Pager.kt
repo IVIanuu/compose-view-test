@@ -1,19 +1,19 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
+import androidx.compose.memo
+import androidx.compose.state
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.FadeChangeHandler
 import com.ivianuu.compose.layoutRes
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.TabItem
 import com.ivianuu.compose.sample.common.TabLayout
 import com.ivianuu.compose.sample.common.ViewPager
-import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.page.view.*
 
 val AllColors = arrayOf(
@@ -41,9 +41,9 @@ val AllColors = arrayOf(
 )
 
 fun ViewComposition.Pager() = Route {
-    val transition = memo { FadeChangeHandler() }
+    val transition = +memo { FadeChangeHandler() }
     ChangeHandlers(handler = transition) {
-        var selectedPage by state { 0 }
+        var selectedPage by +state { 0 }
 
         Scaffold(
             appBar = {
@@ -64,7 +64,7 @@ fun ViewComposition.Pager() = Route {
                     children = {
                         (1..5).forEach { i ->
                             group(i) {
-                                val color = memo { AllColors.toList().shuffled()[i] }
+                                val color = +memo { AllColors.toList().shuffled()[i] }
                                 Page(i, color)
                             }
                         }

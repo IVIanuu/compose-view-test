@@ -4,14 +4,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.Ambient
 import androidx.compose.Recompose
+import androidx.compose.ambient
 import com.ivianuu.compose.TransitionHintsAmbient
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.ambient
 import com.ivianuu.compose.sourceLocation
 
 val NavigatorAmbient = Ambient.of<Navigator>()
 
-fun ViewComposition.navigator() = ambient(NavigatorAmbient)
+fun ViewComposition.navigator() = +ambient(NavigatorAmbient)
 
 interface Route {
 
@@ -123,7 +123,7 @@ class Navigator(
 }
 
 fun ViewComposition.Navigator(startRoute: ViewComposition.() -> Route) {
-    val activity = ambient(ActivityRefAmbient)
+    val activity = +ambient(ActivityRefAmbient)
     val navigator = Navigator(activity as Ref<ComponentActivity?>, startRoute())
     NavigatorAmbient.Provider(navigator) {
         navigator.content(this)
