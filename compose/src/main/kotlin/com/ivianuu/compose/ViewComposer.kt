@@ -132,6 +132,7 @@ class ViewComposition(val composer: ViewComposer) {
         // todo remove
         node.inChangeHandler = +ambient(InChangeHandlerAmbient)
         node.outChangeHandler = +ambient(OutChangeHandlerAmbient)
+        node.wasPush = +ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }
         node.update()

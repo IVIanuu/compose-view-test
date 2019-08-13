@@ -21,9 +21,6 @@ import android.view.ViewGroup
 
 abstract class Component<T : View> {
 
-    internal var inChangeHandler: ComponentChangeHandler? = null
-    internal var outChangeHandler: ComponentChangeHandler? = null
-
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
 
@@ -35,6 +32,10 @@ abstract class Component<T : View> {
 
     val boundViews: Set<T> get() = _boundViews
     private val _boundViews = mutableSetOf<T>()
+
+    internal var inChangeHandler: ComponentChangeHandler? = null
+    internal var outChangeHandler: ComponentChangeHandler? = null
+    internal var wasPush = true
 
     open fun update() {
         log { "update $key bound views ${_boundViews.size}" }
@@ -90,7 +91,7 @@ abstract class Component<T : View> {
     protected open fun updateChildViews(view: T) {
         log { "update child views $key ${view.javaClass} children ${children.map { it.key }}" }
         if (view !is ViewGroup) return
-        view.getViewManager().update(children)
+        view.getViewManager().update(children, children.lastOrNull()?.wasPush ?: true)
     }
 
     protected open fun clearChildViews(view: T) {

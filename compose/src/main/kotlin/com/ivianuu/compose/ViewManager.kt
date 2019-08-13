@@ -69,7 +69,7 @@ class ViewManager(val container: ViewGroup) {
         }
     }
 
-    fun update(newChildren: List<Component<*>>) {
+    fun update(newChildren: List<Component<*>>, isPush: Boolean) {
         log { "view manager ${container.component?.key} update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 
         if (children == newChildren) return
@@ -87,7 +87,6 @@ class ViewManager(val container: ViewGroup) {
         // check if we should animate the top views
         val replacingTopChildren =
             newTopChild != null && oldTopChild != null && newTopChild != oldTopChild
-        val isPush = replacingTopChildren && newTopChild !in oldChildren
 
         // Remove all views which are not present anymore from top to bottom
         removedChildren

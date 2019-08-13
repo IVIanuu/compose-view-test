@@ -23,6 +23,7 @@ import androidx.compose.Recompose
 import androidx.compose.ambient
 import com.ivianuu.compose.ActivityRefAmbient
 import com.ivianuu.compose.Ref
+import com.ivianuu.compose.TransitionHintsAmbient
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.sourceLocation
 
@@ -83,6 +84,8 @@ class Navigator(
     private val _backStack = mutableListOf<Route>()
     lateinit var recompose: () -> Unit
 
+    private var wasPush = true
+
     init {
         activity.onUpdate { _, newValue ->
             newValue?.onBackPressedDispatcher?.addCallback(backPressedCallback)
@@ -92,12 +95,14 @@ class Navigator(
 
     fun push(route: Route) {
         _backStack.add(route)
+        wasPush = true
         recompose()
     }
 
     fun pop() {
         if (_backStack.size > 1) {
             _backStack.removeAt(_backStack.lastIndex)
+            wasPush = false
             recompose()
         } else {
             activity()?.finish()
@@ -125,7 +130,9 @@ class Navigator(
             .also { println("compose routes ${it.map { it.key }}") }
             .forEach {
                 viewComposition.group(it.key) {
-                    it._compose(viewComposition)
+                    TransitionHintsAmbient.Provider(wasPush) {
+                        it._compose(viewComposition)
+                    }
                 }
             }
     }

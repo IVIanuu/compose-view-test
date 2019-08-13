@@ -65,7 +65,7 @@ fun ViewComposition.TabLayout(
                 }
                 .forEach { (child, tab) ->
                     (tab.customView as ViewGroup).getViewManager()
-                        .update(listOf(child))
+                        .update(listOf(child), true)
                 }
 
             while (tabCount > component!!.children.size) {

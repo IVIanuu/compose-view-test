@@ -22,6 +22,7 @@ import androidx.compose.Ambient
 
 val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
 val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
+val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
 
 fun ViewComposition.ChangeHandlers(
     handler: ComponentChangeHandler?,
