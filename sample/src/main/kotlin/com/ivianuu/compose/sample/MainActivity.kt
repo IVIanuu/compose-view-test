@@ -17,7 +17,6 @@
 package com.ivianuu.compose.sample
 
 import android.os.Bundle
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -40,11 +39,10 @@ private fun ViewComposition.App() {
         createView()
 
         bindView {
-            layoutParams =
-                (layoutParams ?: ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)).apply {
-                    width = MATCH_PARENT
-                    height = MATCH_PARENT
-                }
+            layoutParams = layoutParams.apply {
+                width = MATCH_PARENT
+                height = MATCH_PARENT
+            }
         }
 
         Navigator {

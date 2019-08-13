@@ -62,6 +62,7 @@ abstract class Component<T : View> {
     open fun createView(container: ViewGroup): T {
         log { "create view $key" }
         val view = onCreateView(container)
+        view.ensureLayoutParams(container)
         initChildViews(view)
         return view
     }

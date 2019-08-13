@@ -54,3 +54,15 @@ internal var View.byId: Boolean
     set(value) {
         setTag(byIdKey, value)
     }
+
+private val genDefaultLayoutParams by lazy {
+    val method = ViewGroup::class.java.getDeclaredMethod("generateDefaultLayoutParams")
+    method.isAccessible = true
+    method
+}
+
+internal fun View.ensureLayoutParams(parent: ViewGroup?) {
+    if (layoutParams == null) {
+        layoutParams = genDefaultLayoutParams.invoke(parent) as? ViewGroup.LayoutParams
+    }
+}
