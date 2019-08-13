@@ -20,6 +20,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import java.lang.reflect.Constructor
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.properties.Delegates
 import kotlin.reflect.KClass
 
@@ -81,9 +83,12 @@ inline fun <reified T : View> ViewDsl<T>.createView() {
     createView(T::class)
 }
 
+private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
+
 fun <T : View> ViewDsl<T>.createView(type: KClass<T>) {
     createView {
-        type.java.getConstructor(Context::class.java).newInstance(it.context)
+        constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
+            .newInstance(it.context) as T
     }
 }
 

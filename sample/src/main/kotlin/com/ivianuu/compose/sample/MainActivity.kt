@@ -22,7 +22,6 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.createView
 import com.ivianuu.compose.sample.common.Navigator
 import com.ivianuu.compose.setContent
 
@@ -35,9 +34,7 @@ class MainActivity : AppCompatActivity() {
 }
 
 private fun ViewComposition.App() {
-    View<FrameLayout>("CraneWrapper ${System.currentTimeMillis()}") {
-        createView()
-
+    View<FrameLayout> {
         bindView {
             layoutParams = layoutParams.apply {
                 width = MATCH_PARENT

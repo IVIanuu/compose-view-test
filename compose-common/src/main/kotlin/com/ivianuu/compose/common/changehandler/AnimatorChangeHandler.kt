@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.common
+package com.ivianuu.compose.common.changehandler
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import com.ivianuu.compose.ComponentChangeHandler
+import com.ivianuu.compose.common.OnReadyOrAbortedListener
 
 fun AnimatorChangeHandler(
     duration: Long = AnimatorChangeHandler.NO_DURATION,
     getAnimator: (ComponentChangeHandler.ChangeData) -> Animator
-): AnimatorChangeHandler = SimpleAnimatorChangeHandler(duration, getAnimator)
+): AnimatorChangeHandler =
+    SimpleAnimatorChangeHandler(duration, getAnimator)
 
 private class SimpleAnimatorChangeHandler(
     duration: Long = NO_DURATION,
@@ -32,7 +34,8 @@ private class SimpleAnimatorChangeHandler(
     override fun getAnimator(changeData: ChangeData): Animator =
         getAnimator.invoke(changeData)
 
-    override fun copy() = SimpleAnimatorChangeHandler(duration, getAnimator)
+    override fun copy() =
+        SimpleAnimatorChangeHandler(duration, getAnimator)
 }
 
 abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : ComponentChangeHandler() {

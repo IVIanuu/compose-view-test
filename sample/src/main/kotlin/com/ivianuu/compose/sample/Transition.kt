@@ -24,10 +24,10 @@ import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.common.CircularRevealChangeHandler
-import com.ivianuu.compose.common.FadeChangeHandler
-import com.ivianuu.compose.common.HorizontalChangeHandler
-import com.ivianuu.compose.common.VerticalChangeHandler
+import com.ivianuu.compose.common.changehandler.CircularRevealChangeHandler
+import com.ivianuu.compose.common.changehandler.FadeChangeHandler
+import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
+import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.navigator
@@ -86,7 +86,8 @@ private enum class TransitionDemo(
         R.layout.transition_demo,
         Color.Gray
     ) {
-        override fun getTransition(): ComponentChangeHandler = VerticalChangeHandler()
+        override fun getTransition(): ComponentChangeHandler =
+            VerticalChangeHandler()
     },
     CIRCULAR(
         "Circular Reveal Animation (on Lollipop and above, else Fade)",
@@ -97,7 +98,8 @@ private enum class TransitionDemo(
             CircularRevealChangeHandler(R.id.next_button)
     },
     FADE("Fade Animation", R.layout.transition_demo, Color.Blue) {
-        override fun getTransition(): ComponentChangeHandler = FadeChangeHandler()
+        override fun getTransition(): ComponentChangeHandler =
+            FadeChangeHandler()
     },
     FLIP("Flip Animation", R.layout.transition_demo, Color.Yellow) {
         override fun getTransition(): ComponentChangeHandler =
@@ -108,7 +110,8 @@ private enum class TransitionDemo(
         R.layout.transition_demo,
         Color.Green
     ) {
-        override fun getTransition(): ComponentChangeHandler = HorizontalChangeHandler()
+        override fun getTransition(): ComponentChangeHandler =
+            HorizontalChangeHandler()
     },
     ARC_FADE(
         "Arc/Fade Shared Element Transition (on Lollipop and above, else Fade)",

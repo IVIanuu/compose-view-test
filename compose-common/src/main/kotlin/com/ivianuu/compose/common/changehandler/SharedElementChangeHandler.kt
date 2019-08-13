@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.common
+package com.ivianuu.compose.common.changehandler
 
 import android.app.SharedElementCallback
 import android.graphics.Rect
@@ -24,6 +24,14 @@ import android.transition.TransitionSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
+import com.ivianuu.compose.common.addTargets
+import com.ivianuu.compose.common.findNamedView
+import com.ivianuu.compose.common.findNamedViews
+import com.ivianuu.compose.common.getBoundsOnScreen
+import com.ivianuu.compose.common.replaceTargets
+import com.ivianuu.compose.common.setEpicenter
+import com.ivianuu.compose.common.setTargets
+import com.ivianuu.compose.common.transitionSetOf
 
 abstract class SharedElementChangeHandler : TransitionChangeHandler() {
 
@@ -184,7 +192,10 @@ abstract class SharedElementChangeHandler : TransitionChangeHandler() {
         onTransitionPrepared: () -> Unit
     ) {
         foundViews.forEach {
-            OneShotPreDrawListener(true, it) {
+            OneShotPreDrawListener(
+                true,
+                it
+            ) {
                 waitForTransitionNames -= it.transitionName
                 removedViews += it to it.parent as ViewGroup
                 (it.parent as ViewGroup).removeView(it)
@@ -206,7 +217,10 @@ abstract class SharedElementChangeHandler : TransitionChangeHandler() {
         enteringViews: MutableList<View>,
         exitingViews: MutableList<View>
     ) {
-        OneShotPreDrawListener(true, container) {
+        OneShotPreDrawListener(
+            true,
+            container
+        ) {
             val enterTransition = enterTransition
             if (enterTransition != null) {
                 enterTransition.removeTarget(nonExistentView)
@@ -318,7 +332,10 @@ abstract class SharedElementChangeHandler : TransitionChangeHandler() {
             toEpicenter = null
         }
 
-        OneShotPreDrawListener(true, container) {
+        OneShotPreDrawListener(
+            true,
+            container
+        ) {
             val capturedToSharedElements = captureToSharedElements(to, isPush)
 
             toSharedElements += capturedToSharedElements.values
@@ -513,7 +530,10 @@ abstract class SharedElementChangeHandler : TransitionChangeHandler() {
     }
 
     private fun ViewGroup.setNameOverrides(toSharedElements: List<View>) {
-        OneShotPreDrawListener(true, this) {
+        OneShotPreDrawListener(
+            true,
+            this
+        ) {
             toSharedElements.forEach {
                 val name = it.transitionName
                 if (name != null) {
@@ -524,7 +544,10 @@ abstract class SharedElementChangeHandler : TransitionChangeHandler() {
     }
 
     private fun ViewGroup.scheduleNameReset(toSharedElements: List<View>) {
-        OneShotPreDrawListener(true, this) {
+        OneShotPreDrawListener(
+            true,
+            this
+        ) {
             toSharedElements.forEach {
                 val name = it.transitionName
                 val inName = sharedElementNames[name]

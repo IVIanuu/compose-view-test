@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.common
+package com.ivianuu.compose.common.changehandler
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator

@@ -24,7 +24,7 @@ import android.transition.Fade
 import android.transition.Transition
 import android.transition.TransitionSet
 import android.view.View
-import com.ivianuu.compose.common.SharedElementChangeHandler
+import com.ivianuu.compose.common.changehandler.SharedElementChangeHandler
 import com.ivianuu.compose.common.findNamedView
 
 class ArcFadeMoveChangeHandler(private val sharedElementNames: List<String>) :

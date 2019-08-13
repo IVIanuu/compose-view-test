@@ -29,16 +29,17 @@ import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.component
 import com.ivianuu.compose.createView
 
-fun ViewComposition.RecyclerView(children: ViewComposition.() -> Unit) {
+fun ViewComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    children: ViewComposition.() -> Unit
+) {
     View<RecyclerView> {
         manageChildren = true
 
         createView()
 
         bindView {
-            if (layoutManager == null) {
-                layoutManager = LinearLayoutManager(context)
-            }
+            this.layoutManager = layoutManager ?: LinearLayoutManager(context)
 
             if (adapter == null) {
                 adapter = ComposeRecyclerViewAdapter()

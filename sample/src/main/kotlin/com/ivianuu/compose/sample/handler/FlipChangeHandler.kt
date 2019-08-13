@@ -22,7 +22,7 @@ import android.animation.ObjectAnimator
 import android.util.Property
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import com.ivianuu.compose.common.AnimatorChangeHandler
+import com.ivianuu.compose.common.changehandler.AnimatorChangeHandler
 
 class FlipChangeHandler(
     private val flipDirection: FlipDirection = FlipDirection.RIGHT,
