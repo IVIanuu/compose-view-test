@@ -72,10 +72,11 @@ class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
-            log { "composition $key end" }
-            instance.updateChildren(childrenByParent.getOrPut(instance))
+            log { "composition ${current.key} end" }
+            instance.updateChildren(childrenByParent.getOrPut(current))
+            childrenByParent.remove(current)
+
             current = currentStack.pop()
-            childrenByParent.remove(instance)
 
             if (current == root) {
                 root.updateChildren(childrenByParent.getOrPut(root))
