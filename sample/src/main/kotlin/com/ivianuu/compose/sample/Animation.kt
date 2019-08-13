@@ -28,7 +28,7 @@ import kotlinx.android.synthetic.main.animation.view.*
 
 fun ViewComposition.Animation() = Route {
     var value by +state { 0f }
-    value
+    value // lol
     +onActive {
         val animation = ValueAnimator()
         animation.setFloatValues(0f, 1f)
