@@ -21,43 +21,44 @@ import kotlinx.android.synthetic.main.transition_demo.view.*
 
 fun ViewComposition.TransitionDemos() = TransitionDemo(TransitionDemo.values().first())
 
-private fun ViewComposition.TransitionDemo(transitionDemo: TransitionDemo): Route =
-    Route(key = transitionDemo) {
-        val transition = memo { transitionDemo.getTransition() }
+private fun ViewComposition.TransitionDemo(
+    transitionDemo: TransitionDemo
+): Route = Route(key = transitionDemo) {
+    val transition = memo { transitionDemo.getTransition() }
 
-        ChangeHandlers(handler = transition) {
-            val navigator = navigator()
+    ChangeHandlers(handler = transition) {
+        val navigator = navigator()
 
-            View<View>(key = transitionDemo) {
-                layoutRes(transitionDemo.layoutRes)
-                updateView {
-                    if (transitionDemo.color != Color.Transparent && transition_bg != null) {
-                        transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
-                    }
+        View<View>(key = transitionDemo) {
+            layoutRes(transitionDemo.layoutRes)
+            updateView {
+                if (transitionDemo.color != Color.Transparent && transition_bg != null) {
+                    transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
+                }
 
-                    val nextIndex = transitionDemo.ordinal + 1
-                    var buttonColor = Color.Transparent
+                val nextIndex = transitionDemo.ordinal + 1
+                var buttonColor = Color.Transparent
+                if (nextIndex < TransitionDemo.values().size) {
+                    buttonColor = TransitionDemo.values()[nextIndex].color
+                }
+                if (buttonColor == Color.Transparent) {
+                    buttonColor = TransitionDemo.values()[0].color
+                }
+
+                next_button.backgroundTintList = ColorStateList.valueOf(buttonColor.toArgb())
+                transition_title.text = transitionDemo.title
+
+                next_button.setOnClickListener {
                     if (nextIndex < TransitionDemo.values().size) {
-                        buttonColor = TransitionDemo.values()[nextIndex].color
-                    }
-                    if (buttonColor == Color.Transparent) {
-                        buttonColor = TransitionDemo.values()[0].color
-                    }
-
-                    next_button.backgroundTintList = ColorStateList.valueOf(buttonColor.toArgb())
-                    transition_title.text = transitionDemo.title
-
-                    next_button.setOnClickListener {
-                        if (nextIndex < TransitionDemo.values().size) {
-                            navigator.push(TransitionDemo(TransitionDemo.values()[nextIndex]))
-                        } else {
-                            navigator.popToRoot()
-                        }
+                        navigator.push(TransitionDemo(TransitionDemo.values()[nextIndex]))
+                    } else {
+                        navigator.popToRoot()
                     }
                 }
             }
         }
     }
+}
 
 private enum class TransitionDemo(
     val title: String,
