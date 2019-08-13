@@ -167,11 +167,29 @@ class ViewManager(val container: ViewGroup) {
             from = fromView,
             to = toView,
             isPush = isPush,
-            onComplete = {
-                if (to != null) runningTransitions -= to
-                if (from != null && fromView != null) {
-                    (from as Component<View>).unbindView(fromView)
-                    viewsByChild.remove(from)
+            callback = object : ComponentChangeHandler.Callback {
+                override fun addToView() {
+                    if (toView != null && !toView.byId && toView.parent == null) {
+                        if (isPush || from == null) {
+                            container.addView(toView)
+                        } else {
+                            container.addView(toView, container.indexOfChild(fromView))
+                        }
+                    }
+                }
+
+                override fun removeFromView() {
+                    if (fromView != null && !fromView.byId) {
+                        container.removeView(fromView)
+                    }
+                }
+
+                override fun onComplete() {
+                    if (to != null) runningTransitions -= to
+                    if (from != null && fromView != null) {
+                        (from as Component<View>).unbindView(fromView)
+                        viewsByChild.remove(from)
+                    }
                 }
             }
         )

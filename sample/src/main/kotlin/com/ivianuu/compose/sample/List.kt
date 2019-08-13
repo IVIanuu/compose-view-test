@@ -17,18 +17,18 @@
 package com.ivianuu.compose.sample
 
 import android.widget.TextView
-import androidx.compose.memo
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 
 fun ComponentComposition.List() = Route {
-    val handler = +memo { VerticalChangeHandler() }
+    val handler = memo { VerticalChangeHandler() }
     ChangeHandlers(handler = handler) {
         Scaffold(
             appBar = { AppBar("List") },

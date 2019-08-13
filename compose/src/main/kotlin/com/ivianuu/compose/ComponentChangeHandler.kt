@@ -57,12 +57,18 @@ abstract class ComponentChangeHandler {
 
     abstract fun copy(): ComponentChangeHandler
 
+    interface Callback {
+        fun addToView()
+        fun removeFromView()
+        fun onComplete()
+    }
+
     data class ChangeData(
         val container: ViewGroup,
         val from: View?,
         val to: View?,
         val isPush: Boolean,
-        val onComplete: () -> Unit
+        val callback: Callback
     ) {
         val addedToView = to != null && to.parent == null
     }
@@ -73,9 +79,9 @@ class DefaultChangeHandler : ComponentChangeHandler() {
 
     override fun execute(changeData: ChangeData) {
         with(changeData) {
-            if (from != null) container.removeView(from)
-            if (to != null && to.parent == null) container.addView(to)
-            onComplete()
+            callback.removeFromView()
+            callback.addToView()
+            callback.onComplete()
         }
     }
 

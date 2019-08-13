@@ -43,11 +43,11 @@ abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) :
             }
 
             override fun onTransitionCancel(transition: Transition) {
-                changeData.onComplete()
+                changeData.callback.onComplete()
             }
 
             override fun onTransitionEnd(transition: Transition) {
-                changeData.onComplete()
+                changeData.callback.onComplete()
             }
         })
 
@@ -58,7 +58,7 @@ abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) :
                 executePropertyChanges(changeData, transition)
             } else {
                 executePropertyChanges(changeData, transition)
-                changeData.onComplete()
+                changeData.callback.onComplete()
             }
         }
     }
@@ -81,13 +81,8 @@ abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) :
         changeData: ChangeData,
         transition: Transition?
     ) {
-        if (changeData.from != null) {
-            changeData.container.removeView(changeData.from!!)
-        }
-
-        if (changeData.to != null && changeData.to!!.parent == null) {
-            changeData.container.addView(changeData.to!!)
-        }
+        changeData.callback.removeFromView()
+        changeData.callback.addToView()
     }
 
     companion object {

@@ -50,11 +50,7 @@ abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : Compone
     override fun execute(changeData: ChangeData) {
         this.changeData = changeData
         with(changeData) {
-            if (isPush || from == null) {
-                if (to != null) container.addView(to)
-            } else if (to != null && to!!.parent == null) {
-                container.addView(to, container.indexOfChild(from))
-            }
+            callback.addToView()
 
             if (to != null
                 && to!!.width <= 0
@@ -105,13 +101,10 @@ abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : Compone
         if (completed) return
         completed = true
 
-        val (container, from, _, _, onComplete) = changeData!!
+        val callback = changeData!!.callback
 
-        if (from != null) {
-            container.removeView(from)
-        }
-
-        onComplete()
+        callback.removeFromView()
+        callback.onComplete()
 
         animator = null
         onReadyOrAbortedListener = null
