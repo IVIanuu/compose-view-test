@@ -22,15 +22,15 @@ import androidx.compose.memo
 import androidx.compose.onActive
 import androidx.compose.state
 import com.ivianuu.compose.ChangeHandlers
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 import kotlinx.android.synthetic.main.animation.view.*
 
-fun ViewComposition.Animation() = Route {
+fun ComponentComposition.Animation() = Route {
     val handler = +memo { FadeChangeHandler() }
     ChangeHandlers(handler = handler) {
         Scaffold(

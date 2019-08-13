@@ -25,8 +25,8 @@ import androidx.compose.memo
 import androidx.compose.state
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.ChangeHandlers
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Route
@@ -60,7 +60,7 @@ val AllColors = arrayOf(
     Color.Teal
 )
 
-fun ViewComposition.Pager() = Route {
+fun ComponentComposition.Pager() = Route {
     val transition = +memo { FadeChangeHandler() }
     ChangeHandlers(handler = transition) {
         var selectedPage by +state { 0 }
@@ -107,7 +107,7 @@ fun ViewComposition.Pager() = Route {
     }
 }
 
-private fun ViewComposition.Page(
+private fun ComponentComposition.Page(
     index: Int,
     color: Color
 ) {

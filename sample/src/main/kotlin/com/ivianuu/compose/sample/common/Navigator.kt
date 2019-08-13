@@ -22,9 +22,9 @@ import androidx.compose.Ambient
 import androidx.compose.Recompose
 import androidx.compose.ambient
 import com.ivianuu.compose.ActivityRefAmbient
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Ref
 import com.ivianuu.compose.TransitionHintsAmbient
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.sourceLocation
 
 val NavigatorAmbient = Ambient.of<Navigator>()
@@ -37,25 +37,25 @@ interface Route {
 
     val isFloating: Boolean
 
-    fun ViewComposition.compose()
+    fun ComponentComposition.compose()
 
-    fun _compose(viewComposition: ViewComposition) {
-        with(viewComposition) {
+    fun _compose(componentComposition: ComponentComposition) {
+        with(componentComposition) {
             compose()
         }
     }
 
 }
 
-inline fun ViewComposition.Route(
+inline fun ComponentComposition.Route(
     isFloating: Boolean = false,
-    noinline compose: ViewComposition.() -> Unit
+    noinline compose: ComponentComposition.() -> Unit
 ) = Route(sourceLocation(), isFloating, compose)
 
-fun ViewComposition.Route(
+fun ComponentComposition.Route(
     key: Any,
     isFloating: Boolean = false,
-    content: ViewComposition.() -> Unit
+    content: ComponentComposition.() -> Unit
 ) = object : Route {
 
     override val key: Any
@@ -64,7 +64,7 @@ fun ViewComposition.Route(
     override val isFloating: Boolean
         get() = isFloating
 
-    override fun ViewComposition.compose() {
+    override fun ComponentComposition.compose() {
         content.invoke(this)
     }
 }
@@ -116,7 +116,7 @@ class Navigator(
         recompose()
     }
 
-    fun content(viewComposition: ViewComposition) = Recompose { recompose ->
+    fun content(componentComposition: ComponentComposition) = Recompose { recompose ->
         this@Navigator.recompose = recompose
 
         val visibleRoutes = mutableListOf<Route>()
@@ -129,9 +129,9 @@ class Navigator(
         visibleRoutes.reversed()
             .also { println("compose routes ${it.map { it.key }}") }
             .forEach {
-                viewComposition.group(it.key) {
+                componentComposition.group(it.key) {
                     TransitionHintsAmbient.Provider(wasPush) {
-                        it._compose(viewComposition)
+                        it._compose(componentComposition)
                     }
                 }
             }
@@ -139,7 +139,7 @@ class Navigator(
 
 }
 
-fun ViewComposition.Navigator(startRoute: ViewComposition.() -> Route) {
+fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route) {
     val activity = +ambient(ActivityRefAmbient)
     val navigator = Navigator(activity as Ref<ComponentActivity?>, startRoute())
     NavigatorAmbient.Provider(navigator) {

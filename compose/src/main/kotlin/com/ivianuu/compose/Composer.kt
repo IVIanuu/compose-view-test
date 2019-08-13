@@ -25,10 +25,9 @@ import androidx.compose.EffectsDsl
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
-import androidx.compose.ambient
 import java.util.*
 
-class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<*>> {
+class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<*>> {
 
     private var current: Component<*> = root
     private val currentStack = Stack<Component<*>>()
@@ -87,9 +86,9 @@ class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<
 
 }
 
-class ViewComposer(
+class ComponentComposer(
     val root: Component<*>,
-    applyAdapter: ViewApplyAdapter = ViewApplyAdapter(root),
+    applyAdapter: ComponentApplyAdapter = ComponentApplyAdapter(root),
     recomposer: Recomposer
 ) : Composer<Component<*>>(
     SlotTable(),
@@ -104,14 +103,14 @@ class ViewComposer(
 
 @Suppress("UNCHECKED_CAST")
 @EffectsDsl
-class ViewComposition(val composer: ViewComposer) {
+class ComponentComposition(val composer: ComponentComposer) {
 
     @Suppress("NOTHING_TO_INLINE")
     inline operator fun <V> Effect<V>.unaryPlus(): V {
-        check(ComposeAccessor.isComposing(this@ViewComposition.composer)) {
+        check(ComposeAccessor.isComposing(this@ComponentComposition.composer)) {
             "Can only use effects while composing"
         }
-        return resolve(this@ViewComposition.composer, sourceLocation().hashCode())
+        return resolve(this@ComponentComposition.composer, sourceLocation().hashCode())
     }
 
     fun <T : Component<*>> emit(
@@ -130,9 +129,9 @@ class ViewComposition(val composer: ViewComposer) {
         node._key = key
 
         // todo remove
-        node.inChangeHandler = +ambient(InChangeHandlerAmbient)
-        node.outChangeHandler = +ambient(OutChangeHandlerAmbient)
-        node.wasPush = +ambient(TransitionHintsAmbient)
+        node.inChangeHandler = ambient(InChangeHandlerAmbient)
+        node.outChangeHandler = ambient(OutChangeHandlerAmbient)
+        node.wasPush = ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }
         node.update()
@@ -140,12 +139,12 @@ class ViewComposition(val composer: ViewComposer) {
         endNode()
     }
 
-    inline fun group(noinline children: ViewComposition.() -> Unit) =
+    inline fun group(noinline children: ComponentComposition.() -> Unit) =
         group(sourceLocation(), children)
 
     fun group(
         key: Any,
-        children: ViewComposition.() -> Unit
+        children: ComponentComposition.() -> Unit
     ) = with(composer) {
         startGroup(key)
         children()

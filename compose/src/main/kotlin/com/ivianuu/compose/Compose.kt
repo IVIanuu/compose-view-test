@@ -19,7 +19,7 @@ package com.ivianuu.compose
 import android.view.ViewGroup
 import androidx.compose.ComposeAccessor
 
-class CompositionContext(composable: ViewComposition.() -> Unit) {
+class CompositionContext(composable: ComponentComposition.() -> Unit) {
 
     private val root = Root()
 
@@ -31,7 +31,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
         root.composeContext = androidx.compose.CompositionContext.prepare(
             root.composeComponent,
             null
-        ) { ViewComposer(root, recomposer = this) }
+        ) { ComponentComposer(root, recomposer = this) }
         setComposable(composable)
         compose()
     }
@@ -49,7 +49,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
         this.container = null
     }
 
-    fun setComposable(composable: ViewComposition.() -> Unit) {
+    fun setComposable(composable: ComponentComposition.() -> Unit) {
         log { "Context: set composable" }
         root.composable = composable
     }
@@ -71,7 +71,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
 
 internal class Root : Component<ViewGroup>() {
 
-    var composable: (ViewComposition.() -> Unit)? = null
+    var composable: (ComponentComposition.() -> Unit)? = null
     lateinit var composeContext: androidx.compose.CompositionContext
 
     init {
@@ -85,7 +85,7 @@ internal class Root : Component<ViewGroup>() {
         override fun compose() {
             val cc = ComposeAccessor.getCurrentComposerNonNull()
             cc.startGroup(0)
-            composable?.invoke(ViewComposition(cc as ViewComposer))
+            composable?.invoke(ComponentComposition(cc as ComponentComposer))
             cc.endGroup()
         }
     }

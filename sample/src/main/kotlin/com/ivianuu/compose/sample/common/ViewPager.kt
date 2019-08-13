@@ -24,15 +24,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.ivianuu.compose.Component
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.component
 import com.ivianuu.compose.createView
 
-fun ViewComposition.ViewPager(
+fun ComponentComposition.ViewPager(
     selectedPage: Int,
     onPageChanged: (Int) -> Unit,
-    children: ViewComposition.() -> Unit
+    children: ComponentComposition.() -> Unit
 ) {
     View<ViewPager2> {
         manageChildren = true

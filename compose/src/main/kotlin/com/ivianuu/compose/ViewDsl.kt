@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.properties.Delegates
 import kotlin.reflect.KClass
 
-inline fun <reified T : View> ViewComposition.View(
+inline fun <reified T : View> ComponentComposition.View(
     noinline block: ViewDsl<T>.() -> Unit
 ) {
     View<T>(key = sourceLocation()) {
@@ -34,7 +34,7 @@ inline fun <reified T : View> ViewComposition.View(
     }
 }
 
-fun <T : View> ViewComposition.View(
+fun <T : View> ComponentComposition.View(
     key: Any,
     block: ViewDsl<T>.() -> Unit
 ) {

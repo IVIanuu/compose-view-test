@@ -30,7 +30,7 @@ val ActivityRefAmbient = Ambient.of<Ref<Activity?>>()
 
 fun ComponentActivity.setContent(
     container: ViewGroup = findViewById(android.R.id.content),
-    composable: ViewComposition.() -> Unit
+    composable: ComponentComposition.() -> Unit
 ) {
     val holder = ViewModelProvider(
         this,
@@ -57,7 +57,7 @@ fun ComponentActivity.setContent(
     })
 }
 
-private class ContextHolder(composable: ViewComposition.() -> Unit) : ViewModel() {
+private class ContextHolder(composable: ComponentComposition.() -> Unit) : ViewModel() {
 
     val activityRef = Ref<Activity?>(null)
 
@@ -67,7 +67,7 @@ private class ContextHolder(composable: ViewComposition.() -> Unit) : ViewModel(
         }
     }
 
-    class Factory(val composable: ViewComposition.() -> Unit) : ViewModelProvider.Factory {
+    class Factory(val composable: ComponentComposition.() -> Unit) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T =
             ContextHolder(composable) as T
     }

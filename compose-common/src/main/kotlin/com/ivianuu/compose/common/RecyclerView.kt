@@ -24,14 +24,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.Component
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.component
 import com.ivianuu.compose.createView
 
-fun ViewComposition.RecyclerView(
+fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
-    children: ViewComposition.() -> Unit
+    children: ComponentComposition.() -> Unit
 ) {
     View<RecyclerView> {
         manageChildren = true

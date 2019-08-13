@@ -22,17 +22,17 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.component
 import com.ivianuu.compose.getViewManager
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.R
 
-fun ViewComposition.TabLayout(
+fun ComponentComposition.TabLayout(
     selectedIndex: Int,
     onTabChanged: (Int) -> Unit,
-    children: ViewComposition.() -> Unit
+    children: ComponentComposition.() -> Unit
 ) {
     View<TabLayout> {
         layoutRes(R.layout.tab_layout)
@@ -90,7 +90,7 @@ fun ViewComposition.TabLayout(
     }
 }
 
-fun ViewComposition.TabItem(text: String) {
+fun ComponentComposition.TabItem(text: String) {
     View<TextView>(text) {
         layoutRes(R.layout.tab_item)
         bindView { this.text = text }

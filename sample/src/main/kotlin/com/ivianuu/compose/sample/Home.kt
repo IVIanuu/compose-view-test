@@ -19,8 +19,8 @@ package com.ivianuu.compose.sample
 import android.graphics.PorterDuff
 import android.view.View
 import androidx.ui.graphics.Color
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Route
@@ -31,7 +31,7 @@ import kotlinx.android.synthetic.main.home_item.view.*
 enum class HomeItem(
     val title: String,
     val color: Color,
-    val route: ViewComposition.() -> Route
+    val route: ComponentComposition.() -> Route
 ) {
     Counter(
         title = "Counter",
@@ -60,7 +60,7 @@ enum class HomeItem(
     )
 }
 
-fun ViewComposition.Home2() = Route {
+fun ComponentComposition.Home2() = Route {
     Scaffold(
         appBar = { AppBar("Home") },
         content = {
@@ -76,7 +76,7 @@ fun ViewComposition.Home2() = Route {
     )
 }
 
-private fun ViewComposition.HomeItem(item: HomeItem) {
+private fun ComponentComposition.HomeItem(item: HomeItem) {
     val navigator = +navigator()
     val route = item.route(this)
     View<View> {

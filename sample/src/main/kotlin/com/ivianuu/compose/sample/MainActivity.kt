@@ -20,8 +20,8 @@ import android.os.Bundle
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.sample.common.Navigator
 import com.ivianuu.compose.setContent
 
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-private fun ViewComposition.App() {
+private fun ComponentComposition.App() {
     View<FrameLayout> {
         bindView {
             layoutParams = layoutParams.apply {
