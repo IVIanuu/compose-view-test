@@ -28,19 +28,9 @@ import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.component
 import com.ivianuu.compose.createView
-import com.ivianuu.compose.sourceLocation
 
-inline fun ViewComposition.RecyclerView(
-    noinline children: ViewComposition.() -> Unit
-) {
-    RecyclerView(sourceLocation(), children)
-}
-
-fun ViewComposition.RecyclerView(
-    key: Any,
-    children: ViewComposition.() -> Unit
-) {
-    View<RecyclerView>(key = key) {
+fun ViewComposition.RecyclerView(children: ViewComposition.() -> Unit) {
+    View<RecyclerView> {
         manageChildren = true
 
         createView()

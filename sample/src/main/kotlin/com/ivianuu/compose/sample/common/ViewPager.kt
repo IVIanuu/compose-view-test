@@ -28,23 +28,13 @@ import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
 import com.ivianuu.compose.component
 import com.ivianuu.compose.createView
-import com.ivianuu.compose.sourceLocation
-
-inline fun ViewComposition.ViewPager(
-    selectedPage: Int,
-    noinline onPageChanged: (Int) -> Unit,
-    noinline children: ViewComposition.() -> Unit
-) {
-    ViewPager(sourceLocation(), selectedPage, onPageChanged, children)
-}
 
 fun ViewComposition.ViewPager(
-    key: Any,
     selectedPage: Int,
     onPageChanged: (Int) -> Unit,
     children: ViewComposition.() -> Unit
 ) {
-    View<ViewPager2>(key = key) {
+    View<ViewPager2> {
         manageChildren = true
 
         createView()

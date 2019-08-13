@@ -17,6 +17,8 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.LinearLayout.VERTICAL
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.ui.graphics.Color
@@ -63,15 +65,23 @@ fun ViewComposition.Pager() = Route {
 
         Scaffold(
             appBar = {
-                TabLayout(
-                    selectedIndex = selectedPage,
-                    onTabChanged = { selectedPage = it },
-                    children = {
-                        (1..5).forEach { i ->
-                            TabItem("Tab $i")
-                        }
+                View<LinearLayout> {
+                    bindView {
+                        orientation = VERTICAL
                     }
-                )
+
+                    AppBar(title = "Pager")
+
+                    TabLayout(
+                        selectedIndex = selectedPage,
+                        onTabChanged = { selectedPage = it },
+                        children = {
+                            (1..5).forEach { i ->
+                                TabItem("Tab $i")
+                            }
+                        }
+                    )
+                }
             },
             content = {
                 ViewPager(

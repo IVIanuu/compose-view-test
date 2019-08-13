@@ -24,37 +24,43 @@ import androidx.compose.state
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
-import com.ivianuu.compose.common.CircularRevealChangeHandler
+import com.ivianuu.compose.common.FadeChangeHandler
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Route
+import com.ivianuu.compose.sample.common.Scaffold
 import kotlinx.android.synthetic.main.animation.view.*
 
 fun ViewComposition.Animation() = Route {
-    val handler = +memo { CircularRevealChangeHandler() }
+    val handler = +memo { FadeChangeHandler() }
     ChangeHandlers(handler = handler) {
-        val (value, setValue) = +state { 0f }
+        Scaffold(
+            appBar = { AppBar("Animation") },
+            content = {
+                val (value, setValue) = +state { 0f }
 
-        +onActive {
-            val animation = ValueAnimator()
-            animation.setFloatValues(0f, 1f)
-            animation.repeatMode = ValueAnimator.REVERSE
-            animation.repeatCount = ValueAnimator.INFINITE
+                +onActive {
+                    val animation = ValueAnimator()
+                    animation.setFloatValues(0f, 1f)
+                    animation.repeatMode = ValueAnimator.REVERSE
+                    animation.repeatCount = ValueAnimator.INFINITE
 
-            animation.addUpdateListener {
-                setValue(it.animatedFraction)
+                    animation.addUpdateListener {
+                        setValue(it.animatedFraction)
+                    }
+
+                    animation.start()
+
+                    onDispose { animation.cancel() }
+                }
+
+                View<View> {
+                    layoutRes(R.layout.animation)
+                    bindView {
+                        animation_view.scaleX = value
+                        animation_view.scaleY = value
+                    }
+                }
             }
-
-            animation.start()
-
-            onDispose { animation.cancel() }
-        }
-
-        View<View> {
-            layoutRes(R.layout.animation)
-            bindView {
-                animation_view.scaleX = value
-                animation_view.scaleY = value
-            }
-        }
+        )
     }
 }

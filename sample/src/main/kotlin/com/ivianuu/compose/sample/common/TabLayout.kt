@@ -28,23 +28,13 @@ import com.ivianuu.compose.component
 import com.ivianuu.compose.getViewManager
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.R
-import com.ivianuu.compose.sourceLocation
-
-inline fun ViewComposition.TabLayout(
-    selectedIndex: Int,
-    noinline onTabChanged: (Int) -> Unit,
-    noinline children: ViewComposition.() -> Unit
-) {
-    TabLayout(sourceLocation(), selectedIndex, onTabChanged, children)
-}
 
 fun ViewComposition.TabLayout(
-    key: Any,
-    selectedTab: Int,
+    selectedIndex: Int,
     onTabChanged: (Int) -> Unit,
     children: ViewComposition.() -> Unit
 ) {
-    View<TabLayout>(key = key) {
+    View<TabLayout> {
         layoutRes(R.layout.tab_layout)
 
         manageChildren = true
@@ -72,7 +62,7 @@ fun ViewComposition.TabLayout(
                 removeTabAt(tabCount - 1)
             }
 
-            selectTab(getTabAt(selectedTab))
+            selectTab(getTabAt(selectedIndex))
 
             addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
