@@ -22,12 +22,12 @@ abstract class Component<T : View> {
     private val _boundViews = mutableSetOf<T>()
 
     open fun update() {
-        println("update $key bound views ${_boundViews.size}")
+        log { "update $key bound views ${_boundViews.size}" }
         _boundViews.forEach { bindView(it) }
     }
 
     open fun updateChildren(newChildren: List<Component<*>>) {
-        println("update children $key ${newChildren.map { it.key }}")
+        log { "update children $key ${newChildren.map { it.key }}" }
 
         _children
             .filter { it !in newChildren }
@@ -46,13 +46,13 @@ abstract class Component<T : View> {
     abstract fun createView(container: ViewGroup): T
 
     open fun bindView(view: T) {
-        println("bind view $key $view")
+        log { "bind view $key $view" }
         _boundViews += view
         view.component = this
     }
 
     open fun unbindView(view: T) {
-        println("unbind view $key $view")
+        log { "unbind view $key $view" }
         _boundViews -= view
         view.component = null
     }

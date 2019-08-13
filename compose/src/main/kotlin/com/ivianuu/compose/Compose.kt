@@ -11,7 +11,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
         private set
 
     init {
-        println("Context: init")
+        log { "Context: init" }
         root.composeContext = androidx.compose.CompositionContext.prepare(
             root.composeComponent,
             null
@@ -21,30 +21,30 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
     }
 
     fun setContainer(container: ViewGroup) {
-        println("Context: set container $container")
+        log { "Context: set container $container" }
         this.container = container
         root.createView(container)
         root.bindView(container)
     }
 
     fun removeContainer() {
-        println("Context: remove container")
+        log { "Context: remove container" }
         root.unbindView(container!!)
         this.container = null
     }
 
     fun setComposable(composable: ViewComposition.() -> Unit) {
-        println("Context: set composable")
+        log { "Context: set composable" }
         root.composable = composable
     }
 
     fun compose() {
-        println("Context: compose")
+        log { "Context: compose" }
         root.compose()
     }
 
     fun dispose() {
-        println("Context: dispose")
+        log { "Context: dispose" }
         removeContainer()
         // todo must be improved
         root.composable = null

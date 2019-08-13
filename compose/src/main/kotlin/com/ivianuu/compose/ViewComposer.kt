@@ -33,7 +33,7 @@ class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
-        println("$key insert at $index ${instance.key}")
+        log { "$key insert at $index ${instance.key}" }
         childrenByParent.getOrPut(this).add(index, instance)
     }
 
@@ -99,7 +99,7 @@ class ViewComposition(val composer: ViewComposer) {
         update: (T.() -> Unit)? = null
     ) = with(composer) {
         startNode(key)
-        println("emit $key inserting ? $inserting")
+        log { "emit $key inserting ? $inserting" }
         val node = if (inserting) {
             ctor().also { emitNode(it) }
         } else {

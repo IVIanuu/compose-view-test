@@ -3,6 +3,14 @@ package com.ivianuu.compose
 import android.view.View
 import android.view.ViewGroup
 
+var loggingEnabled = true
+
+inline fun log(block: () -> String) {
+    if (loggingEnabled) {
+        block()
+    }
+}
+
 inline fun sourceLocation(): String {
     val element = Throwable().stackTrace.first()
     return "${element.className}:${element.methodName}:${element.lineNumber}"
