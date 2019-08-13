@@ -8,61 +8,50 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KClass
 
 inline fun <reified T : View> ViewComposition.View(
-    key: Any = sourceLocation(),
     noinline block: ViewDsl<T>.() -> Unit
 ) {
-    View(type = T::class, key = key) {
+    View<T>(key = sourceLocation()) {
         createView()
         block()
     }
 }
 
 fun <T : View> ViewComposition.View(
-    type: KClass<T>,
     key: Any,
     block: ViewDsl<T>.() -> Unit
 ) {
-    if (ViewGroup::class.java.isAssignableFrom(type.java)) {
-        emit<ViewGroupDslComponent<ViewGroup>>(
-            key = key,
-            ctor = { ViewGroupDslComponent() },
-            update = {
-                val dsl = ViewDsl<ViewGroup>().apply(block as ViewDsl<ViewGroup>.() -> Unit)
-                createView = dsl.createView
-                updateViewBlocks = dsl.updateViewBlocks
-                unbindViewBlocks = dsl.unbindViewBlocks
-            }
-        )
-    } else {
-        emit<ViewDslComponent<T>>(
-            key = key,
-            ctor = { ViewDslComponent() },
-            update = {
-                val dsl = ViewDsl<T>().apply(block)
-                createView = dsl.createView
-                bindViewBlocks = dsl.updateViewBlocks
-                unbindViewBlocks = dsl.unbindViewBlocks
-            }
-        )
-    }
+    log { "view dsl $key" }
+    emit<ViewDslComponent<T>>(
+        key = key,
+        ctor = { ViewDslComponent() },
+        update = {
+            val dsl = ViewDsl<T>().apply(block)
+            createView = dsl.createView
+            bindViewBlocks = dsl.bindViewBlocks
+            unbindViewBlocks = dsl.unbindViewBlocks
+            manageChildren = dsl.manageChildren
+        }
+    )
 }
 
 class ViewDsl<T : View> {
 
     internal var createView: (ViewGroup) -> T by Delegates.notNull()
-    internal var updateViewBlocks: MutableList<T.() -> Unit>? = null
+    internal var bindViewBlocks: MutableList<T.() -> Unit>? = null
     internal var unbindViewBlocks: MutableList<T.() -> Unit>? = null
+
+    var manageChildren = false
 
     fun createView(createView: (ViewGroup) -> T) {
         this.createView = createView
     }
 
-    fun updateView(block: T.() -> Unit) {
-        if (updateViewBlocks == null) updateViewBlocks = mutableListOf()
-        updateViewBlocks!! += block
+    fun bindView(block: T.() -> Unit) {
+        if (bindViewBlocks == null) bindViewBlocks = mutableListOf()
+        bindViewBlocks!! += block
     }
 
-    fun destroyView(block: T.() -> Unit) {
+    fun unbindView(block: T.() -> Unit) {
         if (unbindViewBlocks == null) unbindViewBlocks = mutableListOf()
         unbindViewBlocks!! += block
     }
@@ -98,7 +87,9 @@ private class ViewDslComponent<T : View> : Component<T>() {
     var bindViewBlocks: List<T.() -> Unit>? = null
     var unbindViewBlocks: List<T.() -> Unit>? = null
 
-    override fun createView(container: ViewGroup): T =
+    var manageChildren = false
+
+    override fun onCreateView(container: ViewGroup): T =
         createView.invoke(container)
 
     override fun bindView(view: T) {
@@ -107,26 +98,19 @@ private class ViewDslComponent<T : View> : Component<T>() {
     }
 
     override fun unbindView(view: T) {
-        super.unbindView(view)
         unbindViewBlocks?.forEach { it(view) }
-    }
-}
-
-private class ViewGroupDslComponent<T : ViewGroup> : ViewGroupComponent<T>() {
-    lateinit var createView: (ViewGroup) -> T
-    var updateViewBlocks: List<T.() -> Unit>? = null
-    var unbindViewBlocks: List<T.() -> Unit>? = null
-
-    override fun createViewGroup(container: ViewGroup): T =
-        createView.invoke(container)
-
-    override fun bindView(view: T) {
-        super.bindView(view)
-        updateViewBlocks?.forEach { it(view) }
+        super.unbindView(view)
     }
 
-    override fun unbindView(view: T) {
-        super.unbindView(view)
-        unbindViewBlocks?.forEach { it(view) }
+    override fun initChildViews(view: T) {
+        if (!manageChildren) super.initChildViews(view)
+    }
+
+    override fun updateChildViews(view: T) {
+        if (!manageChildren) super.updateChildViews(view)
+    }
+
+    override fun clearChildViews(view: T) {
+        if (!manageChildren) super.clearChildViews(view)
     }
 }

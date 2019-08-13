@@ -43,40 +43,45 @@ abstract class Component<T : View> {
         update()
     }
 
-    abstract fun createView(container: ViewGroup): T
+    open fun createView(container: ViewGroup): T {
+        log { "create view $key" }
+        val view = onCreateView(container)
+        initChildViews(view)
+        return view
+    }
+
+    protected abstract fun onCreateView(container: ViewGroup): T
 
     open fun bindView(view: T) {
         log { "bind view $key $view" }
         _boundViews += view
         view.component = this
+        updateChildViews(view)
     }
 
     open fun unbindView(view: T) {
+        clearChildViews(view)
         log { "unbind view $key $view" }
         _boundViews -= view
         view.component = null
     }
 
-}
-
-abstract class ViewGroupComponent<T : ViewGroup> : Component<T>() {
-
-    override fun createView(container: ViewGroup): T {
-        val view = createViewGroup(container)
+    protected open fun initChildViews(view: T) {
+        log { "init child views $key ${view.javaClass} children ${children.map { it.key }}" }
+        if (view !is ViewGroup) return
         view.getViewManager().init(children)
-        return view
     }
 
-    protected abstract fun createViewGroup(container: ViewGroup): T
-
-    override fun bindView(view: T) {
-        super.bindView(view)
-        view.getViewManager().update(children, children.lastOrNull()?.wasPush ?: true)
+    protected open fun updateChildViews(view: T) {
+        log { "update child views $key ${view.javaClass} children ${children.map { it.key }}" }
+        if (view !is ViewGroup) return
+        view.getViewManager()
+            .update(children, children.lastOrNull()?.wasPush ?: true)
     }
 
-    override fun unbindView(view: T) {
+    protected open fun clearChildViews(view: T) {
+        log { "clear child views $key ${view.javaClass} children ${children.map { it.key }}" }
+        if (view !is ViewGroup) return
         view.getViewManager().clear()
-        super.unbindView(view)
     }
-
 }

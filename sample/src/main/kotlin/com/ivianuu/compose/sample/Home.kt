@@ -65,7 +65,7 @@ private fun ViewComposition.HomeItem(item: HomeItem) {
     val route = item.route(this)
     View<View> {
         layoutRes(R.layout.home_item)
-        updateView {
+        bindView {
             home_title.text = item.title
             home_color.setColorFilter(item.color.toArgb(), PorterDuff.Mode.SRC_IN)
             setOnClickListener { navigator.push(route) }

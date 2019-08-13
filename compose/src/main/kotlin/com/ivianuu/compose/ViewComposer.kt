@@ -33,7 +33,6 @@ class ViewApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
-        log { "$key insert at $index ${instance.key}" }
         childrenByParent.getOrPut(this).add(index, instance)
     }
 
@@ -108,12 +107,13 @@ class ViewComposition(val composer: ViewComposer) {
 
         node._key = key
 
+        // todo remove
         node.inChangeHandler = +ambient(InChangeHandlerAmbient)
         node.outChangeHandler = +ambient(OutChangeHandlerAmbient)
         node.wasPush = +ambient(TransitionHintsAmbient)
 
         update?.let { node.it() }
-        node.update() // todo
+        node.update()
 
         endNode()
     }

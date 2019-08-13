@@ -24,20 +24,12 @@ fun ViewComposition.Animation() = Route {
 
         animation.start()
 
-        println("anim: on active")
-
-        onDispose {
-            println("anim: on dispose")
-            animation.cancel()
-        }
+        onDispose { animation.cancel() }
     }
-
-    println("anim: rebuild $value")
 
     View<View> {
         layoutRes(R.layout.animation)
-        updateView {
-            println("anim: update view $value")
+        bindView {
             animation_view.scaleX = value
             animation_view.scaleY = value
         }

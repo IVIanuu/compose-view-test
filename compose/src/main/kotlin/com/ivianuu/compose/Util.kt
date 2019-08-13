@@ -7,7 +7,7 @@ var loggingEnabled = true
 
 inline fun log(block: () -> String) {
     if (loggingEnabled) {
-        block()
+        println(block())
     }
 }
 

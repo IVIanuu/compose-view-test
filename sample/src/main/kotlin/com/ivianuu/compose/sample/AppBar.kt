@@ -10,7 +10,7 @@ fun ViewComposition.AppBar(title: String) {
     val navigator = navigator()
     View<MaterialToolbar> {
         layoutRes(R.layout.app_bar)
-        updateView {
+        bindView {
             this.title = title
             if (navigator.backStack.size > 1) {
                 this.setNavigationIcon(R.drawable.abc_ic_ab_back_material)

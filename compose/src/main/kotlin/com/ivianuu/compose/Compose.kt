@@ -53,7 +53,7 @@ class CompositionContext(composable: ViewComposition.() -> Unit) {
 
 }
 
-internal class Root : ViewGroupComponent<ViewGroup>() {
+internal class Root : Component<ViewGroup>() {
 
     var composable: (ViewComposition.() -> Unit)? = null
     lateinit var composeContext: androidx.compose.CompositionContext
@@ -74,5 +74,5 @@ internal class Root : ViewGroupComponent<ViewGroup>() {
         }
     }
 
-    override fun createViewGroup(container: ViewGroup): ViewGroup = container
+    override fun onCreateView(container: ViewGroup): ViewGroup = container
 }

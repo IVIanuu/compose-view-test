@@ -31,7 +31,7 @@ private fun ViewComposition.TransitionDemo(
 
         View<View>(key = transitionDemo) {
             layoutRes(transitionDemo.layoutRes)
-            updateView {
+            bindView {
                 if (transitionDemo.color != Color.Transparent && transition_bg != null) {
                     transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
                 }

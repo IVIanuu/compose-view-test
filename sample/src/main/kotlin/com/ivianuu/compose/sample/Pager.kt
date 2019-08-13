@@ -81,7 +81,7 @@ private fun ViewComposition.Page(
 ) {
     View<View> {
         layoutRes(R.layout.page)
-        updateView {
+        bindView {
             page_bg.setBackgroundColor(color.toArgb())
             page_text.text = "#$index"
         }

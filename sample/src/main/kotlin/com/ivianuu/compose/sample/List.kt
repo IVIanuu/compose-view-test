@@ -30,6 +30,6 @@ fun ViewComposition.List() = Route {
 private fun ViewComposition.ListItem(text: String) {
     View<TextView>(key = text) {
         layoutRes(R.layout.list_item)
-        updateView { this.text = text }
+        bindView { this.text = text }
     }
 }

@@ -1,15 +1,14 @@
 package com.ivianuu.compose.sample.common
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
-import com.ivianuu.compose.Component
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.component
 import com.ivianuu.compose.getViewManager
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.R
@@ -29,82 +28,61 @@ fun ViewComposition.TabLayout(
     onTabChanged: (Int) -> Unit,
     children: ViewComposition.() -> Unit
 ) {
-    emit(
-        key = key,
-        ctor = { TabLayoutComponent() },
-        update = {
-            this.selectedTab = selectedTab
-            this.onTabChanged = onTabChanged
-            children()
-        }
-    )
-}
+    View<TabLayout>(key = key) {
+        layoutRes(R.layout.tab_layout)
 
-class TabLayoutComponent : Component<TabLayout>() {
-
-    var selectedTab = 0
-    lateinit var onTabChanged: (Int) -> Unit
-
-    override fun createView(container: ViewGroup) =
-        LayoutInflater.from(container.context).inflate(
-            R.layout.tab_layout,
-            container,
-            false
-        ) as TabLayout
-
-    override fun bindView(view: TabLayout) {
-        super.bindView(view)
-
-        children
-            .mapIndexed { i, child ->
-                var tab = view.getTabAt(i)
-                if (tab == null) {
-                    tab = view.newTab()
-                    tab.customView = FrameLayout(view.context).apply {
-                        layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+        bindView {
+            component!!.children
+                .mapIndexed { i, child ->
+                    var tab = getTabAt(i)
+                    if (tab == null) {
+                        tab = newTab()
+                        tab.customView = FrameLayout(context).apply {
+                            layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+                        }
+                        addTab(tab, i)
                     }
-                    view.addTab(tab, i)
+
+                    child to tab
+                }
+                .forEach { (child, tab) ->
+                    (tab.customView as ViewGroup).getViewManager()
+                        .update(listOf(child), true) // todo
                 }
 
-                child to tab
-            }
-            .forEach { (child, tab) ->
-                (tab.customView as ViewGroup).getViewManager().update(listOf(child), true) // todo
+            while (tabCount > component!!.children.size) {
+                removeTabAt(tabCount - 1)
             }
 
-        while (view.tabCount > children.size) {
-            view.removeTabAt(view.tabCount - 1)
+            selectTab(getTabAt(selectedTab))
+
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    onTabChanged(tab.position)
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab?) {
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {
+                }
+            })
         }
 
-        view.selectTab(view.getTabAt(selectedTab))
-
-        view.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                onTabChanged(tab.position)
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-            }
-        })
-    }
-
-    override fun unbindView(view: TabLayout) {
-        (0 until view.tabCount)
-            .forEach {
-                (view.getTabAt(it)!!.customView as FrameLayout)
-                    .getViewManager().clear()
-            }
-        view.removeAllTabs()
-        super.unbindView(view)
+        unbindView {
+            (0 until tabCount)
+                .forEach {
+                    (getTabAt(it)!!.customView as FrameLayout)
+                        .getViewManager().clear()
+                }
+            removeAllTabs()
+        }
     }
 }
 
 fun ViewComposition.TabItem(text: String) {
     View<TextView>(text) {
         layoutRes(R.layout.tab_item)
-        updateView { this.text = text }
+        bindView { this.text = text }
     }
 }

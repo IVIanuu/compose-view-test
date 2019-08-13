@@ -3,15 +3,16 @@ package com.ivianuu.compose.sample.common
 import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.ivianuu.compose.Component
+import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.component
+import com.ivianuu.compose.createView
 import com.ivianuu.compose.sourceLocation
-import android.view.ViewGroup.LayoutParams as LayoutParams1
 
 inline fun ViewComposition.ViewPager(
     selectedPage: Int,
@@ -27,47 +28,30 @@ fun ViewComposition.ViewPager(
     onPageChanged: (Int) -> Unit,
     children: ViewComposition.() -> Unit
 ) {
-    emit(
-        key = key,
-        ctor = { ViewPagerComponent() },
-        update = {
-            this.selectedPage = selectedPage
-            this.onPageChanged = onPageChanged
-            children()
-        }
-    )
-}
+    View<ViewPager2>(key = key) {
+        manageChildren = true
 
-class ViewPagerComponent : Component<ViewPager2>() {
+        createView()
 
-    var selectedPage = 0
-    lateinit var onPageChanged: (Int) -> Unit
-
-    override fun createView(container: ViewGroup): ViewPager2 =
-        ViewPager2(container.context).apply {
-            layoutParams = LayoutParams1(MATCH_PARENT, MATCH_PARENT)
-        }
-
-    override fun bindView(view: ViewPager2) {
-        super.bindView(view)
-        if (view.adapter == null) {
-            view.adapter = ComposePagerAdapter()
-        }
-        (view.adapter as ComposePagerAdapter).submitList(children.toList())
-        view.currentItem = selectedPage
-        view.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                onPageChanged(position)
+        bindView {
+            if (adapter == null) {
+                adapter = ComposePagerAdapter()
             }
-        })
-    }
+            (adapter as ComposePagerAdapter).submitList(component!!.children.toList())
+            currentItem = selectedPage
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    onPageChanged(position)
+                }
+            })
+        }
+        unbindView {
+            adapter = null
+        }
 
-    override fun unbindView(view: ViewPager2) {
-        view.adapter = null
-        super.unbindView(view)
+        children()
     }
-
 }
 
 private class ComposePagerAdapter :

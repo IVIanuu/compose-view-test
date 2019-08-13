@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.Component
+import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewComposition
+import com.ivianuu.compose.component
+import com.ivianuu.compose.createView
 import com.ivianuu.compose.sourceLocation
 
 inline fun ViewComposition.RecyclerView(
@@ -21,34 +24,29 @@ fun ViewComposition.RecyclerView(
     key: Any,
     children: ViewComposition.() -> Unit
 ) {
-    emit(
-        key = key,
-        ctor = { RecyclerViewComponent() },
-        update = { children() }
-    )
-}
+    View<RecyclerView>(key = key) {
+        manageChildren = true
 
-class RecyclerViewComponent : Component<RecyclerView>() {
+        createView()
 
-    override fun createView(container: ViewGroup): RecyclerView {
-        return RecyclerView(container.context).apply {
-            layoutManager = LinearLayoutManager(context)
+        bindView {
+            if (layoutManager == null) {
+                layoutManager = LinearLayoutManager(context)
+            }
+
+            if (adapter == null) {
+                adapter = ComposeRecyclerViewAdapter()
+            }
+
+            println("bind recycler ${component!!.children.map { it.key }}")
+
+            (adapter as ComposeRecyclerViewAdapter).submitList(component!!.children.toList())
         }
-    }
 
-    override fun bindView(view: RecyclerView) {
-        super.bindView(view)
-        if (view.adapter == null) {
-            view.adapter = ComposeRecyclerViewAdapter()
-        }
-        (view.adapter as ComposeRecyclerViewAdapter).submitList(children.toList())
-    }
+        unbindView { adapter = null }
 
-    override fun unbindView(view: RecyclerView) {
-        view.adapter = null
-        super.unbindView(view)
+        children()
     }
-
 }
 
 private class ComposeRecyclerViewAdapter :

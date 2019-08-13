@@ -22,7 +22,7 @@ fun ViewComposition.Counter() = Route {
                 var count by +state { 0 }
                 View<View> {
                     layoutRes(R.layout.counter)
-                    updateView {
+                    bindView {
                         title.text = "Count: $count"
                         inc.setOnClickListener { count = count + 1 }
                         dec.setOnClickListener { count = count - 1 }
