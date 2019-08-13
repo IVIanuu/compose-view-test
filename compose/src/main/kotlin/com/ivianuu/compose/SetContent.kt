@@ -19,11 +19,14 @@ package com.ivianuu.compose
 import android.app.Activity
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.compose.Ambient
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+
+val ActivityRefAmbient = Ambient.of<Ref<Activity?>>()
 
 fun ComponentActivity.setContent(
     containerProvider: () -> ViewGroup = { findViewById(android.R.id.content) },
