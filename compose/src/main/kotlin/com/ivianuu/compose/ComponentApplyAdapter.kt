@@ -27,12 +27,13 @@ class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdapter<Compo
     private val childrenByParent =
         mutableMapOf<Component<*>, MutableList<Component<*>>>()
 
-    private fun MutableMap<Component<*>, MutableList<Component<*>>>.getOrPut(key: Component<*>) =
-        getOrPut(key) {
+    private fun MutableMap<Component<*>, MutableList<Component<*>>>.getOrPut(key: Component<*>): MutableList<Component<*>> {
+        return getOrPut(key) {
             mutableListOf<Component<*>>().apply {
                 addAll(key.children)
             }
         }
+    }
 
     override fun Component<*>.start(instance: Component<*>) {
         log { "composition $key start" }
@@ -75,5 +76,4 @@ class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdapter<Compo
             }
         }
     }
-
 }
