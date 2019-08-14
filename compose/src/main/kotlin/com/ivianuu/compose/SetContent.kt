@@ -57,13 +57,18 @@ fun ComponentActivity.setContent(
         }
     })
 
-    context.compose()
+    if (!holder.firstBuild) {
+        holder.firstBuild = true
+        context.compose()
+    }
 }
 
 private class ContextHolder(
     activity: Activity,
     composable: ComponentComposition.() -> Unit
 ) : ViewModel() {
+
+    var firstBuild = true
 
     var activity: Activity? = activity
 
