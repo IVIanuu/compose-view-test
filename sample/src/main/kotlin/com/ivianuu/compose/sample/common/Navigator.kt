@@ -29,6 +29,9 @@ import com.ivianuu.compose.TransitionHintsAmbient
 import com.ivianuu.compose.ambient
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sourceLocation
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 val NavigatorAmbient = Ambient.of<Navigator>()
 
@@ -86,27 +89,41 @@ class Navigator(private val startRoute: Route) {
 
     private var wasPush = true
 
+    private val resultsByRoute = mutableMapOf<Route, CompletableDeferred<Any?>>()
+
     init {
         _backStack.add(startRoute)
     }
 
     fun push(route: Route) {
+        GlobalScope.launch { push<Any?>(route) }
+    }
+
+    suspend fun <T> push(route: Route): T? {
         _backStack.add(route)
         wasPush = true
         backStackChangeObserver?.invoke(_backStack)
         recompose()
+        val deferredResult = CompletableDeferred<Any?>()
+        resultsByRoute[route] = deferredResult
+        return deferredResult.await() as? T
     }
 
-    fun pop() {
+    fun pop(result: Any? = null) {
         if (_backStack.size > 1) {
-            _backStack.removeAt(_backStack.lastIndex)
+            val route = _backStack.removeAt(_backStack.lastIndex)
+            val deferredResult = resultsByRoute.remove(route)
+            deferredResult?.complete(result)
             wasPush = false
             backStackChangeObserver?.invoke(_backStack)
             recompose()
         }
     }
 
-    fun popToRoot() {
+    fun popToRoot(result: Any? = null) {
+        val top = _backStack.last()
+        val deferredResult = resultsByRoute.remove(top)
+        deferredResult?.complete(result)
         val root = _backStack.first()
         _backStack.clear()
         _backStack.add(root)
