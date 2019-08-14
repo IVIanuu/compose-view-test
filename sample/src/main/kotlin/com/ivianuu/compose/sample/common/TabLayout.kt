@@ -93,6 +93,6 @@ fun ComponentComposition.TabLayout(
 fun ComponentComposition.TabItem(text: String) {
     View<TextView>(text) {
         layoutRes(R.layout.tab_item)
-        bindView { this.text = text }
+        set(text) { this.text = it }
     }
 }

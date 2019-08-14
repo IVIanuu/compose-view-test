@@ -26,13 +26,16 @@ fun ComponentComposition.AppBar(title: String) {
     val navigator = navigator
     View<MaterialToolbar> {
         layoutRes(R.layout.app_bar)
-        bindView {
-            this.title = title
-            if (navigator.backStack.size > 1) {
-                this.setNavigationIcon(R.drawable.abc_ic_ab_back_material)
-                setNavigationOnClickListener { navigator.pop() }
-            } else {
-                navigationIcon = null
+        update {
+            set(title) { this.title = it }
+            set(navigator.backStack.size > 1) {
+                if (it) {
+                    setNavigationIcon(R.drawable.abc_ic_ab_back_material)
+                    setNavigationOnClickListener { navigator.pop() }
+                } else {
+                    navigationIcon = null
+                    setNavigationOnClickListener(null)
+                }
             }
         }
     }

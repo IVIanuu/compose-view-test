@@ -27,7 +27,6 @@ import com.ivianuu.compose.memo
 import com.ivianuu.compose.onActive
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.state
-import kotlinx.android.synthetic.main.animation.view.*
 
 fun AnimationRoute() = Route {
     val handler = memo { FadeChangeHandler() }
@@ -54,9 +53,11 @@ fun AnimationRoute() = Route {
 
                 View<View> {
                     layoutRes(R.layout.animation)
-                    bindView {
-                        animation_view.scaleX = value
-                        animation_view.scaleY = value
+                    update {
+                        set(value) {
+                            scaleX = it
+                            scaleY = it
+                        }
                     }
                 }
             }

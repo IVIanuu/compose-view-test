@@ -26,7 +26,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.byClass
 import com.ivianuu.compose.component
 
 fun ComponentComposition.ViewPager(
@@ -37,14 +36,10 @@ fun ComponentComposition.ViewPager(
     View<ViewPager2> {
         manageChildren = true
 
-        byClass()
-
-        bindView {
-            if (adapter == null) {
-                adapter = ComposePagerAdapter()
-            }
-            (adapter as ComposePagerAdapter).submitList(component!!.children.toList())
-            currentItem = selectedPage
+        init { adapter = ComposePagerAdapter() }
+        update { (adapter as ComposePagerAdapter).submitList(component!!.children.toList()) }
+        set(selectedPage) { currentItem = it }
+        init {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
@@ -52,6 +47,7 @@ fun ComponentComposition.ViewPager(
                 }
             })
         }
+
         unbindView {
             adapter = null
         }

@@ -81,10 +81,8 @@ private fun ComponentComposition.HomeItem(item: HomeItem) {
     val route = item.route(this)
     View<View> {
         layoutRes(R.layout.home_item)
-        bindView {
-            home_title.text = item.title
-            home_color.setColorFilter(item.color.toArgb(), PorterDuff.Mode.SRC_IN)
-            setOnClickListener { navigator.push(route) }
-        }
+        set(item.title) { home_title.text = it }
+        set(item.color) { home_color.setColorFilter(it.toArgb(), PorterDuff.Mode.SRC_IN) }
+        init { setOnClickListener { navigator.push(route) } }
     }
 }

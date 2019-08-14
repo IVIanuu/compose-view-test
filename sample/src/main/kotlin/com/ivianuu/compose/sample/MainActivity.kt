@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
 private fun ComponentComposition.App() {
     View<FrameLayout> {
-        bindView {
+        init {
             layoutParams = layoutParams.apply {
                 width = MATCH_PARENT
                 height = MATCH_PARENT

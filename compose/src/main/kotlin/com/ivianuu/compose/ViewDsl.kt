@@ -42,11 +42,15 @@ fun <T : View> ComponentComposition.View(
         key = key,
         ctor = { ViewDslComponent() },
         update = {
-            val dsl = ViewDsl<T>().apply(block)
+            val dsl = ViewDsl<T>()
+                .also { it.component = this }
+                .apply(block)
+
             viewType = dsl.viewType
             createView = dsl.createView
             bindViewBlocks = dsl.bindViewBlocks
             unbindViewBlocks = dsl.unbindViewBlocks
+            updateBlocks = dsl.updateBlocks
             manageChildren = dsl.manageChildren
         }
     )
@@ -54,17 +58,18 @@ fun <T : View> ComponentComposition.View(
 
 class ViewDsl<T : View> {
 
+    lateinit var component: Component<*>
+        internal set
+
     var viewType: Any by Delegates.notNull()
 
     var createView: (ViewGroup) -> T by Delegates.notNull()
     internal var bindViewBlocks: MutableList<T.() -> Unit>? = null
     internal var unbindViewBlocks: MutableList<T.() -> Unit>? = null
+    @PublishedApi
+    internal var updateBlocks: MutableList<ViewUpdater<T>.() -> Unit>? = null
 
     var manageChildren = false
-
-    inline fun <V> set(value: V, crossinline block: T.(V) -> Unit) {
-        bindView { block(value) }
-    }
 
     fun bindView(block: T.() -> Unit) {
         if (bindViewBlocks == null) bindViewBlocks = mutableListOf()
@@ -75,6 +80,22 @@ class ViewDsl<T : View> {
         if (unbindViewBlocks == null) unbindViewBlocks = mutableListOf()
         unbindViewBlocks!! += block
     }
+
+    inline fun <V> set(value: V, crossinline block: T.(V) -> Unit) {
+        if (updateBlocks == null) updateBlocks = mutableListOf()
+        updateBlocks!! += { set(value, block) }
+    }
+
+    inline fun init(crossinline block: T.() -> Unit) {
+        if (updateBlocks == null) updateBlocks = mutableListOf()
+        updateBlocks!! += { set(Unit) { block() } }
+    }
+
+    inline fun update(crossinline block: T.() -> Unit) {
+        if (updateBlocks == null) updateBlocks = mutableListOf()
+        updateBlocks!! += { block(node) }
+    }
+
 
 }
 
@@ -115,6 +136,7 @@ private class ViewDslComponent<T : View> : Component<T>() {
     lateinit var createView: (ViewGroup) -> T
     var bindViewBlocks: List<T.() -> Unit>? = null
     var unbindViewBlocks: List<T.() -> Unit>? = null
+    var updateBlocks: MutableList<ViewUpdater<T>.() -> Unit>? = null
 
     var manageChildren = false
 
@@ -124,9 +146,15 @@ private class ViewDslComponent<T : View> : Component<T>() {
     override fun bindView(view: T) {
         super.bindView(view)
         bindViewBlocks?.forEach { it(view) }
+        updateBlocks?.let { updateBlocks ->
+            view.update { updateBlocks.forEach { it() } }
+        }
     }
 
     override fun unbindView(view: T) {
+        if (updateBlocks != null) {
+            view.update { }
+        }
         unbindViewBlocks?.forEach { it(view) }
         super.unbindView(view)
     }
