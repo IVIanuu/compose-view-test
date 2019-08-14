@@ -29,7 +29,7 @@ inline fun <reified T : View> ComponentComposition.View(
     noinline block: ViewDsl<T>.() -> Unit
 ) {
     View<T>(key = sourceLocation()) {
-        createView()
+        byClass()
         block()
     }
 }
@@ -78,13 +78,13 @@ class ViewDsl<T : View> {
 
 }
 
-inline fun <reified T : View> ViewDsl<T>.createView() {
-    createView(T::class)
+inline fun <reified T : View> ViewDsl<T>.byClass() {
+    byClass(T::class)
 }
 
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
 
-fun <T : View> ViewDsl<T>.createView(type: KClass<T>) {
+fun <T : View> ViewDsl<T>.byClass(type: KClass<T>) {
     createView = { container ->
         constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
             .newInstance(container.context) as T

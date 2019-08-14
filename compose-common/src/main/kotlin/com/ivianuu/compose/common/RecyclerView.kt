@@ -26,8 +26,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.byClass
 import com.ivianuu.compose.component
-import com.ivianuu.compose.createView
 
 fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
@@ -36,7 +36,7 @@ fun ComponentComposition.RecyclerView(
     View<RecyclerView> {
         manageChildren = true
 
-        createView()
+        byClass()
 
         bindView {
             this.layoutManager = layoutManager ?: LinearLayoutManager(context)

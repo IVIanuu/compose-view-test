@@ -26,8 +26,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.byClass
 import com.ivianuu.compose.component
-import com.ivianuu.compose.createView
 
 fun ComponentComposition.ViewPager(
     selectedPage: Int,
@@ -37,7 +37,7 @@ fun ComponentComposition.ViewPager(
     View<ViewPager2> {
         manageChildren = true
 
-        createView()
+        byClass()
 
         bindView {
             if (adapter == null) {
