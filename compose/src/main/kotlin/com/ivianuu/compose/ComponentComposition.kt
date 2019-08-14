@@ -16,21 +16,11 @@
 
 package com.ivianuu.compose
 
-import androidx.compose.ComposeAccessor
-import androidx.compose.Effect
 import androidx.compose.EffectsDsl
 
 @Suppress("UNCHECKED_CAST")
 @EffectsDsl
 class ComponentComposition(val composer: ComponentComposer) {
-
-    @Suppress("NOTHING_TO_INLINE")
-    inline operator fun <V> Effect<V>.unaryPlus(): V {
-        check(ComposeAccessor.isComposing(this@ComponentComposition.composer)) {
-            "Can only use effects while composing"
-        }
-        return resolve(this@ComponentComposition.composer, sourceLocation().hashCode())
-    }
 
     fun <T : Component<*>> emit(
         key: Any,
