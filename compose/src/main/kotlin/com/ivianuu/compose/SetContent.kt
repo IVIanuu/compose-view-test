@@ -57,8 +57,9 @@ fun ComponentActivity.setContent(
         }
     })
 
-    if (!holder.firstBuild) {
-        holder.firstBuild = true
+    if (holder.firstBuild) {
+        holder.firstBuild = false
+    } else {
         context.compose()
     }
 }
