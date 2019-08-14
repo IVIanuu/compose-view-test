@@ -16,15 +16,7 @@
 
 package com.ivianuu.compose
 
-import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
-import androidx.compose.ComposeAccessor
-import androidx.compose.Composer
-import androidx.compose.Effect
-import androidx.compose.EffectsDsl
-import androidx.compose.FrameManager
-import androidx.compose.Recomposer
-import androidx.compose.SlotTable
 import java.util.*
 
 class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<*>> {
@@ -82,73 +74,6 @@ class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdapter<Compo
                 childrenByParent.remove(root)
             }
         }
-    }
-
-}
-
-class ComponentComposer(
-    val root: Component<*>,
-    applyAdapter: ComponentApplyAdapter = ComponentApplyAdapter(root),
-    recomposer: Recomposer
-) : Composer<Component<*>>(
-    SlotTable(),
-    Applier(root, applyAdapter), recomposer
-) {
-
-    init {
-        FrameManager.ensureStarted()
-    }
-
-}
-
-@Suppress("UNCHECKED_CAST")
-@EffectsDsl
-class ComponentComposition(val composer: ComponentComposer) {
-
-    @Suppress("NOTHING_TO_INLINE")
-    inline operator fun <V> Effect<V>.unaryPlus(): V {
-        check(ComposeAccessor.isComposing(this@ComponentComposition.composer)) {
-            "Can only use effects while composing"
-        }
-        return resolve(this@ComponentComposition.composer, sourceLocation().hashCode())
-    }
-
-    fun <T : Component<*>> emit(
-        key: Any,
-        ctor: () -> T,
-        update: (T.() -> Unit)? = null
-    ) = with(composer) {
-        startNode(key)
-        log { "emit $key inserting ? $inserting" }
-        val node = if (inserting) {
-            ctor().also { emitNode(it) }
-        } else {
-            useNode() as T
-        }
-
-        node._key = key
-
-        // todo remove
-        node.inChangeHandler = ambient(InChangeHandlerAmbient)
-        node.outChangeHandler = ambient(OutChangeHandlerAmbient)
-        node.wasPush = ambient(TransitionHintsAmbient)
-
-        update?.let { node.it() }
-        node.update()
-
-        endNode()
-    }
-
-    inline fun group(noinline children: ComponentComposition.() -> Unit) =
-        group(sourceLocation(), children)
-
-    fun group(
-        key: Any,
-        children: ComponentComposition.() -> Unit
-    ) = with(composer) {
-        startGroup(key)
-        children()
-        endGroup()
     }
 
 }
