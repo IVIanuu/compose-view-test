@@ -45,6 +45,8 @@ object Versions {
 
     const val kotlin = "1.3.41"
 
+    const val leakCanary = "2.0-beta-2"
+
     const val mavenGradle = "2.1"
 
     const val materialComponents = "1.1.0-alpha07"
@@ -64,6 +66,9 @@ object Deps {
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
+
+    const val leakCanaryAndroid =
+        "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
 
     const val materialComponents =
         "com.google.android.material:material:${Versions.materialComponents}"

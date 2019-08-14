@@ -29,5 +29,6 @@ dependencies {
     implementation(Deps.androidxAppCompat)
     implementation(project(":compose"))
     implementation(project(":compose-common"))
+    implementation(Deps.leakCanaryAndroid)
     implementation(Deps.materialComponents)
 }

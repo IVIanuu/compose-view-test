@@ -20,6 +20,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.Ambient
 import androidx.compose.Recompose
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.TransitionHintsAmbient
@@ -71,17 +74,11 @@ fun ComponentComposition.Route(
 
 class Navigator(private val startRoute: Route) {
 
-    internal var activity: ComponentActivity? = null
+    internal var backStackChangeObserver: ((List<Route>) -> Unit)? = null
         set(value) {
             field = value
-            value?.onBackPressedDispatcher?.addCallback(backPressedCallback)
+            value?.invoke(_backStack)
         }
-
-    private val backPressedCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            pop()
-        }
-    }
 
     val backStack: List<Route> get() = _backStack
     private val _backStack = mutableListOf<Route>()
@@ -96,6 +93,7 @@ class Navigator(private val startRoute: Route) {
     fun push(route: Route) {
         _backStack.add(route)
         wasPush = true
+        backStackChangeObserver?.invoke(_backStack)
         recompose()
     }
 
@@ -103,9 +101,8 @@ class Navigator(private val startRoute: Route) {
         if (_backStack.size > 1) {
             _backStack.removeAt(_backStack.lastIndex)
             wasPush = false
+            backStackChangeObserver?.invoke(_backStack)
             recompose()
-        } else {
-            activity?.finish()
         }
     }
 
@@ -113,10 +110,12 @@ class Navigator(private val startRoute: Route) {
         val root = _backStack.first()
         _backStack.clear()
         _backStack.add(root)
+        wasPush = false
+        backStackChangeObserver?.invoke(_backStack)
         recompose()
     }
 
-    fun content(componentComposition: ComponentComposition) = Recompose { recompose ->
+    fun compose(componentComposition: ComponentComposition) = Recompose { recompose ->
         this@Navigator.recompose = recompose
 
         val visibleRoutes = mutableListOf<Route>()
@@ -142,8 +141,28 @@ class Navigator(private val startRoute: Route) {
 fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route) {
     val activity = ambient(ActivityAmbient)
     val navigator = memo { Navigator(startRoute()) }
-    navigator.activity = activity as ComponentActivity
+
+    val onBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            navigator.pop()
+        }
+    }
+    (activity as ComponentActivity).onBackPressedDispatcher.addCallback(
+        activity,
+        onBackPressedCallback
+    )
+
+    navigator.backStackChangeObserver = { onBackPressedCallback.isEnabled = it.size > 1 }
+
+    activity.lifecycle.addObserver(object : LifecycleEventObserver {
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                navigator.backStackChangeObserver = null
+            }
+        }
+    })
+
     NavigatorAmbient.Provider(navigator) {
-        navigator.content(this)
+        navigator.compose(this)
     }
 }
