@@ -22,10 +22,10 @@ import androidx.ui.graphics.Color
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.common.RecyclerView
+import com.ivianuu.compose.common.Route
+import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.layoutRes
-import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
-import com.ivianuu.compose.sample.common.navigator
 import kotlinx.android.synthetic.main.home_item.view.*
 
 enum class HomeItem(

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.sample.common
+package com.ivianuu.compose.common
 
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback

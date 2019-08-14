@@ -25,10 +25,10 @@ import androidx.ui.graphics.Color
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.memo
-import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.TabItem
 import com.ivianuu.compose.sample.common.TabLayout

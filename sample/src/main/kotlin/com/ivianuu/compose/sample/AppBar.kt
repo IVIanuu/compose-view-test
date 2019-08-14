@@ -19,8 +19,8 @@ package com.ivianuu.compose.sample
 import com.google.android.material.appbar.MaterialToolbar
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.layoutRes
-import com.ivianuu.compose.sample.common.navigator
 
 fun ComponentComposition.AppBar(title: String) {
     val navigator = navigator()

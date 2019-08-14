@@ -22,7 +22,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.sample.common.Navigator
+import com.ivianuu.compose.common.Navigator
 import com.ivianuu.compose.setContent
 
 class MainActivity : AppCompatActivity() {

@@ -23,14 +23,14 @@ import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.CircularRevealChangeHandler
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
+import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.memo
-import com.ivianuu.compose.sample.common.Route
-import com.ivianuu.compose.sample.common.navigator
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
 import com.ivianuu.compose.sample.handler.FlipChangeHandler
 import kotlinx.android.synthetic.main.transition_demo.view.*
