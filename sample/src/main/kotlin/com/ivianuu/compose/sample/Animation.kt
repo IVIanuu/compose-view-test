@@ -19,7 +19,6 @@ package com.ivianuu.compose.sample
 import android.animation.ValueAnimator
 import android.view.View
 import com.ivianuu.compose.ChangeHandlers
-import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
@@ -30,7 +29,7 @@ import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.animation.view.*
 
-fun ComponentComposition.Animation() = Route {
+fun AnimationRoute() = Route {
     val handler = memo { FadeChangeHandler() }
     ChangeHandlers(handler = handler) {
         Scaffold(

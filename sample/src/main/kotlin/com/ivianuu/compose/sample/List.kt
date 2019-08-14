@@ -27,7 +27,7 @@ import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
 
-fun ComponentComposition.List() = Route {
+fun ListRoute() = Route {
     val handler = memo { VerticalChangeHandler() }
     ChangeHandlers(handler = handler) {
         Scaffold(

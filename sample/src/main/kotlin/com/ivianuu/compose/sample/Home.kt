@@ -36,17 +36,17 @@ enum class HomeItem(
     Counter(
         title = "Counter",
         color = Color.Magenta,
-        route = { Counter() }
+        route = { CounterRoute() }
     ),
     List(
         title = "List",
         color = Color.Maroon,
-        route = { List() }
+        route = { ListRoute() }
     ),
     Pager(
         title = "Pager",
         color = Color.Cyan,
-        route = { Pager() }
+        route = { PagerRoute() }
     ),
     Transition(
         title = "ChangeHandlers",
@@ -56,11 +56,11 @@ enum class HomeItem(
     Animation(
         title = "Animation",
         color = Color.Yellow,
-        route = { Animation() }
+        route = { AnimationRoute() }
     )
 }
 
-fun ComponentComposition.Home2() = Route {
+fun HomeRoute() = Route {
     Scaffold(
         appBar = { AppBar("Home") },
         content = {

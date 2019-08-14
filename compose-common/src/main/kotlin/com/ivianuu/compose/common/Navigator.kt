@@ -30,6 +30,7 @@ import com.ivianuu.compose.ambient
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sourceLocation
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -53,12 +54,12 @@ interface Route {
 
 }
 
-inline fun ComponentComposition.Route(
+inline fun Route(
     isFloating: Boolean = false,
     noinline compose: ComponentComposition.() -> Unit
 ) = Route(sourceLocation(), isFloating, compose)
 
-fun ComponentComposition.Route(
+fun Route(
     key: Any,
     isFloating: Boolean = false,
     content: ComponentComposition.() -> Unit
@@ -96,7 +97,7 @@ class Navigator(private val startRoute: Route) {
     }
 
     fun push(route: Route) {
-        GlobalScope.launch { push<Any?>(route) }
+        GlobalScope.launch(Dispatchers.Main) { push<Any?>(route) }
     }
 
     suspend fun <T> push(route: Route): T? {

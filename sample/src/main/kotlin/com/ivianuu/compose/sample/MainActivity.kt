@@ -43,7 +43,7 @@ private fun ComponentComposition.App() {
         }
 
         Navigator {
-            Home2()
+            HomeRoute()
         }
     }
 }

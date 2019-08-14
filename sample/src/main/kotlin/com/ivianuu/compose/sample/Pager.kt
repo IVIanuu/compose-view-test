@@ -60,7 +60,7 @@ val AllColors = arrayOf(
     Color.Teal
 )
 
-fun ComponentComposition.Pager() = Route {
+fun PagerRoute() = Route {
     val transition = memo { FadeChangeHandler() }
     ChangeHandlers(handler = transition) {
         var selectedPage by state { 0 }
