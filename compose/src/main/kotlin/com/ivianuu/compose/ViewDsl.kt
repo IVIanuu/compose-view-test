@@ -25,15 +25,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.properties.Delegates
 import kotlin.reflect.KClass
 
-inline fun <reified T : View> ComponentComposition.View(
-    noinline block: ViewDsl<T>.() -> Unit
-) {
-    View<T>(key = sourceLocation()) {
-        byClass()
-        block()
-    }
-}
-
 fun <T : View> ComponentComposition.View(
     key: Any,
     block: ViewDsl<T>.() -> Unit
@@ -50,6 +41,15 @@ fun <T : View> ComponentComposition.View(
             manageChildren = dsl.manageChildren
         }
     )
+}
+
+inline fun <reified T : View> ComponentComposition.View(
+    noinline block: ViewDsl<T>.() -> Unit
+) {
+    View<T>(key = sourceLocation()) {
+        byClass()
+        block()
+    }
 }
 
 class ViewDsl<T : View> {
@@ -78,10 +78,6 @@ class ViewDsl<T : View> {
 
 }
 
-inline fun <reified T : View> ViewDsl<T>.byClass() {
-    byClass(T::class)
-}
-
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
 
 fun <T : View> ViewDsl<T>.byClass(type: KClass<T>) {
@@ -90,6 +86,10 @@ fun <T : View> ViewDsl<T>.byClass(type: KClass<T>) {
             .newInstance(container.context) as T
     }
     viewType = type
+}
+
+inline fun <reified T : View> ViewDsl<T>.byClass() {
+    byClass(T::class)
 }
 
 fun <T : View> ViewDsl<T>.layoutRes(layoutRes: Int) {

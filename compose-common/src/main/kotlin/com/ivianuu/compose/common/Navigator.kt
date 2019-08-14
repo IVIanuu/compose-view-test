@@ -34,44 +34,32 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-private val NavigatorAmbient = Ambient.of<Navigator>()
-val ComponentComposition.navigator: Navigator get() = ambient(NavigatorAmbient)
+fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route) {
+    val activity = ambient(ActivityAmbient)
+    val navigator = memo { Navigator(startRoute()) }
 
-interface Route {
-
-    val key: Any
-
-    val isFloating: Boolean
-
-    fun ComponentComposition.compose()
-
-    fun _compose(componentComposition: ComponentComposition) {
-        with(componentComposition) {
-            compose()
+    val onBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            navigator.pop()
         }
     }
+    (activity as ComponentActivity).onBackPressedDispatcher.addCallback(
+        activity,
+        onBackPressedCallback
+    )
 
-}
+    navigator.backStackChangeObserver = { onBackPressedCallback.isEnabled = it.size > 1 }
 
-inline fun Route(
-    isFloating: Boolean = false,
-    noinline compose: ComponentComposition.() -> Unit
-) = Route(sourceLocation(), isFloating, compose)
+    activity.lifecycle.addObserver(object : LifecycleEventObserver {
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                navigator.backStackChangeObserver = null
+            }
+        }
+    })
 
-fun Route(
-    key: Any,
-    isFloating: Boolean = false,
-    content: ComponentComposition.() -> Unit
-) = object : Route {
-
-    override val key: Any
-        get() = key
-
-    override val isFloating: Boolean
-        get() = isFloating
-
-    override fun ComponentComposition.compose() {
-        content.invoke(this)
+    NavigatorAmbient.Provider(navigator) {
+        navigator.compose(this)
     }
 }
 
@@ -155,31 +143,43 @@ class Navigator(private val startRoute: Route) {
 
 }
 
-fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route) {
-    val activity = ambient(ActivityAmbient)
-    val navigator = memo { Navigator(startRoute()) }
+private val NavigatorAmbient = Ambient.of<Navigator>()
+val ComponentComposition.navigator: Navigator get() = ambient(NavigatorAmbient)
 
-    val onBackPressedCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            navigator.pop()
+interface Route {
+
+    val key: Any
+
+    val isFloating: Boolean
+
+    fun ComponentComposition.compose()
+
+    fun _compose(componentComposition: ComponentComposition) {
+        with(componentComposition) {
+            compose()
         }
     }
-    (activity as ComponentActivity).onBackPressedDispatcher.addCallback(
-        activity,
-        onBackPressedCallback
-    )
 
-    navigator.backStackChangeObserver = { onBackPressedCallback.isEnabled = it.size > 1 }
+}
 
-    activity.lifecycle.addObserver(object : LifecycleEventObserver {
-        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                navigator.backStackChangeObserver = null
-            }
-        }
-    })
+inline fun Route(
+    isFloating: Boolean = false,
+    noinline compose: ComponentComposition.() -> Unit
+) = Route(sourceLocation(), isFloating, compose)
 
-    NavigatorAmbient.Provider(navigator) {
-        navigator.compose(this)
+fun Route(
+    key: Any,
+    isFloating: Boolean = false,
+    content: ComponentComposition.() -> Unit
+) = object : Route {
+
+    override val key: Any
+        get() = key
+
+    override val isFloating: Boolean
+        get() = isFloating
+
+    override fun ComponentComposition.compose() {
+        content.invoke(this)
     }
 }

@@ -48,9 +48,6 @@ class ComponentComposition(val composer: ComponentComposer) {
         endNode()
     }
 
-    inline fun group(noinline children: ComponentComposition.() -> Unit) =
-        group(sourceLocation(), children)
-
     fun group(
         key: Any,
         children: ComponentComposition.() -> Unit
@@ -59,5 +56,8 @@ class ComponentComposition(val composer: ComponentComposer) {
         children()
         endGroup()
     }
+
+    inline fun group(noinline children: ComponentComposition.() -> Unit) =
+        group(sourceLocation(), children)
 
 }

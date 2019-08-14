@@ -20,33 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Ambient
 
-val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
-val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
-val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
-
-fun ComponentComposition.ChangeHandlers(
-    handler: ComponentChangeHandler?,
-    children: ComponentComposition.() -> Unit
-) {
-    ChangeHandlers(
-        inHandler = handler,
-        outHandler = handler,
-        children = children
-    )
-}
-
-fun ComponentComposition.ChangeHandlers(
-    inHandler: ComponentChangeHandler? = null,
-    outHandler: ComponentChangeHandler? = null,
-    children: ComponentComposition.() -> Unit
-) {
-    InChangeHandlerAmbient.Provider(inHandler) {
-        OutChangeHandlerAmbient.Provider(outHandler) {
-            children()
-        }
-    }
-}
-
 abstract class ComponentChangeHandler {
 
     internal var hasBeenUsed = false
@@ -89,5 +62,32 @@ class DefaultChangeHandler : ComponentChangeHandler() {
         DefaultChangeHandler()
 
     override fun cancel() {
+    }
+}
+
+val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
+val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
+val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
+
+fun ComponentComposition.ChangeHandlers(
+    handler: ComponentChangeHandler?,
+    children: ComponentComposition.() -> Unit
+) {
+    ChangeHandlers(
+        inHandler = handler,
+        outHandler = handler,
+        children = children
+    )
+}
+
+fun ComponentComposition.ChangeHandlers(
+    inHandler: ComponentChangeHandler? = null,
+    outHandler: ComponentChangeHandler? = null,
+    children: ComponentComposition.() -> Unit
+) {
+    InChangeHandlerAmbient.Provider(inHandler) {
+        OutChangeHandlerAmbient.Provider(outHandler) {
+            children()
+        }
     }
 }
