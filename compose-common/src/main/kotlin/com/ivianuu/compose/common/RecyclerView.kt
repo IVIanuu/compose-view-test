@@ -65,7 +65,7 @@ private class ComposeRecyclerViewAdapter :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component =
-            lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
+            lastItemViewTypeRequest ?: currentList.first { it.getViewType() == viewType }
         val view = component.createView(parent)
         return Holder(view)
     }
