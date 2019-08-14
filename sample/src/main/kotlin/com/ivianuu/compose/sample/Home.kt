@@ -28,7 +28,23 @@ import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.sample.common.Scaffold
 import kotlinx.android.synthetic.main.home_item.view.*
 
-enum class HomeItem(
+fun HomeRoute() = Route {
+    Scaffold(
+        appBar = { AppBar("Home") },
+        content = {
+            RecyclerView {
+                HomeItem.values()
+                    .forEach {
+                        group(it.name) {
+                            HomeItem(it)
+                        }
+                    }
+            }
+        }
+    )
+}
+
+private enum class HomeItem(
     val title: String,
     val color: Color,
     val route: ComponentComposition.() -> Route
@@ -60,24 +76,8 @@ enum class HomeItem(
     )
 }
 
-fun HomeRoute() = Route {
-    Scaffold(
-        appBar = { AppBar("Home") },
-        content = {
-            RecyclerView {
-                HomeItem.values()
-                    .forEach {
-                        group(it.name) {
-                            HomeItem(it)
-                        }
-                    }
-            }
-        }
-    )
-}
-
 private fun ComponentComposition.HomeItem(item: HomeItem) {
-    val navigator = navigator()
+    val navigator = navigator
     val route = item.route(this)
     View<View> {
         layoutRes(R.layout.home_item)

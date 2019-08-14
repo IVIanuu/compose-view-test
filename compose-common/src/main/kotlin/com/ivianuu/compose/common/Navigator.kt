@@ -34,9 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-val NavigatorAmbient = Ambient.of<Navigator>()
-
-fun ComponentComposition.navigator() = ambient(NavigatorAmbient)
+private val NavigatorAmbient = Ambient.of<Navigator>()
+val ComponentComposition.navigator: Navigator get() = ambient(NavigatorAmbient)
 
 interface Route {
 

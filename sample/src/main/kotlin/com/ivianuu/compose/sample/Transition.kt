@@ -43,7 +43,7 @@ private fun ComponentComposition.TransitionDemo(
     val transition = memo { transitionDemo.getTransition() }
 
     ChangeHandlers(handler = transition) {
-        val navigator = navigator()
+        val navigator = navigator
 
         View<View>(key = transitionDemo) {
             layoutRes(transitionDemo.layoutRes)
