@@ -67,6 +67,8 @@ class ViewManager(val container: ViewGroup) {
                 null
             )
         }
+
+        children.clear()
     }
 
     fun update(newChildren: List<Component<*>>, isPush: Boolean) {
