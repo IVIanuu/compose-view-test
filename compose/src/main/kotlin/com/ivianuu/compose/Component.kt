@@ -45,6 +45,8 @@ abstract class Component<T : View> {
     }
 
     open fun updateChildren(newChildren: List<Component<*>>) {
+        if (_children == newChildren) return
+
         log { "update children $key new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
 
         _children
