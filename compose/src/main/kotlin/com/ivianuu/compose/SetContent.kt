@@ -17,6 +17,7 @@
 package com.ivianuu.compose
 
 import android.app.Activity
+import android.content.Context
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.Ambient
@@ -26,7 +27,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-val ActivityRefAmbient = Ambient.of<Ref<Activity?>>()
+val ActivityAmbient = Ambient.of<Activity>()
+val ContextAmbient = Ambient.of<Context>()
 
 fun ComponentActivity.setContent(
     container: ViewGroup = findViewById(android.R.id.content),
@@ -34,41 +36,51 @@ fun ComponentActivity.setContent(
 ) {
     val holder = ViewModelProvider(
         this,
-        ContextHolder.Factory(composable)
+        ContextHolder.Factory(this, composable)
     ).get(ContextHolder::class.java)
 
     val context = holder.context
-    val activityRef = holder.activityRef
+    holder.activity = this
 
-    activityRef.value = this
     context.setContainer(container)
 
     lifecycle.addObserver(object : LifecycleEventObserver {
         override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
             if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
-                activityRef.value = null
                 if (isChangingConfigurations) {
                     context.removeContainer()
                 } else {
                     context.dispose()
                 }
+                holder.activity = null
             }
         }
     })
+
+    context.compose()
 }
 
-private class ContextHolder(composable: ComponentComposition.() -> Unit) : ViewModel() {
+private class ContextHolder(
+    activity: Activity,
+    composable: ComponentComposition.() -> Unit
+) : ViewModel() {
 
-    val activityRef = Ref<Activity?>(null)
+    var activity: Activity? = activity
 
     val context = CompositionContext {
-        ActivityRefAmbient.Provider(activityRef) {
-            composable()
+        check(this@ContextHolder.activity != null)
+        ActivityAmbient.Provider(this@ContextHolder.activity!!) {
+            ContextAmbient.Provider(this@ContextHolder.activity!!) {
+                composable()
+            }
         }
     }
 
-    class Factory(val composable: ComponentComposition.() -> Unit) : ViewModelProvider.Factory {
+    class Factory(
+        val activity: Activity,
+        val composable: ComponentComposition.() -> Unit
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T =
-            ContextHolder(composable) as T
+            ContextHolder(activity, composable) as T
     }
 }

@@ -77,7 +77,7 @@ fun ComponentComposition.Home2() = Route {
 }
 
 private fun ComponentComposition.HomeItem(item: HomeItem) {
-    val navigator = +navigator()
+    val navigator = navigator()
     val route = item.route(this)
     View<View> {
         layoutRes(R.layout.home_item)

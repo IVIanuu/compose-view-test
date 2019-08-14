@@ -17,25 +17,25 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
-import androidx.compose.memo
-import androidx.compose.state
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
+import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.counter.view.*
 
 fun ComponentComposition.Counter() = Route {
-    val transition = +memo { HorizontalChangeHandler() }
+    val transition = memo { HorizontalChangeHandler() }
 
     ChangeHandlers(handler = transition) {
         Scaffold(
             appBar = { AppBar("Counter") },
             content = {
-                val (count, setCount) = +state { 0 }
+                val (count, setCount) = state { 0 }
                 View<View> {
                     layoutRes(R.layout.counter)
                     bindView {

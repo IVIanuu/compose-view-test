@@ -20,16 +20,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.Ambient
 import androidx.compose.Recompose
-import androidx.compose.ambient
-import com.ivianuu.compose.ActivityRefAmbient
+import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.Ref
 import com.ivianuu.compose.TransitionHintsAmbient
+import com.ivianuu.compose.ambient
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.sourceLocation
 
 val NavigatorAmbient = Ambient.of<Navigator>()
 
-fun navigator() = ambient(NavigatorAmbient)
+fun ComponentComposition.navigator() = ambient(NavigatorAmbient)
 
 interface Route {
 
@@ -69,10 +69,13 @@ fun ComponentComposition.Route(
     }
 }
 
-class Navigator(
-    private val activity: Ref<ComponentActivity?>,
-    private val startRoute: Route
-) {
+class Navigator(private val startRoute: Route) {
+
+    internal var activity: ComponentActivity? = null
+        set(value) {
+            field = value
+            value?.onBackPressedDispatcher?.addCallback(backPressedCallback)
+        }
 
     private val backPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -87,9 +90,6 @@ class Navigator(
     private var wasPush = true
 
     init {
-        activity.onUpdate { _, newValue ->
-            newValue?.onBackPressedDispatcher?.addCallback(backPressedCallback)
-        }
         _backStack.add(startRoute)
     }
 
@@ -105,7 +105,7 @@ class Navigator(
             wasPush = false
             recompose()
         } else {
-            activity()?.finish()
+            activity?.finish()
         }
     }
 
@@ -140,8 +140,9 @@ class Navigator(
 }
 
 fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route) {
-    val activity = +ambient(ActivityRefAmbient)
-    val navigator = Navigator(activity as Ref<ComponentActivity?>, startRoute())
+    val activity = ambient(ActivityAmbient)
+    val navigator = memo { Navigator(startRoute()) }
+    navigator.activity = activity as ComponentActivity
     NavigatorAmbient.Provider(navigator) {
         navigator.content(this)
     }
