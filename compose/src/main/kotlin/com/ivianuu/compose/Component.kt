@@ -24,6 +24,8 @@ abstract class Component<T : View> {
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
 
+    abstract val viewType: Any
+
     private var _parent: Component<*>? = null
     val parent: Component<*> get() = _parent ?: error("Not mounted ${javaClass.canonicalName}")
 

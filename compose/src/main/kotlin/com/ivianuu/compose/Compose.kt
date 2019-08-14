@@ -71,6 +71,8 @@ class CompositionContext(composable: ComponentComposition.() -> Unit) {
 
 internal class Root : Component<ViewGroup>() {
 
+    override val viewType = "Root"
+
     var composable: (ComponentComposition.() -> Unit)? = null
     lateinit var composeContext: androidx.compose.CompositionContext
 

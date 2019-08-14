@@ -84,8 +84,10 @@ private class ComposeRecyclerViewAdapter :
     override fun getItemViewType(position: Int): Int {
         val component = getItem(position)
         lastItemViewTypeRequest = component
-        return component.key.hashCode()
+        return component.getViewType().hashCode()
     }
+
+    private fun Component<*>.getViewType(): Any = viewType to children.map { it.getViewType() }
 
     class Holder(val view: View) : RecyclerView.ViewHolder(view) {
 

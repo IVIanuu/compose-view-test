@@ -43,6 +43,7 @@ fun <T : View> ComponentComposition.View(
         ctor = { ViewDslComponent() },
         update = {
             val dsl = ViewDsl<T>().apply(block)
+            viewType = dsl.viewType
             createView = dsl.createView
             bindViewBlocks = dsl.bindViewBlocks
             unbindViewBlocks = dsl.unbindViewBlocks
@@ -53,15 +54,13 @@ fun <T : View> ComponentComposition.View(
 
 class ViewDsl<T : View> {
 
-    internal var createView: (ViewGroup) -> T by Delegates.notNull()
+    var viewType: Any by Delegates.notNull()
+
+    var createView: (ViewGroup) -> T by Delegates.notNull()
     internal var bindViewBlocks: MutableList<T.() -> Unit>? = null
     internal var unbindViewBlocks: MutableList<T.() -> Unit>? = null
 
     var manageChildren = false
-
-    fun createView(createView: (ViewGroup) -> T) {
-        this.createView = createView
-    }
 
     inline fun <V> set(value: V, crossinline block: T.(V) -> Unit) {
         bindView { block(value) }
@@ -86,27 +85,33 @@ inline fun <reified T : View> ViewDsl<T>.createView() {
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
 
 fun <T : View> ViewDsl<T>.createView(type: KClass<T>) {
-    createView {
+    createView = { container ->
         constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
-            .newInstance(it.context) as T
+            .newInstance(container.context) as T
     }
+    viewType = type
 }
 
 fun <T : View> ViewDsl<T>.layoutRes(layoutRes: Int) {
-    createView {
-        LayoutInflater.from(it.context)
-            .inflate(layoutRes, it, false) as T
+    createView = { container ->
+        LayoutInflater.from(container.context)
+            .inflate(layoutRes, container, false) as T
     }
+    viewType = layoutRes
 }
 
 fun <T : View> ViewDsl<T>.byId(id: Int) {
-    createView { container ->
+    createView = { container ->
         container.findViewById<T>(id)
             .also { it.byId = true }
     }
+    viewType = id
 }
 
 private class ViewDslComponent<T : View> : Component<T>() {
+
+    override lateinit var viewType: Any
+
     lateinit var createView: (ViewGroup) -> T
     var bindViewBlocks: List<T.() -> Unit>? = null
     var unbindViewBlocks: List<T.() -> Unit>? = null
