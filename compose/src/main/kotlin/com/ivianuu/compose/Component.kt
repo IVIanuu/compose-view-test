@@ -79,6 +79,7 @@ abstract class Component<T : View> {
         log { "bind view $key $view" }
         _boundViews += view
         view.component = this
+        updateChildViews(view)
     }
 
     open fun unbindView(view: T) {
