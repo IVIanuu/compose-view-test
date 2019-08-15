@@ -20,6 +20,8 @@ import android.view.ViewGroup
 import androidx.compose.ComposeAccessor
 import androidx.compose.Composer
 import com.ivianuu.compose.internal.ComponentComposer
+import com.ivianuu.compose.internal.ComponentEnvironment
+import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.log
 
 class CompositionContext {
@@ -37,13 +39,11 @@ class CompositionContext {
             cc.startGroup(0)
 
             with(ComponentComposition(cc as Composer<Component<*>>)) {
-                val state = memo { ComponentState() }
-                ComponentStateAmbient.Provider(value = state) {
+                val state = memo { ComponentEnvironment() }
+                ComponentEnvironmentAmbient.Provider(value = state) {
                     this@CompositionContext.composable?.invoke(this)
                 }
-
-                state.inChangeHandler = null
-                state.outChangeHandler = null
+                state.reset()
             }
 
             cc.endGroup()

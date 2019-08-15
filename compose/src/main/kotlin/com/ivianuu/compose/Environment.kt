@@ -17,8 +17,7 @@
 package com.ivianuu.compose
 
 import android.view.View
-import androidx.compose.Ambient
-import com.ivianuu.compose.internal.ViewUpdater
+import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 
 fun ComponentComposition.ChangeHandlers(
     handler: ComponentChangeHandler?,
@@ -36,7 +35,7 @@ fun ComponentComposition.ChangeHandlers(
     outHandler: ComponentChangeHandler? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    val state = ambient(ComponentStateAmbient)
+    val state = ambient(ComponentEnvironmentAmbient)
     state.inChangeHandler = inHandler
     state.outChangeHandler = outHandler
     children()
@@ -46,7 +45,7 @@ fun ComponentComposition.TransitionHints(
     isPush: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
-    val state = ambient(ComponentStateAmbient)
+    val state = ambient(ComponentEnvironmentAmbient)
     state.isPush = isPush
     children()
 }
@@ -55,25 +54,10 @@ fun ComponentComposition.Hidden(
     value: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
-    val state = ambient(ComponentStateAmbient)
+    val state = ambient(ComponentEnvironmentAmbient)
     state.hidden = value
     children()
 }
 
-internal val ComponentStateAmbient = Ambient.of<ComponentState>("ComponentState")
-
-internal data class ComponentState(
-    var inChangeHandler: ComponentChangeHandler? = null,
-    var outChangeHandler: ComponentChangeHandler? = null,
-    var isPush: Boolean = true,
-    var hidden: Boolean = false,
-    var currentComponent: Component<*>? = null,
-    var viewUpdater: ViewUpdater<*>? = null
-)
-
 fun <T : View> ComponentComposition.currentComponent(): Component<T> =
-    ambient(ComponentStateAmbient).currentComponent as Component<T>
-
-@PublishedApi
-internal fun <T : View> ComponentComposition.currentViewUpdater(): ViewUpdater<T> =
-    ambient(ComponentStateAmbient).viewUpdater as ViewUpdater<T>
+    ambient(ComponentEnvironmentAmbient).currentComponent as Component<T>

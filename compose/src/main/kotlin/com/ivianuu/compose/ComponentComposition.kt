@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Composer
 import androidx.compose.EffectsDsl
+import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.log
@@ -31,9 +32,6 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
     private val keysStack = Stack<MutableList<Any>>()
     private var keys = mutableListOf<Any>()
 
-    private val groupKeyStack = Stack<Any?>()
-    private var groupKey: Any? = null
-
     fun <T : View> emit(
         key: Any,
         viewType: Any,
@@ -43,7 +41,9 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
     ) = with(composer) {
         checkIsComposing()
 
-        val finalKey = joinKeyIfNeeded(key, groupKey)
+        val environment = ambient(ComponentEnvironmentAmbient)
+
+        val finalKey = environment.joinKey(key)
 
         check(finalKey !in keys) {
             "Duplicated key $finalKey"
@@ -65,26 +65,24 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         node._key = finalKey
 
-        val state = ambient(ComponentStateAmbient)
+        environment.currentComponent = node
 
-        state.currentComponent = node
-
-        node.inChangeHandler = state.inChangeHandler
-        node.outChangeHandler = state.outChangeHandler
-        node.isPush = state.isPush
-        node.hidden = state.hidden
-        state.hidden = false
+        node.inChangeHandler = environment.inChangeHandler
+        node.outChangeHandler = environment.outChangeHandler
+        node.isPush = environment.isPush
+        node.hidden = environment.hidden
+        environment.hidden = false
 
         val updater = ViewUpdater<T>(composer)
-        state.viewUpdater = updater
+        environment.viewUpdater = updater
         ComponentContext(composer, node).block()
         node.updateBlocks = updater.updateBlocks
         if (updater.hasChanges) {
             node.generation++
         }
 
-        state.currentComponent = null
-        state.viewUpdater = null
+        environment.currentComponent = null
+        environment.viewUpdater = null
 
         node.update()
 
@@ -95,34 +93,4 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         }
     }
 
-    fun key(
-        key: Any,
-        children: ComponentComposition.() -> Unit
-    ) = with(composer) {
-        val finalKey = joinKeyIfNeeded(key, groupKey)
-        groupKeyStack.push(groupKey)
-        groupKey = finalKey
-
-        startGroup(finalKey)
-        keysStack.push(keys)
-        keys = mutableListOf()
-        children()
-        keys = keysStack.pop()
-        endGroup()
-
-        groupKey = groupKeyStack.pop()
-    }
-
-}
-
-private data class JoinedKey(val left: Any, val right: Any) {
-    override fun toString(): String = "($left,$right)"
-}
-
-private fun joinKeyIfNeeded(key: Any, groupKey: Any?): Any {
-    return if (groupKey != null) {
-        JoinedKey(key, groupKey)
-    } else {
-        key
-    }
 }

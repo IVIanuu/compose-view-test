@@ -20,14 +20,10 @@ import androidx.compose.Ambient
 import androidx.compose.CommitScope
 import androidx.compose.Composer
 import androidx.compose.Effect
+import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
+import com.ivianuu.compose.internal.JoinedKey
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.sourceLocation
-
-inline fun <T> ComponentComposition.key(vararg inputs: Any?, noinline block: Effect<T>.() -> T) =
-    androidx.compose.key(inputs = *inputs, block = block).resolve(
-        composer,
-        sourceLocation()
-    )
 
 inline fun <T> ComponentComposition.memo(noinline calculation: () -> T) =
     androidx.compose.memo(calculation = calculation).resolve(
@@ -118,6 +114,34 @@ inline fun <T> ComponentComposition.ambient(key: Ambient<T>) =
         composer,
         sourceLocation()
     )
+
+fun <T> ComponentComposition.key(
+    key: Any,
+    block: ComponentComposition.() -> T
+): T = with(composer) {
+    val environment = ambient(ComponentEnvironmentAmbient)
+    environment.pushGroupKey(key)
+    startGroup(key)
+    val result = block()
+    endGroup()
+    environment.popGroupKey()
+    return@with result
+}
+
+inline fun <T> ComponentComposition.key(
+    vararg inputs: Any?,
+    noinline block: ComponentComposition.() -> T
+) = key(key = sourceLocation(), inputs = *inputs, block = block)
+
+fun <T> ComponentComposition.key(
+    key: Any,
+    vararg inputs: Any?,
+    block: ComponentComposition.() -> T
+): T {
+    val inputsKey = inputs.reduce { acc, any -> JoinedKey(acc, any) }
+    val finalKey = if (inputsKey != null) JoinedKey(key, inputsKey) else key
+    return key(finalKey, block)
+}
 
 inline val ComponentComposition.invalidate: () -> Unit
     get() = androidx.compose.invalidate.resolve(

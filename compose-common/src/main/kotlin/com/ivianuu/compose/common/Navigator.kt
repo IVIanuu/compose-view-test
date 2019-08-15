@@ -29,6 +29,7 @@ import com.ivianuu.compose.TransitionHints
 import com.ivianuu.compose.ambient
 import com.ivianuu.compose.internal.sourceLocation
 import com.ivianuu.compose.invalidate
+import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.onActive
 import com.ivianuu.compose.onDispose
