@@ -21,24 +21,9 @@ import androidx.activity.OnBackPressedDispatcherOwner
 import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ambient
-import com.ivianuu.compose.internal.log
-import com.ivianuu.compose.key
 import com.ivianuu.compose.onActive
 
-fun ComponentComposition.observeBackPress(onBackPressed: () -> Unit) {
-    observeBackPressImpl(onBackPressed)
-}
-
-fun ComponentComposition.observeBackPress(
-    vararg inputs: Any?,
-    onBackPressed: () -> Unit
-) {
-    key(inputs = *inputs) {
-        observeBackPressImpl(onBackPressed)
-    }
-}
-
-private fun ComponentComposition.observeBackPressImpl(onBackPressed: () -> Unit) {
+fun ComponentComposition.handleBack(callback: () -> Unit) {
     val activity = ambient(ActivityAmbient)
     onActive {
         val backPressedDispatcher =
@@ -46,17 +31,12 @@ private fun ComponentComposition.observeBackPressImpl(onBackPressed: () -> Unit)
 
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                onBackPressed()
+                callback()
             }
         }
 
         backPressedDispatcher.addCallback(onBackPressedCallback)
 
-        log { "back press: on active" }
-
-        onDispose {
-            log { "back press on inactive" }
-            onBackPressedCallback.remove()
-        }
+        onDispose { onBackPressedCallback.remove() }
     }
 }
