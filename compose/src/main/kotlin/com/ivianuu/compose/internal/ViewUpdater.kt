@@ -38,6 +38,10 @@ internal class ViewUpdater<T : View>(private val composer: Composer<*>) {
         }
     }
 
+    fun setBy(vararg values: Any?, block: T.() -> Unit) {
+        set(values.toList()) { block() }
+    }
+
     fun init(block: T.() -> Unit) {
         if (blocks == null) blocks = mutableListOf()
         blocks!! += Entry(block = block, type = Type.Init)

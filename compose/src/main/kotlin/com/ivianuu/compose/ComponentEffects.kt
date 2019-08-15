@@ -105,6 +105,11 @@ fun <T : View, V> ComponentContext<T>.set(value: V, block: T.(V) -> Unit) {
     currentViewUpdater<T>().set(value) { block(it) }
 }
 
+fun <T : View> ComponentContext<T>.setBy(vararg values: Any?, block: T.() -> Unit) {
+    checkIsComposing()
+    currentViewUpdater<T>().setBy(*values) { block() }
+}
+
 fun <T : View> ComponentContext<T>.init(block: T.() -> Unit) {
     checkIsComposing()
     currentViewUpdater<T>().init(block)
