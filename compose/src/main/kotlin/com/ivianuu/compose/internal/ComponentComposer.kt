@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.internal
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
+import androidx.compose.Applier
+import androidx.compose.Composer
+import androidx.compose.FrameManager
+import androidx.compose.Recomposer
+import androidx.compose.SlotTable
+import com.ivianuu.compose.Component
 
-fun <T> ComponentComposition.flow(
-    flow: Flow<T>
-): T? = flow(null, flow)
+internal class ComponentComposer(
+    val root: Component<*>,
+    applyAdapter: ComponentApplyAdapter = ComponentApplyAdapter(root),
+    recomposer: Recomposer
+) : Composer<Component<*>>(
+    SlotTable(),
+    Applier(root, applyAdapter), recomposer
+) {
 
-fun <T> ComponentComposition.flow(
-    placeholder: T,
-    flow: Flow<T>
-): T {
-    val state = state { placeholder }
-    launchOnActive { flow.collect { state.value = it } }
-    return state.value
+    init {
+        FrameManager.ensureStarted()
+    }
+
 }

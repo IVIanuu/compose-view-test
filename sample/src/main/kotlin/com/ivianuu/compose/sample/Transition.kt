@@ -21,34 +21,43 @@ import android.view.View
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentChangeHandler
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
+import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.common.Navigator
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.CircularRevealChangeHandler
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.common.navigator
-import com.ivianuu.compose.layoutRes
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.onBindView
+import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
 import com.ivianuu.compose.sample.handler.FlipChangeHandler
 import kotlinx.android.synthetic.main.transition_demo.view.*
 
-fun ComponentComposition.TransitionDemos() = TransitionDemo(TransitionDemo.values().first())
+fun TransitionDemos() = Route {
+    ChangeHandlers(handler = VerticalChangeHandler()) {
+        Scaffold(
+            appBar = { AppBar(title = "Transitions") },
+            content = {
+                val parentNavigator = navigator
+                Navigator {
+                    TransitionDemo(TransitionDemo.values().first(), parentNavigator)
+                }
+            }
+        )
+    }
+}
 
-private fun ComponentComposition.TransitionDemo(
-    transitionDemo: TransitionDemo
+private fun TransitionDemo(
+    transitionDemo: TransitionDemo,
+    parentNavigator: Navigator
 ): Route = Route(key = transitionDemo) {
-    val transition = memo { transitionDemo.getTransition() }
-
-    ChangeHandlers(handler = transition) {
+    ChangeHandlers(handler = transitionDemo.getTransition()) {
         val navigator = navigator
 
-        View<View>(key = transitionDemo) {
-            layoutRes(transitionDemo.layoutRes)
-            onBindView<View> {
+        ViewByLayoutRes<View>(key = transitionDemo, layoutRes = transitionDemo.layoutRes) {
+            onBindView {
                 with(it) {
                     if (transitionDemo.color != Color.Transparent && transition_bg != null) {
                         transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
@@ -63,14 +72,20 @@ private fun ComponentComposition.TransitionDemo(
                         buttonColor = TransitionDemo.values()[0].color
                     }
 
-                    next_button.backgroundTintList = ColorStateList.valueOf(buttonColor.toArgb())
+                    next_button.backgroundTintList =
+                        ColorStateList.valueOf(buttonColor.toArgb())
                     transition_title.text = transitionDemo.title
 
                     next_button.setOnClickListener {
                         if (nextIndex < TransitionDemo.values().size) {
-                            navigator.push(TransitionDemo(TransitionDemo.values()[nextIndex]))
+                            navigator.push(
+                                TransitionDemo(
+                                    TransitionDemo.values()[nextIndex],
+                                    parentNavigator
+                                )
+                            )
                         } else {
-                            navigator.popToRoot()
+                            parentNavigator.pop()
                         }
                     }
                 }

@@ -18,19 +18,10 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-
-private val viewManagerKey = tagKey("viewManager")
-
-fun ViewGroup.getViewManager(): ViewManager {
-    var viewManager = getTag(viewManagerKey) as? ViewManager
-    if (viewManager == null) {
-        viewManager = ViewManager(this)
-        setTag(viewManagerKey, viewManager)
-    }
-
-    return viewManager
-
-}
+import com.ivianuu.compose.internal.byId
+import com.ivianuu.compose.internal.component
+import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.internal.tagKey
 
 class ViewManager(val container: ViewGroup) {
 
@@ -200,5 +191,18 @@ class ViewManager(val container: ViewGroup) {
 
         handlerToUse.execute(changeData)
     }
+
+}
+
+private val viewManagerKey = tagKey("viewManager")
+
+fun ViewGroup.getViewManager(): ViewManager {
+    var viewManager = getTag(viewManagerKey) as? ViewManager
+    if (viewManager == null) {
+        viewManager = ViewManager(this)
+        setTag(viewManagerKey, viewManager)
+    }
+
+    return viewManager
 
 }

@@ -22,11 +22,12 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
+import com.ivianuu.compose.ChildViewController
+import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.getViewManager
-import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.sample.R
@@ -36,13 +37,12 @@ fun ComponentComposition.TabLayout(
     onTabChanged: (Int) -> Unit,
     children: ComponentComposition.() -> Unit
 ) {
-    View<TabLayout> {
-        layoutRes(R.layout.tab_layout)
-
-        manageChildren = true
-
+    ViewByLayoutRes(
+        layoutRes = R.layout.tab_layout,
+        childViewController = TabLayoutChildViewController
+    ) {
         val component = currentComponent<TabLayout>()
-        onBindView<TabLayout> {
+        onBindView {
             with(it) {
                 component.children
                     .mapIndexed { i, child ->
@@ -82,8 +82,8 @@ fun ComponentComposition.TabLayout(
             }
         }
 
-        onUnbindView<TabLayout> {
-            with(it) {
+        onUnbindView { view ->
+            with(view) {
                 (0 until tabCount)
                     .forEach {
                         (getTabAt(it)!!.customView as FrameLayout)
@@ -97,9 +97,19 @@ fun ComponentComposition.TabLayout(
     }
 }
 
+private object TabLayoutChildViewController : ChildViewController<TabLayout> {
+    override fun initChildViews(component: Component<TabLayout>, view: TabLayout) {
+    }
+
+    override fun updateChildViews(component: Component<TabLayout>, view: TabLayout) {
+    }
+
+    override fun clearChildViews(component: Component<TabLayout>, view: TabLayout) {
+    }
+}
+
 fun ComponentComposition.TabItem(text: String) {
-    View<TextView>(text) {
-        layoutRes(R.layout.tab_item)
-        onBindView<TextView> { it.text = text }
+    ViewByLayoutRes<TextView>(key = text, layoutRes = R.layout.tab_item) {
+        onBindView { it.text = text }
     }
 }

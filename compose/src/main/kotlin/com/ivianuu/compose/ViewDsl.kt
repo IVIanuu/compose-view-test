@@ -20,158 +20,119 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composer
+import com.ivianuu.compose.internal.byId
+import com.ivianuu.compose.internal.sourceLocation
 import java.lang.reflect.Constructor
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.properties.Delegates
 import kotlin.reflect.KClass
 
 fun <T : View> ComponentComposition.View(
     key: Any,
-    block: ViewDsl<T>.() -> Unit
+    viewType: Any,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
+    createView: (ViewGroup) -> T,
+    block: (ComponentContext<T>.() -> Unit)? = null
 ) {
-    emit<ViewDslComponent<T>>(
+    emit(
         key = key,
-        ctor = { ViewDslComponent() },
-        update = {
-            val dsl = ViewDsl<T>()
-                .also {
-                    it.component = this
-                    it.composer = composer
-                }
-                .apply(block)
-
-            viewType = dsl.viewType
-            createView = dsl.createView
-            manageChildren = dsl.manageChildren
-            updateBlocks = dsl.viewUpdater?.updateBlocks
-            if (dsl.viewUpdater != null && dsl.viewUpdater!!.hasChanges) {
-                generation++
-            }
-        }
+        viewType = viewType,
+        childViewController = childViewController,
+        createView = createView,
+        block = block
     )
 }
 
 inline fun <reified T : View> ComponentComposition.View(
-    noinline block: ViewDsl<T>.() -> Unit
+    key: Any = sourceLocation(),
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
+    noinline block: (ComponentContext<T>.() -> Unit)? = null
 ) {
-    View<T>(key = sourceLocation()) {
-        byClass()
-        block()
-    }
-}
-
-class ViewDsl<T : View> {
-
-    var viewType: Any by Delegates.notNull()
-
-    var createView: (ViewGroup) -> T by Delegates.notNull()
-
-    var manageChildren = false
-
-    @PublishedApi
-    internal var viewUpdater: ViewUpdater<T>? = null
-
-    @PublishedApi
-    internal lateinit var component: Component<T>
-    @PublishedApi
-    internal lateinit var composer: Composer<*>
-
-    inline fun <V> set(value: V, crossinline block: T.(V) -> Unit) {
-        if (viewUpdater == null) viewUpdater = ViewUpdater(composer)
-        viewUpdater!!.set(value) { block(it) }
-    }
-
-    inline fun init(crossinline block: T.() -> Unit) {
-        if (viewUpdater == null) viewUpdater = ViewUpdater(composer)
-        viewUpdater!!.set(Unit) { block() }
-    }
-
-    inline fun update(crossinline block: T.() -> Unit) {
-        if (viewUpdater == null) viewUpdater = ViewUpdater(composer)
-        viewUpdater!!.set(Any()) { block() }
-    }
-
+    View(
+        key = key,
+        type = T::class,
+        childViewController = childViewController,
+        block = block
+    )
 }
 
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
 
-fun <T : View> ViewDsl<T>.byClass(type: KClass<T>) {
-    createView = { container ->
-        constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
-            .newInstance(container.context) as T
-    }
-    viewType = type
+fun <T : View> ComponentComposition.View(
+    key: Any,
+    type: KClass<T>,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
+    block: (ComponentContext<T>.() -> Unit)? = null
+) {
+    View<T>(
+        key = key,
+        viewType = type,
+        childViewController = childViewController,
+        createView = { container ->
+            constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
+                .newInstance(container.context) as T
+        },
+        block = block
+    )
 }
 
-inline fun <reified T : View> ViewDsl<T>.byClass() {
-    byClass(T::class)
+inline fun <T : View> ComponentComposition.ViewByLayoutRes(
+    layoutRes: Int,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
+    noinline block: (ComponentContext<T>.() -> Unit)? = null
+) {
+    ViewByLayoutRes(
+        key = sourceLocation(),
+        layoutRes = layoutRes,
+        childViewController = childViewController,
+        block = block
+    )
 }
 
-fun <T : View> ViewDsl<T>.layoutRes(layoutRes: Int) {
-    createView = { container ->
-        LayoutInflater.from(container.context)
-            .inflate(layoutRes, container, false) as T
-    }
-    viewType = layoutRes
+fun <T : View> ComponentComposition.ViewByLayoutRes(
+    key: Any,
+    layoutRes: Int,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
+    block: (ComponentContext<T>.() -> Unit)? = null
+) {
+    View(
+        key = key,
+        viewType = layoutRes,
+        childViewController = childViewController,
+        createView = { container ->
+            LayoutInflater.from(container.context)
+                .inflate(layoutRes, container, false) as T
+        },
+        block = block
+    )
 }
 
-fun <T : View> ViewDsl<T>.byId(id: Int) {
-    createView = { container ->
-        container.findViewById<T>(id)
-            .also { it.byId = true }
-    }
-    viewType = id
+inline fun <T : View> ComponentComposition.ViewById(
+    id: Int,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
+    noinline block: (ComponentContext<T>.() -> Unit)? = null
+) {
+    ViewById(
+        key = sourceLocation(),
+        id = id,
+        childViewController = childViewController,
+        block = block
+    )
 }
 
-private class ViewDslComponent<T : View> : Component<T>() {
-
-    override lateinit var viewType: Any
-
-    lateinit var createView: (ViewGroup) -> T
-    var updateBlocks: MutableList<T.() -> Unit>? = null
-
-    internal var generation = 0
-
-    var manageChildren = false
-
-    override fun onCreateView(container: ViewGroup): T =
-        createView.invoke(container)
-
-    override fun bindView(view: T) {
-        super.bindView(view)
-
-        if (view.generation != generation) {
-            log { "updater: $key update view ${view.generation} to $generation" }
-            view.generation = generation
-            updateBlocks?.forEach { it(view) }
-        } else {
-            log { "updater: $key skip update $generation" }
-        }
-    }
-
-    override fun unbindView(view: T) {
-        view.generation = null
-        super.unbindView(view)
-    }
-
-    override fun initChildViews(view: T) {
-        if (!manageChildren) super.initChildViews(view)
-    }
-
-    override fun updateChildViews(view: T) {
-        if (!manageChildren) super.updateChildViews(view)
-    }
-
-    override fun clearChildViews(view: T) {
-        if (!manageChildren) super.clearChildViews(view)
-    }
+fun <T : View> ComponentComposition.ViewById(
+    key: Any,
+    id: Int,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
+    block: (ComponentContext<T>.() -> Unit)? = null
+) {
+    View(
+        key = key,
+        viewType = id,
+        childViewController = childViewController,
+        createView = { container ->
+            container.findViewById<T>(id)
+                .also { it.byId = true }
+        },
+        block = block
+    )
 }
-
-private val generationKey = tagKey("generation")
-
-var View.generation: Int?
-    get() = getTag(generationKey) as? Int
-    set(value) {
-        setTag(generationKey, value)
-    }

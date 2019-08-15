@@ -18,22 +18,50 @@ package com.ivianuu.compose
 
 import android.view.ViewGroup
 import androidx.compose.ComposeAccessor
+import androidx.compose.Composer
+import com.ivianuu.compose.internal.ComponentComposer
+import com.ivianuu.compose.internal.ComponentEnvironment
+import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
+import com.ivianuu.compose.internal.log
 
-class CompositionContext(composable: ComponentComposition.() -> Unit) {
+class CompositionContext {
 
-    private val root = Root()
+    private val root = Component(
+        viewType = "Root",
+        childViewController = DefaultChildViewController(),
+        createView = { it }
+    ).apply { _key = "Root" }
+
+    private val composeComponent = object : androidx.compose.Component() {
+        @Suppress("PLUGIN_ERROR")
+        override fun compose() {
+            val cc = ComposeAccessor.getCurrentComposerNonNull()
+            cc.startGroup(0)
+
+            with(ComponentComposition(cc as Composer<Component<*>>)) {
+                val state = memo { ComponentEnvironment() }
+                ComponentEnvironmentAmbient.Provider(value = state) {
+                    this@CompositionContext.composable?.invoke(this)
+                }
+                state.reset()
+            }
+
+            cc.endGroup()
+        }
+    }
+
+    private val composeContext = androidx.compose.CompositionContext.prepare(
+        composeComponent,
+        null
+    ) { ComponentComposer(root, recomposer = this) }
+
+    private var composable: (ComponentComposition.() -> Unit)? = null
 
     internal var container: ViewGroup? = null
         private set
 
     init {
         log { "Context: init" }
-        root.composeContext = androidx.compose.CompositionContext.prepare(
-            root.composeComponent,
-            null
-        ) { ComponentComposer(root, recomposer = this) }
-        setComposable(composable)
-        compose()
     }
 
     fun setContainer(container: ViewGroup) {
@@ -51,46 +79,20 @@ class CompositionContext(composable: ComponentComposition.() -> Unit) {
 
     fun setComposable(composable: ComponentComposition.() -> Unit) {
         log { "Context: set composable" }
-        root.composable = composable
+        this.composable = composable
     }
 
     fun compose() {
         log { "Context: compose" }
-        root.compose()
+        composeContext.compose()
     }
 
     fun dispose() {
         log { "Context: dispose" }
         removeContainer()
         // todo must be improved
-        root.composable = null
+        this.composable = null
         compose()
     }
 
-}
-
-internal class Root : Component<ViewGroup>() {
-
-    override val viewType = "Root"
-
-    var composable: (ComponentComposition.() -> Unit)? = null
-    lateinit var composeContext: androidx.compose.CompositionContext
-
-    init {
-        _key = "Root"
-    }
-
-    fun compose() = composeContext.compose()
-
-    val composeComponent = object : androidx.compose.Component() {
-        @Suppress("PLUGIN_ERROR")
-        override fun compose() {
-            val cc = ComposeAccessor.getCurrentComposerNonNull()
-            cc.startGroup(0)
-            composable?.invoke(ComponentComposition(cc as ComponentComposer))
-            cc.endGroup()
-        }
-    }
-
-    override fun onCreateView(container: ViewGroup): ViewGroup = container
 }

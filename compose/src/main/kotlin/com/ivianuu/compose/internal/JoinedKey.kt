@@ -14,25 +14,9 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.internal
 
-import androidx.compose.Applier
-import androidx.compose.Composer
-import androidx.compose.FrameManager
-import androidx.compose.Recomposer
-import androidx.compose.SlotTable
-
-class ComponentComposer(
-    val root: Component<*>,
-    applyAdapter: ComponentApplyAdapter = ComponentApplyAdapter(root),
-    recomposer: Recomposer
-) : Composer<Component<*>>(
-    SlotTable(),
-    Applier(root, applyAdapter), recomposer
-) {
-
-    init {
-        FrameManager.ensureStarted()
-    }
-
+@PublishedApi
+internal data class JoinedKey(val left: Any?, val right: Any?) {
+    override fun toString(): String = "($left,$right)"
 }

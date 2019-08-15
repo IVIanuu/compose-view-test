@@ -18,23 +18,10 @@ package com.ivianuu.compose
 
 import android.view.View
 import androidx.compose.Composer
+import androidx.compose.EffectsDsl
 
-class ViewUpdater<T : View>(internal val composer: Composer<*>) {
-
-    var hasChanges = false
-        private set
-
-    var updateBlocks: MutableList<T.() -> Unit>? = null
-
-    fun <V> set(value: V, block: T.(V) -> Unit) {
-        with(composer) {
-            if (inserting || nextSlot() != value) {
-                hasChanges = true
-                updateValue(value)
-            } else skipValue()
-            if (updateBlocks == null) updateBlocks = mutableListOf()
-            updateBlocks!! += { block(value) }
-        }
-    }
-
-}
+@EffectsDsl
+class ComponentContext<T : View>(
+    composer: Composer<Component<*>>,
+    val component: Component<T>
+) : ComponentComposition(composer)

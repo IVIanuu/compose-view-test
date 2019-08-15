@@ -27,20 +27,16 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-val ActivityAmbient = Ambient.of<Activity>()
-val ContextAmbient = Ambient.of<Context>()
+val ActivityAmbient = Ambient.of<Activity> { error("No activity found") }
+val ContextAmbient = ActivityAmbient as Ambient<Context>
 
 fun ComponentActivity.setContent(
     container: ViewGroup = findViewById(android.R.id.content),
     composable: ComponentComposition.() -> Unit
 ) {
-    val holder = ViewModelProvider(
-        this,
-        ContextHolder.Factory(this, composable)
-    ).get(ContextHolder::class.java)
+    val holder = ViewModelProvider(this, ContextHolder).get(ContextHolder::class.java)
 
     val context = holder.context
-    holder.activity = this
 
     context.setContainer(container)
 
@@ -52,41 +48,23 @@ fun ComponentActivity.setContent(
                 } else {
                     context.dispose()
                 }
-                holder.activity = null
             }
         }
     })
 
-    if (holder.firstBuild) {
-        holder.firstBuild = false
-    } else {
-        context.compose()
-    }
-}
-
-private class ContextHolder(
-    activity: Activity,
-    composable: ComponentComposition.() -> Unit
-) : ViewModel() {
-
-    var firstBuild = true
-
-    var activity: Activity? = activity
-
-    val context = CompositionContext {
-        check(this@ContextHolder.activity != null)
-        ActivityAmbient.Provider(this@ContextHolder.activity!!) {
-            ContextAmbient.Provider(this@ContextHolder.activity!!) {
-                composable()
-            }
+    context.setComposable {
+        ActivityAmbient.Provider(this@setContent) {
+            composable()
         }
     }
 
-    class Factory(
-        val activity: Activity,
-        val composable: ComponentComposition.() -> Unit
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T =
-            ContextHolder(activity, composable) as T
+    context.compose()
+}
+
+private class ContextHolder : ViewModel() {
+    val context = CompositionContext()
+
+    companion object : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T = ContextHolder() as T
     }
 }

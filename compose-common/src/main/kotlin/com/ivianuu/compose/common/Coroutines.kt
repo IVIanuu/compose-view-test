@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.common
 
+import com.ivianuu.compose.ComponentComposition
+import com.ivianuu.compose.memo
+import com.ivianuu.compose.onActive
+import com.ivianuu.compose.onCommit
+import com.ivianuu.compose.onDispose
+import com.ivianuu.compose.onPreCommit
+import com.ivianuu.compose.state
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -42,6 +51,16 @@ fun ComponentComposition.launchOnActive(
 ) {
     val coroutineScope = coroutineScope
     onActive { coroutineScope.launch(context, start, block) }
+}
+
+fun ComponentComposition.launchOnActive(
+    vararg inputs: Any?,
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val coroutineScope = coroutineScope
+    onActive(*inputs) { coroutineScope.launch(context, start, block) }
 }
 
 fun ComponentComposition.launchOnPreCommit(
@@ -80,4 +99,37 @@ fun ComponentComposition.launchOnCommit(
 ) {
     val coroutineScope = coroutineScope
     onCommit(*inputs) { coroutineScope.launch(context, start, block) }
+}
+
+@BuilderInference
+fun <T> ComponentComposition.load(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+): T? = load(placeholder = null, context = context, start = start, block = block)
+
+fun <T> ComponentComposition.load(
+    placeholder: T,
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+): T {
+    val state = state { placeholder }
+    launchOnActive(context = context, start = start) {
+        state.value = block()
+    }
+    return state.value
+}
+
+fun <T> ComponentComposition.flow(
+    flow: Flow<T>
+): T? = flow(null, flow)
+
+fun <T> ComponentComposition.flow(
+    placeholder: T,
+    flow: Flow<T>
+): T {
+    val state = state { placeholder }
+    launchOnActive { flow.collect { state.value = it } }
+    return state.value
 }

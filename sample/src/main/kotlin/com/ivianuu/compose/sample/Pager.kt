@@ -25,14 +25,17 @@ import androidx.ui.graphics.Color
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
-import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.init
+import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.TabItem
 import com.ivianuu.compose.sample.common.TabLayout
 import com.ivianuu.compose.sample.common.ViewPager
+import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.page.view.*
 
@@ -61,8 +64,7 @@ val AllColors = arrayOf(
 )
 
 fun PagerRoute() = Route {
-    val transition = memo { FadeChangeHandler() }
-    ChangeHandlers(handler = transition) {
+    ChangeHandlers(handler = FadeChangeHandler()) {
         var selectedPage by state { 0 }
 
         Scaffold(
@@ -111,8 +113,7 @@ private fun ComponentComposition.Page(
     index: Int,
     color: Color
 ) {
-    View<View> {
-        layoutRes(R.layout.page)
+    ViewByLayoutRes<View>(layoutRes = R.layout.page) {
         set(color) { page_bg.setBackgroundColor(it.toArgb()) }
         set(index) { page_text.text = "#$it" }
     }

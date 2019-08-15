@@ -18,108 +18,106 @@ package com.ivianuu.compose
 
 import android.view.View
 import androidx.compose.remember
+import com.ivianuu.compose.internal.checkIsComposing
+import com.ivianuu.compose.internal.currentViewUpdater
+import com.ivianuu.compose.internal.sourceLocation
 
-@PublishedApi
-internal class RemoveCallbackHolder(var removeCallback: (() -> Unit)? = null)
-
-@JvmName("onBindViewUntyped")
-inline fun ComponentComposition.onBindView(
-    noinline callback: (View) -> Unit
+inline fun <T : View> ComponentContext<T>.onBindView(
+    noinline callback: (T) -> Unit
 ) {
+    checkIsComposing()
     onBindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
 }
 
-@JvmName("onBindViewUntyped")
-inline fun ComponentComposition.onBindView(
-    vararg inputs: Any?,
-    noinline callback: (View) -> Unit
-) {
-    onBindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
-}
-
-inline fun <T : View> ComponentComposition.onBindView(
-    noinline callback: (T) -> Unit
-) {
-    onBindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
-}
-
-inline fun <T : View> ComponentComposition.onBindView(
+inline fun <T : View> ComponentContext<T>.onBindView(
     vararg inputs: Any?,
     noinline callback: (T) -> Unit
 ) {
+    checkIsComposing()
     onBindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
 }
 
 @PublishedApi
-internal fun <T : View> ComponentComposition.onBindViewImpl(
+internal fun <T : View> ComponentContext<T>.onBindViewImpl(
     key: Any,
     inputs: Array<out Any?>?,
     callback: (T) -> Unit
 ) {
+    checkIsComposing()
     key(key) {
         val component = currentComponent<T>()
-        val removeCallbackHolder = memo { RemoveCallbackHolder(null) }
+        val callbackHolder = memo { CallbackHolder(null) }
         if (inputs != null) {
             composer.remember(*inputs) {
-                removeCallbackHolder.removeCallback?.invoke()
-                removeCallbackHolder.removeCallback = component.onBindView(callback)
+                callbackHolder.callback?.invoke()
+                callbackHolder.callback = component.onBindView(callback)
             }
         } else {
             composer.changed(callback)
-            removeCallbackHolder.removeCallback?.invoke()
-            removeCallbackHolder.removeCallback = component.onBindView(callback)
+            callbackHolder.callback?.invoke()
+            callbackHolder.callback = component.onBindView(callback)
         }
-        onDispose { removeCallbackHolder.removeCallback?.invoke() }
+        onDispose { callbackHolder.callback?.invoke() }
     }
 }
 
-@JvmName("onUnbindViewUntyped")
-inline fun ComponentComposition.onUnbindView(
-    noinline callback: (View) -> Unit
+inline fun <T : View> ComponentContext<T>.onUnbindView(
+    noinline callback: (T) -> Unit
 ) {
+    checkIsComposing()
     onUnbindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
 }
 
-@JvmName("onUnbindViewUntyped")
-inline fun ComponentComposition.onUnbindView(
-    vararg inputs: Any?,
-    noinline callback: (View) -> Unit
-) {
-    onUnbindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
-}
-
-inline fun <T : View> ComponentComposition.onUnbindView(
-    noinline callback: (T) -> Unit
-) {
-    onUnbindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
-}
-
-inline fun <T : View> ComponentComposition.onUnbindView(
+inline fun <T : View> ComponentContext<T>.onUnbindView(
     vararg inputs: Any?,
     noinline callback: (T) -> Unit
 ) {
+    checkIsComposing()
     onUnbindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
 }
 
 @PublishedApi
-internal fun <T : View> ComponentComposition.onUnbindViewImpl(
+internal fun <T : View> ComponentContext<T>.onUnbindViewImpl(
     key: Any,
     inputs: Array<out Any?>?,
     callback: (T) -> Unit
 ) {
+    checkIsComposing()
     key(key) {
         val component = currentComponent<T>()
-        val removeCallbackHolder = memo { RemoveCallbackHolder(null) }
+        val callbackHolder = memo { CallbackHolder(null) }
         if (inputs != null) {
             composer.remember(*inputs) {
-                removeCallbackHolder.removeCallback?.invoke()
-                removeCallbackHolder.removeCallback = component.onUnbindView(callback)
+                callbackHolder.callback?.invoke()
+                callbackHolder.callback = component.onUnbindView(callback)
             }
         } else {
             composer.changed(callback)
-            removeCallbackHolder.removeCallback?.invoke()
-            removeCallbackHolder.removeCallback = component.onUnbindView(callback)
+            callbackHolder.callback?.invoke()
+            callbackHolder.callback = component.onUnbindView(callback)
         }
-        onDispose { removeCallbackHolder.removeCallback?.invoke() }
+        onDispose { callbackHolder.callback?.invoke() }
     }
 }
+
+fun <T : View, V> ComponentContext<T>.set(value: V, block: T.(V) -> Unit) {
+    checkIsComposing()
+    currentViewUpdater<T>().set(value) { block(it) }
+}
+
+fun <T : View> ComponentContext<T>.setBy(vararg values: Any?, block: T.() -> Unit) {
+    checkIsComposing()
+    currentViewUpdater<T>().setBy(*values) { block() }
+}
+
+fun <T : View> ComponentContext<T>.init(block: T.() -> Unit) {
+    checkIsComposing()
+    currentViewUpdater<T>().init(block)
+}
+
+fun <T : View> ComponentContext<T>.update(block: T.() -> Unit) {
+    checkIsComposing()
+    currentViewUpdater<T>().update(block)
+}
+
+private class CallbackHolder(var callback: (() -> Unit)? = null)

@@ -23,32 +23,27 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.ivianuu.compose.ChildViewController
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.byClass
-import com.ivianuu.compose.component
-import com.ivianuu.compose.onBindView
+import com.ivianuu.compose.init
 import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.set
+import com.ivianuu.compose.update
 
 fun ComponentComposition.ViewPager(
     selectedPage: Int,
     onPageChanged: (Int) -> Unit,
     children: ComponentComposition.() -> Unit
 ) {
-    View<ViewPager2> {
-        manageChildren = true
-
-        byClass()
-
+    View(childViewController = ViewPagerChildViewController) {
         init { adapter = ComposePagerAdapter() }
 
-        onBindView<ViewPager2> {
-            with(it) {
-                (adapter as ComposePagerAdapter).submitList(component!!.children.toList())
-                currentItem = selectedPage
-            }
-        }
+        val component = component
+        update { (adapter as ComposePagerAdapter).submitList(component.visibleChildren) }
+
+        set(selectedPage) { currentItem = selectedPage }
 
         init {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -59,7 +54,7 @@ fun ComponentComposition.ViewPager(
             })
         }
 
-        onUnbindView<ViewPager2> { it.adapter = null }
+        onUnbindView { it.adapter = null }
 
         children()
     }
@@ -120,4 +115,15 @@ private class ComposePagerAdapter :
         }
     }
 
+}
+
+private object ViewPagerChildViewController : ChildViewController<ViewPager2> {
+    override fun initChildViews(component: Component<ViewPager2>, view: ViewPager2) {
+    }
+
+    override fun updateChildViews(component: Component<ViewPager2>, view: ViewPager2) {
+    }
+
+    override fun clearChildViews(component: Component<ViewPager2>, view: ViewPager2) {
+    }
 }

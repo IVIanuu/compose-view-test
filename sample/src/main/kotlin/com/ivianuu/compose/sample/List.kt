@@ -19,17 +19,15 @@ package com.ivianuu.compose.sample
 import android.widget.TextView
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
-import com.ivianuu.compose.layoutRes
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
+import com.ivianuu.compose.set
 
 fun ListRoute() = Route {
-    val handler = memo { VerticalChangeHandler() }
-    ChangeHandlers(handler = handler) {
+    ChangeHandlers(handler = VerticalChangeHandler()) {
         Scaffold(
             appBar = { AppBar("List") },
             content = {
@@ -44,8 +42,7 @@ fun ListRoute() = Route {
 }
 
 private fun ComponentComposition.ListItem(text: String) {
-    View<TextView>(key = text) {
-        layoutRes(R.layout.list_item)
+    ViewByLayoutRes<TextView>(key = text, layoutRes = R.layout.list_item) {
         set(text) { this.text = it }
     }
 }

@@ -17,4 +17,6 @@ dependencies {
     api(Deps.coroutinesAndroid)
     api(Deps.kotlinReflect)
     api(Deps.kotlinStdLib)
+
+    testImplementation(Deps.roboelectric)
 }

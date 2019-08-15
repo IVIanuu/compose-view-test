@@ -41,7 +41,7 @@ class FlipChangeHandler(
     }
 
     override fun getAnimator(changeData: ChangeData): Animator {
-        val (_, from, to, isPush) = changeData
+        val (_, from, to) = changeData
 
         val animatorSet = AnimatorSet()
 

@@ -17,18 +17,23 @@
 package com.ivianuu.compose.common
 
 import android.annotation.SuppressLint
+import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.ivianuu.compose.ChildViewController
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.component
-import com.ivianuu.compose.flow
+import com.ivianuu.compose.init
+import com.ivianuu.compose.internal.component
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.set
+import com.ivianuu.compose.update
 import kotlinx.coroutines.flow.Flow
 
 inline fun <T> ComponentComposition.RecyclerView(
@@ -85,16 +90,41 @@ fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    View<RecyclerView> {
-        manageChildren = true
+    View(childViewController = RecyclerViewChildViewController) {
+        val layoutManagerStateHolder = memo { LayoutManagerStateHolder() }
 
         set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
+
         init { adapter = ComposeRecyclerViewAdapter() }
+
         update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
 
-        onUnbindView<RecyclerView> { it.adapter = null } // calls unbindView on all children
+        update {
+            if (layoutManagerStateHolder.state != null) {
+                this.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                layoutManagerStateHolder.state = null
+            }
+        }
+
+        onUnbindView {
+            layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
+            it.adapter = null
+        } // calls unbindView on all children
 
         children()
+    }
+}
+
+private data class LayoutManagerStateHolder(var state: Parcelable? = null)
+
+private object RecyclerViewChildViewController : ChildViewController<RecyclerView> {
+    override fun initChildViews(component: Component<RecyclerView>, view: RecyclerView) {
+    }
+
+    override fun updateChildViews(component: Component<RecyclerView>, view: RecyclerView) {
+    }
+
+    override fun clearChildViews(component: Component<RecyclerView>, view: RecyclerView) {
     }
 }
 
@@ -154,7 +184,7 @@ private class ComposeRecyclerViewAdapter :
 
             @SuppressLint("DiffUtilEquals")
             override fun areContentsTheSame(oldItem: Component<*>, newItem: Component<*>): Boolean =
-                true
+                false
         }
     }
 }

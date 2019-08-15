@@ -16,16 +16,8 @@
 
 package com.ivianuu.compose
 
-import androidx.compose.Ambient
-
-// todo all of those shouldn't exist but we do not have better solution yet
-
-internal val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
-internal val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
-internal val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
-internal val HiddenAmbient = Ambient.of("Hidden") { Hidden(false) }
-
-internal data class Hidden(var value: Boolean)
+import android.view.View
+import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 
 fun ComponentComposition.ChangeHandlers(
     handler: ComponentChangeHandler?,
@@ -43,29 +35,29 @@ fun ComponentComposition.ChangeHandlers(
     outHandler: ComponentChangeHandler? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    InChangeHandlerAmbient.Provider(inHandler) {
-        OutChangeHandlerAmbient.Provider(outHandler) {
-            children()
-        }
-    }
+    val state = ambient(ComponentEnvironmentAmbient)
+    state.inChangeHandler = inHandler
+    state.outChangeHandler = outHandler
+    children()
 }
 
 fun ComponentComposition.TransitionHints(
     isPush: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
-    TransitionHintsAmbient.Provider(isPush) {
-        children()
-    }
+    val state = ambient(ComponentEnvironmentAmbient)
+    state.isPush = isPush
+    children()
 }
 
 fun ComponentComposition.Hidden(
     value: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
-    val hidden = ambient(HiddenAmbient)
-    hidden.value = value
-    HiddenAmbient.Provider(hidden) {
-        children()
-    }
+    val state = ambient(ComponentEnvironmentAmbient)
+    state.hidden = value
+    children()
 }
+
+fun <T : View> ComponentComposition.currentComponent(): Component<T> =
+    ambient(ComponentEnvironmentAmbient).currentComponent as Component<T>

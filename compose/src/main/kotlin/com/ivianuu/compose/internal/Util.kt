@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.internal
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ComposeAccessor
+import androidx.compose.Composer
+import com.ivianuu.compose.Component
+import com.ivianuu.compose.ComponentComposition
 
 var loggingEnabled = true
 
@@ -40,7 +44,6 @@ fun ViewGroup.children(): List<View> {
 internal fun tagKey(key: String): Int = (3 shl 24) or key.hashCode()
 
 private val componentKey = tagKey("component")
-
 var View.component: Component<*>?
     get() = getTag(componentKey) as? Component<*>
     set(value) {
@@ -48,7 +51,6 @@ var View.component: Component<*>?
     }
 
 private val byIdKey = tagKey("byId")
-
 internal var View.byId: Boolean
     get() = getTag(byIdKey) as? Boolean ?: false
     set(value) {
@@ -64,5 +66,15 @@ private val genDefaultLayoutParams by lazy {
 internal fun View.ensureLayoutParams(parent: ViewGroup?) {
     if (layoutParams == null) {
         layoutParams = genDefaultLayoutParams.invoke(parent) as? ViewGroup.LayoutParams
+    }
+}
+
+fun ComponentComposition.checkIsComposing() {
+    composer.checkIsComposing()
+}
+
+fun Composer<*>.checkIsComposing() {
+    check(ComposeAccessor.isComposing(this)) {
+        "Can only use effects while composing"
     }
 }

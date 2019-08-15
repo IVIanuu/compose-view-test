@@ -18,14 +18,13 @@ package com.ivianuu.compose.sample
 
 import com.google.android.material.appbar.MaterialToolbar
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.navigator
-import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.set
 
 fun ComponentComposition.AppBar(title: String) {
     val navigator = navigator
-    View<MaterialToolbar> {
-        layoutRes(R.layout.app_bar)
+    ViewByLayoutRes<MaterialToolbar>(layoutRes = R.layout.app_bar) {
         set(title) { this.title = it }
         set(navigator.backStack.size > 1) {
             if (it) {

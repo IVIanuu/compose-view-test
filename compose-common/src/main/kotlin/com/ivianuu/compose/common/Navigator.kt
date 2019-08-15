@@ -16,76 +16,45 @@
 
 package com.ivianuu.compose.common
 
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.compose.Ambient
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.TransitionHints
 import com.ivianuu.compose.ambient
+import com.ivianuu.compose.internal.sourceLocation
 import com.ivianuu.compose.invalidate
-import com.ivianuu.compose.log
+import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
-import com.ivianuu.compose.onActive
-import com.ivianuu.compose.onDispose
-import com.ivianuu.compose.sourceLocation
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route) {
-    val activity = ambient(ActivityAmbient)
-    val backPressedDispatcher = (activity as OnBackPressedDispatcherOwner).onBackPressedDispatcher
-    val navigator = memo { Navigator(startRoute()) }
+fun ComponentComposition.Navigator(
+    handleBack: Boolean = true,
+    startRoute: ComponentComposition.() -> Route
+) {
+    val invalidate = invalidate
+    val navigator = memo { Navigator(startRoute(), invalidate) }
 
-    val onBackPressedCallback = memo {
-        object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                navigator.pop()
-            }
+    if (handleBack && navigator.backStack.size > 1) {
+        key(navigator.backStack.size) {
+            handleBack { navigator.pop() }
         }
     }
-
-    onActive {
-        backPressedDispatcher.addCallback(onBackPressedCallback)
-        onDispose { onBackPressedCallback.remove() }
-    }
-
-    navigator.backStackChangeObserver = {
-        log { "backpress: enabled ? ${it.size > 1}" }
-        onBackPressedCallback.isEnabled = it.size > 1
-    }
-
-    onDispose { navigator.backStackChangeObserver = null }
-    activity.lifecycle.addObserver(object : LifecycleEventObserver {
-        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                navigator.backStackChangeObserver = null
-            }
-        }
-    })
 
     NavigatorAmbient.Provider(navigator) {
         navigator.compose(this)
     }
 }
 
-class Navigator(private val startRoute: Route) {
-
-    internal var backStackChangeObserver: ((List<Route>) -> Unit)? = null
-        set(value) {
-            field = value
-            value?.invoke(_backStack)
-        }
+class Navigator(
+    private val startRoute: Route,
+    private val invalidate: () -> Unit
+) {
 
     val backStack: List<Route> get() = _backStack
     private val _backStack = mutableListOf<Route>()
-    lateinit var invalidate: () -> Unit
 
     private var wasPush = true
 
@@ -102,7 +71,6 @@ class Navigator(private val startRoute: Route) {
     suspend fun <T> push(route: Route): T? {
         _backStack += route
         wasPush = true
-        backStackChangeObserver?.invoke(_backStack)
         invalidate()
         val deferredResult = CompletableDeferred<Any?>()
         resultsByRoute[route] = deferredResult
@@ -115,26 +83,11 @@ class Navigator(private val startRoute: Route) {
             val deferredResult = resultsByRoute.remove(route)
             deferredResult?.complete(result)
             wasPush = false
-            backStackChangeObserver?.invoke(_backStack)
             invalidate()
         }
     }
 
-    fun popToRoot(result: Any? = null) {
-        val top = _backStack.last()
-        val deferredResult = resultsByRoute.remove(top)
-        deferredResult?.complete(result)
-        val root = _backStack.first()
-        _backStack.clear()
-        _backStack += root
-        wasPush = false
-        backStackChangeObserver?.invoke(_backStack)
-        invalidate()
-    }
-
     fun compose(componentComposition: ComponentComposition) {
-        this@Navigator.invalidate = componentComposition.invalidate
-
         backStack
             .filter { it.keepState || it.isVisible() }
             .forEach {

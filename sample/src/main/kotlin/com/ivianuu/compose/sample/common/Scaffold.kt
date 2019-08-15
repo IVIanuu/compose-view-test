@@ -19,24 +19,16 @@ package com.ivianuu.compose.sample.common
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
-import com.ivianuu.compose.byId
-import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.ViewById
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.sample.R
 
 fun ComponentComposition.Scaffold(
     appBar: (ComponentComposition.() -> Unit)? = null,
     content: (ComponentComposition.() -> Unit)? = null
 ) {
-    View<LinearLayout> {
-        layoutRes(R.layout.scaffold)
-        View<FrameLayout> {
-            byId(R.id.app_bar)
-            appBar?.invoke(this@Scaffold)
-        }
-        View<FrameLayout> {
-            byId(R.id.content)
-            content?.invoke(this@Scaffold)
-        }
+    ViewByLayoutRes<LinearLayout>(layoutRes = R.layout.scaffold) {
+        ViewById<FrameLayout>(id = R.id.app_bar) { appBar?.invoke(this) }
+        ViewById<FrameLayout>(id = R.id.content) { content?.invoke(this) }
     }
 }
