@@ -63,8 +63,7 @@ val AllColors = arrayOf(
 )
 
 fun PagerRoute() = Route {
-    val transition = memo { FadeChangeHandler() }
-    ChangeHandlers(handler = transition) {
+    ChangeHandlers(handler = FadeChangeHandler()) {
         var selectedPage by state { 0 }
 
         Scaffold(

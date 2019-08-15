@@ -21,16 +21,13 @@ import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.counter.view.*
 
 fun CounterRoute() = Route {
-    val transition = memo { HorizontalChangeHandler() }
-
-    ChangeHandlers(handler = transition) {
+    ChangeHandlers(handler = HorizontalChangeHandler()) {
         Scaffold(
             appBar = { AppBar("Counter") },
             content = {

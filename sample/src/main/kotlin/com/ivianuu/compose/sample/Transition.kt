@@ -29,7 +29,6 @@ import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.common.navigator
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
 import com.ivianuu.compose.sample.handler.FlipChangeHandler
@@ -40,9 +39,7 @@ fun ComponentComposition.TransitionDemos() = TransitionDemo(TransitionDemo.value
 private fun ComponentComposition.TransitionDemo(
     transitionDemo: TransitionDemo
 ): Route = Route(key = transitionDemo) {
-    val transition = memo { transitionDemo.getTransition() }
-
-    ChangeHandlers(handler = transition) {
+    ChangeHandlers(handler = transitionDemo.getTransition()) {
         val navigator = navigator
 
         ViewByLayoutRes<View>(key = transitionDemo, layoutRes = transitionDemo.layoutRes) {

@@ -67,14 +67,13 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         val state = ambient(ComponentStateAmbient)
 
+        state.currentComponent = node
+
         node.inChangeHandler = state.inChangeHandler
         node.outChangeHandler = state.outChangeHandler
         node.isPush = state.isPush
         node.hidden = state.hidden
-
         state.hidden = false
-
-        state.currentComponent = node
 
         val updater = ViewUpdater<T>(composer)
         state.viewUpdater = updater
@@ -83,6 +82,9 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         if (updater.hasChanges) {
             node.generation++
         }
+
+        state.currentComponent = null
+        state.viewUpdater = null
 
         node.update()
 

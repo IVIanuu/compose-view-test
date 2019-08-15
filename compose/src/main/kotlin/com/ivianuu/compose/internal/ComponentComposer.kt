@@ -25,9 +25,7 @@ import com.ivianuu.compose.Component
 
 internal class ComponentComposer(
     val root: Component<*>,
-    applyAdapter: ComponentApplyAdapter = ComponentApplyAdapter(
-        root
-    ),
+    applyAdapter: ComponentApplyAdapter = ComponentApplyAdapter(root),
     recomposer: Recomposer
 ) : Composer<Component<*>>(
     SlotTable(),

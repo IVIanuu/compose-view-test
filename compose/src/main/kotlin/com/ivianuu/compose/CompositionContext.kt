@@ -18,6 +18,7 @@ package com.ivianuu.compose
 
 import android.view.ViewGroup
 import androidx.compose.ComposeAccessor
+import androidx.compose.Composer
 import com.ivianuu.compose.internal.ComponentComposer
 import com.ivianuu.compose.internal.log
 
@@ -34,7 +35,17 @@ class CompositionContext(composable: ComponentComposition.() -> Unit) {
         override fun compose() {
             val cc = ComposeAccessor.getCurrentComposerNonNull()
             cc.startGroup(0)
-            this@CompositionContext.composable?.invoke(ComponentComposition(cc as ComponentComposer))
+
+            with(ComponentComposition(cc as Composer<Component<*>>)) {
+                val state = memo { ComponentState() }
+                ComponentStateAmbient.Provider(value = state) {
+                    this@CompositionContext.composable?.invoke(this)
+                }
+
+                state.inChangeHandler = null
+                state.outChangeHandler = null
+            }
+
             cc.endGroup()
         }
     }
