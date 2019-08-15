@@ -37,7 +37,7 @@ fun ComponentComposition.TabLayout(
     onTabChanged: (Int) -> Unit,
     children: ComponentComposition.() -> Unit
 ) {
-    ViewByLayoutRes<TabLayout>(
+    ViewByLayoutRes(
         layoutRes = R.layout.tab_layout,
         childViewController = TabLayoutChildViewController
     ) {
@@ -82,8 +82,8 @@ fun ComponentComposition.TabLayout(
             }
         }
 
-        onUnbindView {
-            with(it) {
+        onUnbindView { view ->
+            with(view) {
                 (0 until tabCount)
                     .forEach {
                         (getTabAt(it)!!.customView as FrameLayout)
@@ -110,6 +110,6 @@ private object TabLayoutChildViewController : ChildViewController<TabLayout> {
 
 fun ComponentComposition.TabItem(text: String) {
     ViewByLayoutRes<TextView>(key = text, layoutRes = R.layout.tab_item) {
-        onBindView<TextView> { it.text = text }
+        onBindView { it.text = text }
     }
 }

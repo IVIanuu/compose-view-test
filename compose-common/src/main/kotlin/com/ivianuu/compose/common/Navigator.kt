@@ -85,17 +85,6 @@ class Navigator(
         }
     }
 
-    fun popToRoot(result: Any? = null) {
-        val top = _backStack.last()
-        val deferredResult = resultsByRoute.remove(top)
-        deferredResult?.complete(result)
-        val root = _backStack.first()
-        _backStack.clear()
-        _backStack += root
-        wasPush = false
-        invalidate()
-    }
-
     fun compose(componentComposition: ComponentComposition) {
         backStack
             .filter { it.keepState || it.isVisible() }

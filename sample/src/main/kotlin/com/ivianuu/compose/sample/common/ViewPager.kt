@@ -37,7 +37,7 @@ fun ComponentComposition.ViewPager(
     onPageChanged: (Int) -> Unit,
     children: ComponentComposition.() -> Unit
 ) {
-    View<ViewPager2>(childViewController = ViewPagerChildViewController) {
+    View(childViewController = ViewPagerChildViewController) {
         init { adapter = ComposePagerAdapter() }
 
         val component = component

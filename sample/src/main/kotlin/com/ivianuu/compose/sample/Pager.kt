@@ -70,7 +70,7 @@ fun PagerRoute() = Route {
         Scaffold(
             appBar = {
                 View<LinearLayout> {
-                    init<LinearLayout> {
+                    init {
                         layoutParams = layoutParams.apply {
                             width = MATCH_PARENT
                             height = WRAP_CONTENT
