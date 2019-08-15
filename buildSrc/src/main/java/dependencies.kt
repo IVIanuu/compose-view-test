@@ -52,6 +52,8 @@ object Versions {
     const val mavenGradle = "2.1"
 
     const val materialComponents = "1.1.0-alpha07"
+
+    const val roboelectric = "4.0.2"
 }
 
 object Deps {
@@ -82,4 +84,6 @@ object Deps {
 
     const val mavenGradlePlugin =
         "com.github.dcendents:android-maven-gradle-plugin:${Versions.mavenGradle}"
+
+    const val roboelectric = "org.robolectric:robolectric:${Versions.roboelectric}"
 }

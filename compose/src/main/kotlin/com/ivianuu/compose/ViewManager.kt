@@ -23,19 +23,6 @@ import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.tagKey
 
-private val viewManagerKey = tagKey("viewManager")
-
-fun ViewGroup.getViewManager(): ViewManager {
-    var viewManager = getTag(viewManagerKey) as? ViewManager
-    if (viewManager == null) {
-        viewManager = ViewManager(this)
-        setTag(viewManagerKey, viewManager)
-    }
-
-    return viewManager
-
-}
-
 class ViewManager(val container: ViewGroup) {
 
     val children = mutableListOf<Component<*>>()
@@ -204,5 +191,18 @@ class ViewManager(val container: ViewGroup) {
 
         handlerToUse.execute(changeData)
     }
+
+}
+
+private val viewManagerKey = tagKey("viewManager")
+
+fun ViewGroup.getViewManager(): ViewManager {
+    var viewManager = getTag(viewManagerKey) as? ViewManager
+    if (viewManager == null) {
+        viewManager = ViewManager(this)
+        setTag(viewManagerKey, viewManager)
+    }
+
+    return viewManager
 
 }

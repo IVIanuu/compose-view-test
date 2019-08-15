@@ -27,7 +27,6 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.TransitionHints
 import com.ivianuu.compose.ambient
-import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.sourceLocation
 import com.ivianuu.compose.invalidate
 import com.ivianuu.compose.memo
@@ -57,7 +56,6 @@ fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route)
     }
 
     navigator.backStackChangeObserver = {
-        log { "backpress: enabled ? ${it.size > 1}" }
         onBackPressedCallback.isEnabled = it.size > 1
     }
 

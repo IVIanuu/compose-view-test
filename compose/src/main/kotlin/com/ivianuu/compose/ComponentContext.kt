@@ -18,7 +18,9 @@ package com.ivianuu.compose
 
 import android.view.View
 import androidx.compose.Composer
+import androidx.compose.EffectsDsl
 
+@EffectsDsl
 class ComponentContext<T : View>(
     composer: Composer<Component<*>>,
     val component: Component<T>

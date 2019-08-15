@@ -44,7 +44,6 @@ fun ViewGroup.children(): List<View> {
 internal fun tagKey(key: String): Int = (3 shl 24) or key.hashCode()
 
 private val componentKey = tagKey("component")
-
 var View.component: Component<*>?
     get() = getTag(componentKey) as? Component<*>
     set(value) {
@@ -52,7 +51,6 @@ var View.component: Component<*>?
     }
 
 private val byIdKey = tagKey("byId")
-
 internal var View.byId: Boolean
     get() = getTag(byIdKey) as? Boolean ?: false
     set(value) {

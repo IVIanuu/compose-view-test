@@ -22,7 +22,7 @@ import androidx.compose.Composer
 import com.ivianuu.compose.internal.ComponentComposer
 import com.ivianuu.compose.internal.log
 
-class CompositionContext(composable: ComponentComposition.() -> Unit) {
+class CompositionContext {
 
     private val root = Component(
         viewType = "Root",
@@ -62,8 +62,6 @@ class CompositionContext(composable: ComponentComposition.() -> Unit) {
 
     init {
         log { "Context: init" }
-        setComposable(composable)
-        compose()
     }
 
     fun setContainer(container: ViewGroup) {
