@@ -18,7 +18,6 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Ambient
 
 abstract class Component<T : View> {
 
@@ -110,10 +109,3 @@ abstract class Component<T : View> {
         view.getViewManager().clear()
     }
 }
-
-val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
-val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
-val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
-val HiddenAmbient = Ambient.of("Hidden") { Hidden(false) }
-
-data class Hidden(var value: Boolean)

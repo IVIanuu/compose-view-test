@@ -24,8 +24,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.HiddenAmbient
-import com.ivianuu.compose.TransitionHintsAmbient
+import com.ivianuu.compose.Hidden
+import com.ivianuu.compose.TransitionHints
 import com.ivianuu.compose.ambient
 import com.ivianuu.compose.invalidate
 import com.ivianuu.compose.log
@@ -139,10 +139,8 @@ class Navigator(private val startRoute: Route) {
             .filter { it.keepState || it.isVisible() }
             .forEach {
                 componentComposition.key(it.key) {
-                    TransitionHintsAmbient.Provider(wasPush) {
-                        val hidden = ambient(HiddenAmbient)
-                        hidden.value = !it.isVisible()
-                        HiddenAmbient.Provider(hidden) {
+                    TransitionHints(wasPush) {
+                        Hidden(!it.isVisible()) {
                             it._compose(componentComposition)
                         }
                     }

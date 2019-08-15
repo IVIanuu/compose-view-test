@@ -63,26 +63,3 @@ class DefaultChangeHandler : ComponentChangeHandler() {
     override fun cancel() {
     }
 }
-
-fun ComponentComposition.ChangeHandlers(
-    handler: ComponentChangeHandler?,
-    children: ComponentComposition.() -> Unit
-) {
-    ChangeHandlers(
-        inHandler = handler,
-        outHandler = handler,
-        children = children
-    )
-}
-
-fun ComponentComposition.ChangeHandlers(
-    inHandler: ComponentChangeHandler? = null,
-    outHandler: ComponentChangeHandler? = null,
-    children: ComponentComposition.() -> Unit
-) {
-    InChangeHandlerAmbient.Provider(inHandler) {
-        OutChangeHandlerAmbient.Provider(outHandler) {
-            children()
-        }
-    }
-}
