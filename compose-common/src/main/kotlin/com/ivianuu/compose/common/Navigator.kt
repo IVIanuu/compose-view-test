@@ -17,12 +17,12 @@
 package com.ivianuu.compose.common
 
 import androidx.compose.Ambient
+import androidx.compose.Recompose
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.TransitionHints
 import com.ivianuu.compose.ambient
 import com.ivianuu.compose.internal.sourceLocation
-import com.ivianuu.compose.invalidate
 import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
 import kotlinx.coroutines.CompletableDeferred
@@ -34,24 +34,25 @@ fun ComponentComposition.Navigator(
     handleBack: Boolean = true,
     startRoute: ComponentComposition.() -> Route
 ) {
-    val invalidate = invalidate
-    val navigator = memo { Navigator(startRoute(), invalidate) }
+    Recompose { recompose ->
+        val navigator = memo { Navigator(startRoute()) }
+        navigator.recompose = recompose
 
-    if (handleBack && navigator.backStack.size > 1) {
-        key(navigator.backStack.size) {
-            handleBack { navigator.pop() }
+        if (handleBack && navigator.backStack.size > 1) {
+            key(navigator.backStack.size) {
+                handleBack { navigator.pop() }
+            }
         }
-    }
 
-    NavigatorAmbient.Provider(navigator) {
-        navigator.compose(this)
+        NavigatorAmbient.Provider(navigator) {
+            navigator.compose(this)
+        }
     }
 }
 
-class Navigator(
-    private val startRoute: Route,
-    private val invalidate: () -> Unit
-) {
+class Navigator internal constructor(private val startRoute: Route) {
+
+    lateinit var recompose: () -> Unit
 
     val backStack: List<Route> get() = _backStack
     private val _backStack = mutableListOf<Route>()
@@ -71,7 +72,7 @@ class Navigator(
     suspend fun <T> push(route: Route): T? {
         _backStack += route
         wasPush = true
-        invalidate()
+        recompose()
         val deferredResult = CompletableDeferred<Any?>()
         resultsByRoute[route] = deferredResult
         return deferredResult.await() as? T
@@ -83,7 +84,7 @@ class Navigator(
             val deferredResult = resultsByRoute.remove(route)
             deferredResult?.complete(result)
             wasPush = false
-            invalidate()
+            recompose()
         }
     }
 

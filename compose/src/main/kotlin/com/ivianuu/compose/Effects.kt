@@ -158,12 +158,6 @@ fun <T> ComponentComposition.key(
     return key(finalKey, block)
 }
 
-inline val ComponentComposition.invalidate: () -> Unit
-    get() = androidx.compose.invalidate.resolve(
-        composer,
-        sourceLocation()
-    )
-
 @PublishedApi
 internal fun <T> Effect<T>.resolve(composer: Composer<Component<*>>, key: Any): T {
     composer.checkIsComposing()
