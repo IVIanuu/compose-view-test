@@ -34,11 +34,7 @@ fun HomeRoute() = Route {
         content = {
             RecyclerView {
                 HomeItem.values()
-                    .forEach {
-                        group(it.name) {
-                            HomeItem(it)
-                        }
-                    }
+                    .forEach { HomeItem(it) }
             }
         }
     )
@@ -79,7 +75,7 @@ private enum class HomeItem(
 private fun ComponentComposition.HomeItem(item: HomeItem) {
     val navigator = navigator
     val route = item.route(this)
-    View<View> {
+    View<View>(key = item) {
         layoutRes(R.layout.home_item)
         bindView {
             home_title.text = item.title
