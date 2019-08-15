@@ -18,6 +18,7 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.Ambient
 
 abstract class Component<T : View> {
 
@@ -35,6 +36,9 @@ abstract class Component<T : View> {
 
     val boundViews: Set<T> get() = _boundViews
     private val _boundViews = mutableSetOf<T>()
+
+    private var bindViewBlocks: MutableList<T.() -> Unit>? = null
+    private var unbindViewBlocks: MutableList<T.() -> Unit>? = null
 
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
@@ -79,12 +83,14 @@ abstract class Component<T : View> {
         log { "bind view $key $view" }
         _boundViews += view
         view.component = this
+        bindViewBlocks?.forEach { it(view) }
         updateChildViews(view)
     }
 
     open fun unbindView(view: T) {
         clearChildViews(view)
         log { "unbind view $key $view" }
+        unbindViewBlocks?.forEach { it(view) }
         _boundViews -= view
         view.component = null
     }
@@ -108,4 +114,22 @@ abstract class Component<T : View> {
         if (view !is ViewGroup) return
         view.getViewManager().clear()
     }
+
+    fun onBindView(callback: T.() -> Unit): () -> Unit {
+        if (bindViewBlocks == null) bindViewBlocks = mutableListOf()
+        bindViewBlocks!! += callback
+        return { bindViewBlocks!! -= callback }
+    }
+
+    fun onUnbindView(callback: T.() -> Unit): () -> Unit {
+        if (unbindViewBlocks == null) unbindViewBlocks = mutableListOf()
+        unbindViewBlocks!! += callback
+        return { unbindViewBlocks!! -= callback }
+    }
+
 }
+
+internal val ComponentAmbient = Ambient.of<Component<*>>()
+
+fun <T : View> ComponentComposition.currentComponent(): Component<T> =
+    ambient(ComponentAmbient) as Component<T>

@@ -65,8 +65,10 @@ class ComponentComposition(val composer: ComponentComposer) {
         node.hidden = hidden.value
         hidden.value = false
 
-        update?.let { node.it() }
-        node.update()
+        ComponentAmbient.Provider(node) {
+            update?.let { node.it() }
+            node.update()
+        }
 
         endNode()
         keys = keysStack.pop()
