@@ -37,8 +37,8 @@ abstract class Component<T : View> {
     val boundViews: Set<T> get() = _boundViews
     private val _boundViews = mutableSetOf<T>()
 
-    private var bindViewBlocks: MutableList<T.() -> Unit>? = null
-    private var unbindViewBlocks: MutableList<T.() -> Unit>? = null
+    private var bindViewBlocks: MutableList<(T) -> Unit>? = null
+    private var unbindViewBlocks: MutableList<(T) -> Unit>? = null
 
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
@@ -115,13 +115,13 @@ abstract class Component<T : View> {
         view.getViewManager().clear()
     }
 
-    fun onBindView(callback: T.() -> Unit): () -> Unit {
+    internal fun onBindView(callback: (T) -> Unit): () -> Unit {
         if (bindViewBlocks == null) bindViewBlocks = mutableListOf()
         bindViewBlocks!! += callback
         return { bindViewBlocks!! -= callback }
     }
 
-    fun onUnbindView(callback: T.() -> Unit): () -> Unit {
+    internal fun onUnbindView(callback: (T) -> Unit): () -> Unit {
         if (unbindViewBlocks == null) unbindViewBlocks = mutableListOf()
         unbindViewBlocks!! += callback
         return { unbindViewBlocks!! -= callback }

@@ -28,6 +28,9 @@ import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.log
+import com.ivianuu.compose.onBindView
+import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.checkable.view.*
@@ -40,6 +43,13 @@ fun HomeRoute() = Route(keepState = true) {
         appBar = { AppBar("Home") },
         content = {
             RecyclerView {
+                onBindView {
+                    log { "view effect: on bind view $this" }
+                }
+                onUnbindView {
+                    log { "view effect: on unbind view $this" }
+                }
+
                 key(1) {
                     Checkable(checked, setChecked)
                 }

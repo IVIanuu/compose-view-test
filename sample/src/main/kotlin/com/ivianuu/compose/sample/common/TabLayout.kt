@@ -24,9 +24,11 @@ import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.component
+import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.getViewManager
 import com.ivianuu.compose.layoutRes
+import com.ivianuu.compose.onBindView
+import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.sample.R
 
 fun ComponentComposition.TabLayout(
@@ -39,51 +41,56 @@ fun ComponentComposition.TabLayout(
 
         manageChildren = true
 
-        bindView {
-            component!!.children
-                .mapIndexed { i, child ->
-                    var tab = getTabAt(i)
-                    if (tab == null) {
-                        tab = newTab()
-                        tab.customView = FrameLayout(context).apply {
-                            layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+        val component = currentComponent<TabLayout>()
+        onBindView<TabLayout> {
+            with(it) {
+                component.children
+                    .mapIndexed { i, child ->
+                        var tab = getTabAt(i)
+                        if (tab == null) {
+                            tab = newTab()
+                            tab.customView = FrameLayout(context).apply {
+                                layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+                            }
+                            addTab(tab, i)
                         }
-                        addTab(tab, i)
+
+                        child to tab
+                    }
+                    .forEach { (child, tab) ->
+                        (tab.customView as ViewGroup).getViewManager()
+                            .update(listOf(child), true)
                     }
 
-                    child to tab
-                }
-                .forEach { (child, tab) ->
-                    (tab.customView as ViewGroup).getViewManager()
-                        .update(listOf(child), true)
+                while (tabCount > component.children.size) {
+                    removeTabAt(tabCount - 1)
                 }
 
-            while (tabCount > component!!.children.size) {
-                removeTabAt(tabCount - 1)
+                selectTab(getTabAt(selectedIndex))
+
+                addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                    override fun onTabSelected(tab: TabLayout.Tab) {
+                        onTabChanged(tab.position)
+                    }
+
+                    override fun onTabReselected(tab: TabLayout.Tab?) {
+                    }
+
+                    override fun onTabUnselected(tab: TabLayout.Tab?) {
+                    }
+                })
             }
-
-            selectTab(getTabAt(selectedIndex))
-
-            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    onTabChanged(tab.position)
-                }
-
-                override fun onTabReselected(tab: TabLayout.Tab?) {
-                }
-
-                override fun onTabUnselected(tab: TabLayout.Tab?) {
-                }
-            })
         }
 
-        unbindView {
-            (0 until tabCount)
-                .forEach {
-                    (getTabAt(it)!!.customView as FrameLayout)
-                        .getViewManager().clear()
-                }
-            removeAllTabs()
+        onUnbindView<TabLayout> {
+            with(it) {
+                (0 until tabCount)
+                    .forEach {
+                        (getTabAt(it)!!.customView as FrameLayout)
+                            .getViewManager().clear()
+                    }
+                removeAllTabs()
+            }
         }
 
         children()
@@ -93,6 +100,6 @@ fun ComponentComposition.TabLayout(
 fun ComponentComposition.TabItem(text: String) {
     View<TextView>(text) {
         layoutRes(R.layout.tab_item)
-        bindView { this.text = text }
+        onBindView<TextView> { it.text = text }
     }
 }

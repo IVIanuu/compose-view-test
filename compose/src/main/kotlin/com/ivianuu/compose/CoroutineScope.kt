@@ -33,6 +33,8 @@ fun ComponentComposition.coroutineScope(context: () -> CoroutineContext): Corout
     return coroutineScope
 }
 
+// todo launchOnBindView ?
+
 fun ComponentComposition.launchOnActive(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
@@ -43,6 +45,15 @@ fun ComponentComposition.launchOnActive(
 }
 
 fun ComponentComposition.launchOnPreCommit(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val coroutineScope = coroutineScope
+    onPreCommit { coroutineScope.launch(context, start, block) }
+}
+
+fun ComponentComposition.launchOnPreCommit(
     vararg inputs: Any?,
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
@@ -50,6 +61,15 @@ fun ComponentComposition.launchOnPreCommit(
 ) {
     val coroutineScope = coroutineScope
     onPreCommit(*inputs) { coroutineScope.launch(context, start, block) }
+}
+
+fun ComponentComposition.launchOnCommit(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val coroutineScope = coroutineScope
+    onCommit { coroutineScope.launch(context, start, block) }
 }
 
 fun ComponentComposition.launchOnCommit(

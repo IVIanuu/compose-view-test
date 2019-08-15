@@ -24,6 +24,12 @@ import androidx.compose.Effect
 inline fun <T> ComponentComposition.key(vararg inputs: Any?, noinline block: Effect<T>.() -> T) =
     androidx.compose.key(inputs = *inputs, block = block).resolve(composer, sourceLocation())
 
+inline fun <T> ComponentComposition.memo(noinline calculation: () -> T) =
+    androidx.compose.memo(calculation = calculation).resolve(
+        composer,
+        sourceLocation()
+    )
+
 inline fun <T> ComponentComposition.memo(vararg inputs: Any?, noinline calculation: () -> T) =
     androidx.compose.memo(inputs = *inputs, calculation = calculation).resolve(
         composer,
@@ -39,10 +45,26 @@ inline fun ComponentComposition.onDispose(
 ) = androidx.compose.onDispose(callback = callback).resolve(composer, sourceLocation())
 
 inline fun ComponentComposition.onCommit(
+    noinline callback: CommitScope.() -> Unit
+) =
+    androidx.compose.onCommit(callback = callback).resolve(
+        composer,
+        sourceLocation()
+    )
+
+inline fun ComponentComposition.onCommit(
     vararg inputs: Any?,
     noinline callback: CommitScope.() -> Unit
 ) =
     androidx.compose.onCommit(inputs = *inputs, callback = callback).resolve(
+        composer,
+        sourceLocation()
+    )
+
+inline fun ComponentComposition.onPreCommit(
+    noinline callback: CommitScope.() -> Unit
+) =
+    androidx.compose.onPreCommit(callback = callback).resolve(
         composer,
         sourceLocation()
     )
@@ -56,10 +78,16 @@ inline fun ComponentComposition.onPreCommit(
         sourceLocation()
     )
 
-inline fun <T> ComponentComposition.state(vararg inputs: Any?, noinline init: () -> T) =
+inline fun <T> ComponentComposition.state(noinline init: () -> T) =
+    androidx.compose.state(init = init).resolve(composer, sourceLocation())
+
+inline fun <T> ComponentComposition.stateFor(vararg inputs: Any?, noinline init: () -> T) =
     androidx.compose.stateFor(inputs = *inputs, init = init).resolve(composer, sourceLocation())
 
-inline fun <T> ComponentComposition.model(vararg inputs: Any?, noinline init: () -> T) =
+inline fun <T> ComponentComposition.model(noinline init: () -> T) =
+    androidx.compose.modelFor(init = init).resolve(composer, sourceLocation())
+
+inline fun <T> ComponentComposition.modelFor(vararg inputs: Any?, noinline init: () -> T) =
     androidx.compose.modelFor(inputs = *inputs, init = init).resolve(composer, sourceLocation())
 
 inline fun <T> ComponentComposition.ambient(key: Ambient<T>) =

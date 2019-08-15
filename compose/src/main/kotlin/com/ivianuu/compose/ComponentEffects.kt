@@ -17,35 +17,55 @@
 package com.ivianuu.compose
 
 import android.view.View
+import androidx.compose.remember
 
 @PublishedApi
 internal class RemoveCallbackHolder(var removeCallback: (() -> Unit)? = null)
 
 @JvmName("onBindViewUntyped")
 inline fun ComponentComposition.onBindView(
-    vararg inputs: Any?,
-    noinline callback: View.() -> Unit
+    noinline callback: (View) -> Unit
 ) {
-    onBindView<View>(inputs = *inputs, callback = callback)
+    onBindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
+}
+
+@JvmName("onBindViewUntyped")
+inline fun ComponentComposition.onBindView(
+    vararg inputs: Any?,
+    noinline callback: (View) -> Unit
+) {
+    onBindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
+}
+
+inline fun <T : View> ComponentComposition.onBindView(
+    noinline callback: (T) -> Unit
+) {
+    onBindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
 }
 
 inline fun <T : View> ComponentComposition.onBindView(
     vararg inputs: Any?,
-    noinline callback: T.() -> Unit
+    noinline callback: (T) -> Unit
 ) {
-    onBindViewImpl(key = sourceLocation(), inputs = *inputs, callback = callback)
+    onBindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
 }
 
 @PublishedApi
 internal fun <T : View> ComponentComposition.onBindViewImpl(
     key: Any,
-    vararg inputs: Any?,
-    callback: T.() -> Unit
+    inputs: Array<out Any?>?,
+    callback: (T) -> Unit
 ) {
     key(key) {
         val component = currentComponent<T>()
         val removeCallbackHolder = memo { RemoveCallbackHolder(null) }
-        memo(*inputs) {
+        if (inputs != null) {
+            composer.remember(*inputs) {
+                removeCallbackHolder.removeCallback?.invoke()
+                removeCallbackHolder.removeCallback = component.onBindView(callback)
+            }
+        } else {
+            composer.changed(callback)
             removeCallbackHolder.removeCallback?.invoke()
             removeCallbackHolder.removeCallback = component.onBindView(callback)
         }
@@ -55,29 +75,48 @@ internal fun <T : View> ComponentComposition.onBindViewImpl(
 
 @JvmName("onUnbindViewUntyped")
 inline fun ComponentComposition.onUnbindView(
-    vararg inputs: Any?,
-    noinline callback: View.() -> Unit
+    noinline callback: (View) -> Unit
 ) {
-    onUnbindView<View>(inputs = *inputs, callback = callback)
+    onUnbindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
+}
+
+@JvmName("onUnbindViewUntyped")
+inline fun ComponentComposition.onUnbindView(
+    vararg inputs: Any?,
+    noinline callback: (View) -> Unit
+) {
+    onUnbindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
+}
+
+inline fun <T : View> ComponentComposition.onUnbindView(
+    noinline callback: (T) -> Unit
+) {
+    onUnbindViewImpl(key = sourceLocation(), inputs = null, callback = callback)
 }
 
 inline fun <T : View> ComponentComposition.onUnbindView(
     vararg inputs: Any?,
-    noinline callback: T.() -> Unit
+    noinline callback: (T) -> Unit
 ) {
-    onUnbindViewImpl(key = sourceLocation(), inputs = *inputs, callback = callback)
+    onUnbindViewImpl(key = sourceLocation(), inputs = inputs, callback = callback)
 }
 
 @PublishedApi
 internal fun <T : View> ComponentComposition.onUnbindViewImpl(
     key: Any,
-    vararg inputs: Any?,
-    callback: T.() -> Unit
+    inputs: Array<out Any?>?,
+    callback: (T) -> Unit
 ) {
     key(key) {
         val component = currentComponent<T>()
         val removeCallbackHolder = memo { RemoveCallbackHolder(null) }
-        memo(*inputs) {
+        if (inputs != null) {
+            composer.remember(*inputs) {
+                removeCallbackHolder.removeCallback?.invoke()
+                removeCallbackHolder.removeCallback = component.onUnbindView(callback)
+            }
+        } else {
+            composer.changed(callback)
             removeCallbackHolder.removeCallback?.invoke()
             removeCallbackHolder.removeCallback = component.onUnbindView(callback)
         }

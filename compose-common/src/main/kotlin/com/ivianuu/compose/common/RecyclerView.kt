@@ -28,6 +28,7 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.component
 import com.ivianuu.compose.flow
+import com.ivianuu.compose.onUnbindView
 import kotlinx.coroutines.flow.Flow
 
 inline fun <T> ComponentComposition.RecyclerView(
@@ -91,7 +92,7 @@ fun ComponentComposition.RecyclerView(
         init { adapter = ComposeRecyclerViewAdapter() }
         update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
 
-        unbindView { adapter = null } // calls unbindView on all children
+        onUnbindView<RecyclerView> { it.adapter = null } // calls unbindView on all children
 
         children()
     }

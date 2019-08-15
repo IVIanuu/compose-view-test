@@ -43,8 +43,6 @@ fun <T : View> ComponentComposition.View(
 
             viewType = dsl.viewType
             createView = dsl.createView
-            bindViewBlocks = dsl.bindViewBlocks
-            unbindViewBlocks = dsl.unbindViewBlocks
             manageChildren = dsl.manageChildren
             updateBlocks = dsl.viewUpdater?.updateBlocks
             if (dsl.viewUpdater != null && dsl.viewUpdater!!.hasChanges) {
@@ -68,8 +66,6 @@ class ViewDsl<T : View> {
     var viewType: Any by Delegates.notNull()
 
     var createView: (ViewGroup) -> T by Delegates.notNull()
-    internal var bindViewBlocks: MutableList<T.() -> Unit>? = null
-    internal var unbindViewBlocks: MutableList<T.() -> Unit>? = null
 
     var manageChildren = false
 
@@ -94,16 +90,6 @@ class ViewDsl<T : View> {
     inline fun update(crossinline block: T.() -> Unit) {
         if (viewUpdater == null) viewUpdater = ViewUpdater(composer)
         viewUpdater!!.set(Any()) { block() }
-    }
-
-    fun bindView(block: T.() -> Unit) {
-        if (bindViewBlocks == null) bindViewBlocks = mutableListOf()
-        bindViewBlocks!! += block
-    }
-
-    fun unbindView(block: T.() -> Unit) {
-        if (unbindViewBlocks == null) unbindViewBlocks = mutableListOf()
-        unbindViewBlocks!! += block
     }
 
 }
@@ -143,8 +129,6 @@ private class ViewDslComponent<T : View> : Component<T>() {
     override lateinit var viewType: Any
 
     lateinit var createView: (ViewGroup) -> T
-    var bindViewBlocks: List<T.() -> Unit>? = null
-    var unbindViewBlocks: List<T.() -> Unit>? = null
     var updateBlocks: MutableList<T.() -> Unit>? = null
 
     internal var generation = 0
@@ -156,7 +140,6 @@ private class ViewDslComponent<T : View> : Component<T>() {
 
     override fun bindView(view: T) {
         super.bindView(view)
-        bindViewBlocks?.forEach { it(view) }
 
         if (view.generation != generation) {
             log { "updater: $key update view ${view.generation} to $generation" }
@@ -169,7 +152,6 @@ private class ViewDslComponent<T : View> : Component<T>() {
 
     override fun unbindView(view: T) {
         view.generation = null
-        unbindViewBlocks?.forEach { it(view) }
         super.unbindView(view)
     }
 

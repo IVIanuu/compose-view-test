@@ -31,6 +31,7 @@ import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.memo
+import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
 import com.ivianuu.compose.sample.handler.FlipChangeHandler
 import kotlinx.android.synthetic.main.transition_demo.view.*
@@ -47,28 +48,30 @@ private fun ComponentComposition.TransitionDemo(
 
         View<View>(key = transitionDemo) {
             layoutRes(transitionDemo.layoutRes)
-            bindView {
-                if (transitionDemo.color != Color.Transparent && transition_bg != null) {
-                    transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
-                }
+            onBindView<View> {
+                with(it) {
+                    if (transitionDemo.color != Color.Transparent && transition_bg != null) {
+                        transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
+                    }
 
-                val nextIndex = transitionDemo.ordinal + 1
-                var buttonColor = Color.Transparent
-                if (nextIndex < TransitionDemo.values().size) {
-                    buttonColor = TransitionDemo.values()[nextIndex].color
-                }
-                if (buttonColor == Color.Transparent) {
-                    buttonColor = TransitionDemo.values()[0].color
-                }
-
-                next_button.backgroundTintList = ColorStateList.valueOf(buttonColor.toArgb())
-                transition_title.text = transitionDemo.title
-
-                next_button.setOnClickListener {
+                    val nextIndex = transitionDemo.ordinal + 1
+                    var buttonColor = Color.Transparent
                     if (nextIndex < TransitionDemo.values().size) {
-                        navigator.push(TransitionDemo(TransitionDemo.values()[nextIndex]))
-                    } else {
-                        navigator.popToRoot()
+                        buttonColor = TransitionDemo.values()[nextIndex].color
+                    }
+                    if (buttonColor == Color.Transparent) {
+                        buttonColor = TransitionDemo.values()[0].color
+                    }
+
+                    next_button.backgroundTintList = ColorStateList.valueOf(buttonColor.toArgb())
+                    transition_title.text = transitionDemo.title
+
+                    next_button.setOnClickListener {
+                        if (nextIndex < TransitionDemo.values().size) {
+                            navigator.push(TransitionDemo(TransitionDemo.values()[nextIndex]))
+                        } else {
+                            navigator.popToRoot()
+                        }
                     }
                 }
             }

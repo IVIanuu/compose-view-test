@@ -28,6 +28,8 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.byClass
 import com.ivianuu.compose.component
+import com.ivianuu.compose.onBindView
+import com.ivianuu.compose.onUnbindView
 
 fun ComponentComposition.ViewPager(
     selectedPage: Int,
@@ -39,12 +41,16 @@ fun ComponentComposition.ViewPager(
 
         byClass()
 
-        bindView {
-            if (adapter == null) {
-                adapter = ComposePagerAdapter()
+        init { adapter = ComposePagerAdapter() }
+
+        onBindView<ViewPager2> {
+            with(it) {
+                (adapter as ComposePagerAdapter).submitList(component!!.children.toList())
+                currentItem = selectedPage
             }
-            (adapter as ComposePagerAdapter).submitList(component!!.children.toList())
-            currentItem = selectedPage
+        }
+
+        init {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
@@ -52,9 +58,8 @@ fun ComponentComposition.ViewPager(
                 }
             })
         }
-        unbindView {
-            adapter = null
-        }
+
+        onUnbindView<ViewPager2> { it.adapter = null }
 
         children()
     }
