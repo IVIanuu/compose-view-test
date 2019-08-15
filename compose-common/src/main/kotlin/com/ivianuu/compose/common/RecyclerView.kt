@@ -100,7 +100,7 @@ fun ComponentComposition.RecyclerView(
                 adapter = ComposeRecyclerViewAdapter()
             }
 
-            (adapter as ComposeRecyclerViewAdapter).submitList(component!!.children.toList())
+            (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList())
         }
 
         unbindView {
