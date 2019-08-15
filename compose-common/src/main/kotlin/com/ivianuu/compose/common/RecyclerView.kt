@@ -30,7 +30,6 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.init
 import com.ivianuu.compose.internal.component
-import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.set
@@ -102,7 +101,6 @@ fun ComponentComposition.RecyclerView(
 
         update {
             if (layoutManagerStateHolder.state != null) {
-                log { "recycler: restore" }
                 this.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
                 layoutManagerStateHolder.state = null
             }
