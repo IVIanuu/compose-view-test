@@ -16,12 +16,17 @@
 
 package com.ivianuu.compose
 
+import android.view.View
+import android.view.ViewGroup
+import androidx.compose.Composer
 import androidx.compose.EffectsDsl
+import com.ivianuu.compose.internal.ViewUpdater
+import com.ivianuu.compose.internal.checkIsComposing
+import com.ivianuu.compose.internal.log
 import java.util.*
 
-@Suppress("UNCHECKED_CAST")
 @EffectsDsl
-class ComponentComposition(val composer: ComponentComposer) {
+open class ComponentComposition internal constructor(val composer: Composer<Component<*>>) {
 
     private val keysStack = Stack<MutableList<Any>>()
     private var keys = mutableListOf<Any>()
@@ -29,14 +34,16 @@ class ComponentComposition(val composer: ComponentComposer) {
     private val groupKeyStack = Stack<Any?>()
     private var groupKey: Any? = null
 
-    fun <T : Component<*>> emit(
+    fun <T : View> emit(
         key: Any,
-        ctor: () -> T,
-        update: (T.() -> Unit)? = null
+        viewType: Any,
+        manageChildren: Boolean = true,
+        createView: (ViewGroup) -> T,
+        block: ComponentContext<T>.() -> Unit
     ) = with(composer) {
-        val finalKey = joinKeyIfNeeded(key, groupKey)
+        checkIsComposing()
 
-        log { "pre emit $finalKey inserting ? $inserting keys $keys" }
+        val finalKey = joinKeyIfNeeded(key, groupKey)
 
         check(finalKey !in keys) {
             "Duplicated key $finalKey"
@@ -50,25 +57,34 @@ class ComponentComposition(val composer: ComponentComposer) {
 
         log { "emit $finalKey inserting ? $inserting" }
         val node = if (inserting) {
-            ctor().also { emitNode(it) }
+            Component(viewType, manageChildren, createView)
+                .also { emitNode(it) }
         } else {
-            useNode() as T
+            useNode() as Component<T>
         }
 
         node._key = finalKey
 
-        // todo remove
-        node.inChangeHandler = ambient(InChangeHandlerAmbient)
-        node.outChangeHandler = ambient(OutChangeHandlerAmbient)
-        node.wasPush = ambient(TransitionHintsAmbient)
-        val hidden = ambient(HiddenAmbient)
-        node.hidden = hidden.value
-        hidden.value = false
+        val state = ambient(ComponentStateAmbient)
 
-        ComponentAmbient.Provider(node) {
-            update?.let { node.it() }
-            node.update()
+        node.inChangeHandler = state.inChangeHandler
+        node.outChangeHandler = state.outChangeHandler
+        node.isPush = state.isPush
+        node.hidden = state.hidden
+
+        state.hidden = false
+
+        state.currentComponent = node
+
+        val updater = ViewUpdater<T>(composer)
+        state.viewUpdater = updater
+        ComponentContext(composer, node).block()
+        node.updateBlocks = updater.updateBlocks
+        if (updater.hasChanges) {
+            node.generation++
         }
+
+        node.update()
 
         endNode()
         keys = keysStack.pop()

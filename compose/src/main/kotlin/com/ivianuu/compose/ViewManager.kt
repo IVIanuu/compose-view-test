@@ -18,6 +18,10 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
+import com.ivianuu.compose.internal.byId
+import com.ivianuu.compose.internal.component
+import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.internal.tagKey
 
 private val viewManagerKey = tagKey("viewManager")
 

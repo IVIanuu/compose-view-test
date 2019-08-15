@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.common
 
+import com.ivianuu.compose.ComponentComposition
+import com.ivianuu.compose.state
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlin.coroutines.CoroutineContext

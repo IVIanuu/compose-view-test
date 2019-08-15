@@ -75,9 +75,11 @@ private class ContextHolder(
 
     val context = CompositionContext {
         check(this@ContextHolder.activity != null)
-        ActivityAmbient.Provider(this@ContextHolder.activity!!) {
-            ContextAmbient.Provider(this@ContextHolder.activity!!) {
-                composable()
+        ComponentStateAmbient.Provider(memo { ComponentState() }) {
+            ActivityAmbient.Provider(this@ContextHolder.activity!!) {
+                ContextAmbient.Provider(this@ContextHolder.activity!!) {
+                    composable()
+                }
             }
         }
     }

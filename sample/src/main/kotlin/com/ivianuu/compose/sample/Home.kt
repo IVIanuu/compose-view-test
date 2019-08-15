@@ -22,34 +22,24 @@ import android.widget.ImageView
 import androidx.ui.graphics.Color
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
-import com.ivianuu.compose.View
-import com.ivianuu.compose.byId
+import com.ivianuu.compose.ViewById
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.navigator
-import com.ivianuu.compose.layoutRes
-import com.ivianuu.compose.log
-import com.ivianuu.compose.onBindView
-import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.sample.common.Scaffold
+import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.checkable.view.*
 import kotlinx.android.synthetic.main.home_item.view.*
 
-fun HomeRoute() = Route(keepState = true) {
+fun HomeRoute() = Route {
     val (checked, setChecked) = state { false }
 
     Scaffold(
         appBar = { AppBar("Home") },
         content = {
             RecyclerView {
-                onBindView {
-                    log { "view effect: on bind view $this" }
-                }
-                onUnbindView {
-                    log { "view effect: on unbind view $this" }
-                }
-
                 key(1) {
                     Checkable(checked, setChecked)
                 }
@@ -68,9 +58,8 @@ private fun ComponentComposition.Checkable(
     value: Boolean,
     onChange: (Boolean) -> Unit
 ) {
-    View<View> {
-        layoutRes(R.layout.checkable)
-        set(value) {
+    ViewByLayoutRes<View>(layoutRes = R.layout.checkable) {
+        set<View, Boolean>(value) {
             title.text = "Checked: $value"
             checkbox.isChecked = value
             setOnClickListener { onChange(!value) }
@@ -113,19 +102,20 @@ private enum class HomeItem(
 private fun ComponentComposition.HomeItem(item: HomeItem) {
     val navigator = navigator
     val route = item.route(this)
-    View<View>(key = item) {
-        layoutRes(R.layout.home_item)
-        set(item) {
+    ViewByLayoutRes<View>(key = item, layoutRes = R.layout.home_item) {
+        set<View, HomeItem>(item) {
             home_title.text = item.title + " ${System.currentTimeMillis()}"
             setOnClickListener { navigator.push(route) }
         }
 
-        View<View> {
-            byId(R.id.home_color_container)
-
-            View<ImageView> {
-                layoutRes(R.layout.home_color)
-                set(item.color) { setColorFilter(it.toArgb(), PorterDuff.Mode.SRC_IN) }
+        ViewById<View>(id = R.id.home_color_container) {
+            ViewByLayoutRes<ImageView>(layoutRes = R.layout.home_color) {
+                set<ImageView, Color>(item.color) {
+                    setColorFilter(
+                        it.toArgb(),
+                        PorterDuff.Mode.SRC_IN
+                    )
+                }
             }
         }
     }

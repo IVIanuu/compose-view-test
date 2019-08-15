@@ -16,16 +16,9 @@
 
 package com.ivianuu.compose
 
+import android.view.View
 import androidx.compose.Ambient
-
-// todo all of those shouldn't exist but we do not have better solution yet
-
-internal val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
-internal val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
-internal val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
-internal val HiddenAmbient = Ambient.of("Hidden") { Hidden(false) }
-
-internal data class Hidden(var value: Boolean)
+import com.ivianuu.compose.internal.ViewUpdater
 
 fun ComponentComposition.ChangeHandlers(
     handler: ComponentChangeHandler?,
@@ -43,29 +36,44 @@ fun ComponentComposition.ChangeHandlers(
     outHandler: ComponentChangeHandler? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    InChangeHandlerAmbient.Provider(inHandler) {
-        OutChangeHandlerAmbient.Provider(outHandler) {
-            children()
-        }
-    }
+    val state = ambient(ComponentStateAmbient)
+    state.inChangeHandler = inHandler
+    state.outChangeHandler = outHandler
+    children()
 }
 
 fun ComponentComposition.TransitionHints(
     isPush: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
-    TransitionHintsAmbient.Provider(isPush) {
-        children()
-    }
+    val state = ambient(ComponentStateAmbient)
+    state.isPush = isPush
+    children()
 }
 
 fun ComponentComposition.Hidden(
     value: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
-    val hidden = ambient(HiddenAmbient)
-    hidden.value = value
-    HiddenAmbient.Provider(hidden) {
-        children()
-    }
+    val state = ambient(ComponentStateAmbient)
+    state.hidden = value
+    children()
 }
+
+internal val ComponentStateAmbient = Ambient.of<ComponentState>("ComponentState")
+
+internal data class ComponentState(
+    var inChangeHandler: ComponentChangeHandler? = null,
+    var outChangeHandler: ComponentChangeHandler? = null,
+    var isPush: Boolean = true,
+    var hidden: Boolean = false,
+    var currentComponent: Component<*>? = null,
+    var viewUpdater: ViewUpdater<*>? = null
+)
+
+fun <T : View> ComponentComposition.currentComponent(): Component<T> =
+    ambient(ComponentStateAmbient).currentComponent as Component<T>
+
+@PublishedApi
+internal fun <T : View> ComponentComposition.currentViewUpdater(): ViewUpdater<T> =
+    ambient(ComponentStateAmbient).viewUpdater as ViewUpdater<T>

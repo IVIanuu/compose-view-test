@@ -22,14 +22,13 @@ import androidx.ui.graphics.Color
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.CircularRevealChangeHandler
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.common.navigator
-import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
@@ -46,9 +45,8 @@ private fun ComponentComposition.TransitionDemo(
     ChangeHandlers(handler = transition) {
         val navigator = navigator
 
-        View<View>(key = transitionDemo) {
-            layoutRes(transitionDemo.layoutRes)
-            onBindView<View> {
+        ViewByLayoutRes<View>(key = transitionDemo, layoutRes = transitionDemo.layoutRes) {
+            onBindView {
                 with(it) {
                     if (transitionDemo.color != Color.Transparent && transition_bg != null) {
                         transition_bg.setBackgroundColor(transitionDemo.color.toArgb())

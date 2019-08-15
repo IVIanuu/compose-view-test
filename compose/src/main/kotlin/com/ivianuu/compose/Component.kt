@@ -18,39 +18,44 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Ambient
+import com.ivianuu.compose.internal.component
+import com.ivianuu.compose.internal.ensureLayoutParams
+import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.internal.tagKey
 
-abstract class Component<T : View> {
+class Component<T : View>(
+    val viewType: Any,
+    val manageChildren: Boolean,
+    val createView: (ViewGroup) -> T
+) {
 
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
 
-    abstract val viewType: Any
-
     private var _parent: Component<*>? = null
-    val parent: Component<*> get() = _parent ?: error("Not mounted ${javaClass.canonicalName}")
 
     private val _children = mutableListOf<Component<*>>()
     val children: List<Component<*>> get() = _children
     val visibleChildren: List<Component<*>> get() = children.filterNot { it.hidden }
 
-    val boundViews: Set<T> get() = _boundViews
     private val _boundViews = mutableSetOf<T>()
 
     private var bindViewBlocks: MutableList<(T) -> Unit>? = null
     private var unbindViewBlocks: MutableList<(T) -> Unit>? = null
+    internal var updateBlocks: MutableList<(T) -> Unit>? = null
 
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
-    internal var wasPush = true
+    internal var isPush = true
     internal var hidden = false
+    internal var generation = 0
 
-    open fun update() {
+    fun update() {
         log { "update $key bound views ${_boundViews.size}" }
         _boundViews.forEach { bindView(it) }
     }
 
-    open fun updateChildren(newChildren: List<Component<*>>) {
+    fun updateChildren(newChildren: List<Component<*>>) {
         if (_children == newChildren) return
 
         log { "update children $key new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
@@ -69,50 +74,66 @@ abstract class Component<T : View> {
         _boundViews.forEach { updateChildViews(it) }
     }
 
-    open fun createView(container: ViewGroup): T {
+    fun createView(container: ViewGroup): T {
         log { "create view $key" }
-        val view = onCreateView(container)
+        val view = createView.invoke(container)
         view.ensureLayoutParams(container)
         initChildViews(view)
         return view
     }
 
-    protected abstract fun onCreateView(container: ViewGroup): T
-
-    open fun bindView(view: T) {
+    fun bindView(view: T) {
         log { "bind view $key $view" }
         _boundViews += view
         view.component = this
+
         bindViewBlocks?.forEach { it(view) }
+
+        if (view.generation != generation) {
+            log { "updater: $key update view ${view.generation} to $generation" }
+            view.generation = generation
+            updateBlocks?.forEach { it(view) }
+        } else {
+            log { "updater: $key skip update $generation" }
+        }
+
         updateChildViews(view)
     }
 
-    open fun unbindView(view: T) {
+    fun unbindView(view: T) {
         clearChildViews(view)
         log { "unbind view $key $view" }
         unbindViewBlocks?.forEach { it(view) }
-        _boundViews -= view
+        view.generation = null
         view.component = null
+        _boundViews -= view
     }
 
-    protected open fun initChildViews(view: T) {
-        val visibleChildren = visibleChildren
-        log { "init child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
-        if (view !is ViewGroup) return
-        view.getViewManager().init(visibleChildren)
+    private fun initChildViews(view: T) {
+        if (manageChildren) {
+            val visibleChildren = visibleChildren
+            log { "init child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
+            if (view !is ViewGroup) return
+            view.getViewManager().init(visibleChildren)
+        }
     }
 
-    protected open fun updateChildViews(view: T) {
-        val visibleChildren = visibleChildren
-        log { "update child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
-        if (view !is ViewGroup) return
-        view.getViewManager().update(visibleChildren, visibleChildren.lastOrNull()?.wasPush ?: true)
+    private fun updateChildViews(view: T) {
+        if (manageChildren) {
+            val visibleChildren = visibleChildren
+            log { "update child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
+            if (view !is ViewGroup) return
+            view.getViewManager()
+                .update(visibleChildren, visibleChildren.lastOrNull()?.isPush ?: true)
+        }
     }
 
-    protected open fun clearChildViews(view: T) {
-        log { "clear child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
-        if (view !is ViewGroup) return
-        view.getViewManager().clear()
+    private fun clearChildViews(view: T) {
+        if (manageChildren) {
+            log { "clear child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
+            if (view !is ViewGroup) return
+            view.getViewManager().clear()
+        }
     }
 
     internal fun onBindView(callback: (T) -> Unit): () -> Unit {
@@ -129,7 +150,10 @@ abstract class Component<T : View> {
 
 }
 
-internal val ComponentAmbient = Ambient.of<Component<*>>()
+private val generationKey = tagKey("generation")
 
-fun <T : View> ComponentComposition.currentComponent(): Component<T> =
-    ambient(ComponentAmbient) as Component<T>
+var View.generation: Int?
+    get() = getTag(generationKey) as? Int
+    set(value) {
+        setTag(generationKey, value)
+    }

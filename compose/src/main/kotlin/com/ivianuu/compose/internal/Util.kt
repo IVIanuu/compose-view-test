@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.internal
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ComposeAccessor
+import androidx.compose.Composer
+import com.ivianuu.compose.Component
+import com.ivianuu.compose.ComponentComposition
 
 var loggingEnabled = true
 
@@ -64,5 +68,15 @@ private val genDefaultLayoutParams by lazy {
 internal fun View.ensureLayoutParams(parent: ViewGroup?) {
     if (layoutParams == null) {
         layoutParams = genDefaultLayoutParams.invoke(parent) as? ViewGroup.LayoutParams
+    }
+}
+
+fun ComponentComposition.checkIsComposing() {
+    composer.checkIsComposing()
+}
+
+fun Composer<*>.checkIsComposing() {
+    check(ComposeAccessor.isComposing(this)) {
+        "Can only use effects while composing"
     }
 }

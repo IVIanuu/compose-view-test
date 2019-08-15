@@ -27,12 +27,12 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.TransitionHints
 import com.ivianuu.compose.ambient
+import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.internal.sourceLocation
 import com.ivianuu.compose.invalidate
-import com.ivianuu.compose.log
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.onActive
 import com.ivianuu.compose.onDispose
-import com.ivianuu.compose.sourceLocation
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

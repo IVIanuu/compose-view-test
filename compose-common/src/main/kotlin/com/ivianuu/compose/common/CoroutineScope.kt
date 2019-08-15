@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.common
 
+import com.ivianuu.compose.ComponentComposition
+import com.ivianuu.compose.memo
+import com.ivianuu.compose.onActive
+import com.ivianuu.compose.onCommit
+import com.ivianuu.compose.onDispose
+import com.ivianuu.compose.onPreCommit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers

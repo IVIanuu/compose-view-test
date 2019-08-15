@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.internal
 
 import android.view.View
 import androidx.compose.Composer
 
-class ViewUpdater<T : View>(internal val composer: Composer<*>) {
+@PublishedApi
+internal class ViewUpdater<T : View>(private val composer: Composer<*>) {
 
     var hasChanges = false
         private set

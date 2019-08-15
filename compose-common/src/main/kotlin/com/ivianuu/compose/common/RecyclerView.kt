@@ -26,9 +26,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.component
-import com.ivianuu.compose.flow
+import com.ivianuu.compose.init
+import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.set
+import com.ivianuu.compose.update
 import kotlinx.coroutines.flow.Flow
 
 inline fun <T> ComponentComposition.RecyclerView(
@@ -85,15 +87,11 @@ fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    View<RecyclerView> {
-        manageChildren = true
-
+    View<RecyclerView>(manageChildren = false) {
         set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
         init { adapter = ComposeRecyclerViewAdapter() }
         update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
-
-        onUnbindView<RecyclerView> { it.adapter = null } // calls unbindView on all children
-
+        onUnbindView { it.adapter = null } // calls unbindView on all children
         children()
     }
 }

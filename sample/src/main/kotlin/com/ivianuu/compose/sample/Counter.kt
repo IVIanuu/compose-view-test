@@ -18,12 +18,12 @@ package com.ivianuu.compose.sample
 
 import android.view.View
 import com.ivianuu.compose.ChangeHandlers
-import com.ivianuu.compose.View
+import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
-import com.ivianuu.compose.layoutRes
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
+import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.counter.view.*
 
@@ -35,8 +35,7 @@ fun CounterRoute() = Route {
             appBar = { AppBar("Counter") },
             content = {
                 val (count, setCount) = state { 0 }
-                View<View> {
-                    layoutRes(R.layout.counter)
+                ViewByLayoutRes<View>(layoutRes = R.layout.counter) {
                     set(count) { count ->
                         title.text = "Count: $count"
                         inc.setOnClickListener { setCount(count + 1) }

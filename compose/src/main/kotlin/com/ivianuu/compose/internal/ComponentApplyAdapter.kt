@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose
+package com.ivianuu.compose.internal
 
 import androidx.compose.ApplyAdapter
+import com.ivianuu.compose.Component
 import java.util.*
 
-class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<*>> {
+internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdapter<Component<*>> {
 
     private var current: Component<*> = root
     private val currentStack = Stack<Component<*>>()
