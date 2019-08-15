@@ -43,6 +43,8 @@ object Versions {
 
     const val bintray = "1.8.4"
 
+    const val coroutines = "1.3.0-RC"
+
     const val kotlin = "1.3.41"
 
     const val leakCanary = "2.0-beta-2"
@@ -62,6 +64,11 @@ object Deps {
 
     const val bintrayGradlePlugin =
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:${Versions.bintray}"
+
+    const val coroutinesAndroid =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    const val coroutinesCore =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
 
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"

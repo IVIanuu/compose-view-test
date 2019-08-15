@@ -27,6 +27,22 @@ import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.component
+import com.ivianuu.compose.flow
+import kotlinx.coroutines.flow.Flow
+
+inline fun <T> ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    flow: Flow<Iterable<T>>,
+    crossinline placeholder: ComponentComposition.() -> Unit = {},
+    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+) {
+    val items = flow(flow)
+    if (items != null) {
+        RecyclerView(layoutManager = layoutManager, items = items, itemBuilder = itemBuilder)
+    } else {
+        placeholder()
+    }
+}
 
 inline fun <T> ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,

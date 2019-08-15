@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 /*
  * Copyright 2019 Manuel Wrage
  *
@@ -49,12 +47,6 @@ allprojects {
                     useVersion(Versions.kotlin)
                 }
             }
-        }
-    }
-
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
         }
     }
 }
