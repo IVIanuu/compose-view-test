@@ -31,7 +31,7 @@ fun <T : View> ComponentComposition.View(
     viewType: Any,
     childViewController: ChildViewController<T> = DefaultChildViewController(),
     createView: (ViewGroup) -> T,
-    block: ComponentContext<T>.() -> Unit
+    block: (ComponentContext<T>.() -> Unit)? = null
 ) {
     emit(
         key = key,
@@ -45,7 +45,7 @@ fun <T : View> ComponentComposition.View(
 inline fun <reified T : View> ComponentComposition.View(
     key: Any = sourceLocation(),
     childViewController: ChildViewController<T> = DefaultChildViewController(),
-    noinline block: ComponentContext<T>.() -> Unit
+    noinline block: (ComponentContext<T>.() -> Unit)? = null
 ) {
     View(
         key = key,
@@ -61,7 +61,7 @@ fun <T : View> ComponentComposition.View(
     key: Any,
     type: KClass<T>,
     childViewController: ChildViewController<T> = DefaultChildViewController(),
-    block: ComponentContext<T>.() -> Unit
+    block: (ComponentContext<T>.() -> Unit)? = null
 ) {
     View<T>(
         key = key,
@@ -78,7 +78,7 @@ fun <T : View> ComponentComposition.View(
 inline fun <T : View> ComponentComposition.ViewByLayoutRes(
     layoutRes: Int,
     childViewController: ChildViewController<T> = DefaultChildViewController(),
-    noinline block: ComponentContext<T>.() -> Unit
+    noinline block: (ComponentContext<T>.() -> Unit)? = null
 ) {
     ViewByLayoutRes(
         key = sourceLocation(),
@@ -92,7 +92,7 @@ fun <T : View> ComponentComposition.ViewByLayoutRes(
     key: Any,
     layoutRes: Int,
     childViewController: ChildViewController<T> = DefaultChildViewController(),
-    block: ComponentContext<T>.() -> Unit
+    block: (ComponentContext<T>.() -> Unit)? = null
 ) {
     View(
         key = key,
@@ -109,7 +109,7 @@ fun <T : View> ComponentComposition.ViewByLayoutRes(
 inline fun <T : View> ComponentComposition.ViewById(
     id: Int,
     childViewController: ChildViewController<T> = DefaultChildViewController(),
-    noinline block: ComponentContext<T>.() -> Unit
+    noinline block: (ComponentContext<T>.() -> Unit)? = null
 ) {
     ViewById(
         key = sourceLocation(),
@@ -123,7 +123,7 @@ fun <T : View> ComponentComposition.ViewById(
     key: Any,
     id: Int,
     childViewController: ChildViewController<T> = DefaultChildViewController(),
-    block: ComponentContext<T>.() -> Unit
+    block: (ComponentContext<T>.() -> Unit)? = null
 ) {
     View(
         key = key,

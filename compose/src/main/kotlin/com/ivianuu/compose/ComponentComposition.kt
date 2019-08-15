@@ -37,7 +37,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         viewType: Any,
         childViewController: ChildViewController<T>,
         createView: (ViewGroup) -> T,
-        block: ComponentContext<T>.() -> Unit
+        block: (ComponentContext<T>.() -> Unit)? = null
     ) = with(composer) {
         checkIsComposing()
 
@@ -65,28 +65,30 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         node._key = finalKey
 
-        environment.currentComponent = node
-
         node.inChangeHandler = environment.inChangeHandler
         node.outChangeHandler = environment.outChangeHandler
         node.isPush = environment.isPush
         node.hidden = environment.hidden
         environment.hidden = false
 
-        val updater = ViewUpdater<T>(composer)
-        environment.viewUpdater = updater
-        ComponentContext(composer, node).block()
-        node.viewUpdater = updater
-        if (updater.hasChanges) {
-            node.generation++
-        }
+        if (block != null) {
+            val updater = ViewUpdater<T>(composer)
+            environment.currentComponent = node
+            environment.viewUpdater = updater
+            ComponentContext(composer, node).block()
+            node.viewUpdater = updater
+            if (updater.hasChanges) {
+                node.generation++
+            }
 
-        environment.currentComponent = null
-        environment.viewUpdater = null
+            environment.viewUpdater = null
+            environment.currentComponent = null
+        }
 
         onCommit { node.update() }
 
         endNode()
+
         keys = keysStack.pop()
         if (keysStack.isEmpty()) {
             keys.clear()
