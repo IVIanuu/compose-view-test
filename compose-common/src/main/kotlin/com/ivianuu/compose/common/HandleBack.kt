@@ -25,7 +25,8 @@ import com.ivianuu.compose.onActive
 
 fun ComponentComposition.handleBack(callback: () -> Unit) {
     val activity = ambient(ActivityAmbient)
-    onActive {
+
+    onActive(activity) {
         val backPressedDispatcher =
             (activity as OnBackPressedDispatcherOwner).onBackPressedDispatcher
 

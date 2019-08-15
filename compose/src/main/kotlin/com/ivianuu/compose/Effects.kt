@@ -44,12 +44,26 @@ inline fun ComponentComposition.onActive(
     sourceLocation()
 )
 
+inline fun ComponentComposition.onActive(
+    vararg inputs: Any?,
+    noinline callback: CommitScope.() -> Unit
+) {
+    key(*inputs) { onActive(callback) }
+}
+
 inline fun ComponentComposition.onDispose(
     noinline callback: () -> Unit
 ) = androidx.compose.onDispose(callback = callback).resolve(
     composer,
     sourceLocation()
 )
+
+inline fun ComponentComposition.onDispose(
+    vararg inputs: Any?,
+    noinline callback: () -> Unit
+) {
+    key(*inputs) { onDispose(callback) }
+}
 
 inline fun ComponentComposition.onCommit(
     noinline callback: CommitScope.() -> Unit

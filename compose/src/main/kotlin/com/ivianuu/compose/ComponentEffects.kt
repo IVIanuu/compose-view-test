@@ -46,18 +46,18 @@ internal fun <T : View> ComponentContext<T>.onBindViewImpl(
     checkIsComposing()
     key(key) {
         val component = currentComponent<T>()
-        val removeCallbackHolder = memo { CallbackHolder(null) }
+        val callbackHolder = memo { CallbackHolder(null) }
         if (inputs != null) {
             composer.remember(*inputs) {
-                removeCallbackHolder.callback?.invoke()
-                removeCallbackHolder.callback = component.onBindView(callback)
+                callbackHolder.callback?.invoke()
+                callbackHolder.callback = component.onBindView(callback)
             }
         } else {
             composer.changed(callback)
-            removeCallbackHolder.callback?.invoke()
-            removeCallbackHolder.callback = component.onBindView(callback)
+            callbackHolder.callback?.invoke()
+            callbackHolder.callback = component.onBindView(callback)
         }
-        onDispose { removeCallbackHolder.callback?.invoke() }
+        onDispose { callbackHolder.callback?.invoke() }
     }
 }
 
@@ -85,18 +85,18 @@ internal fun <T : View> ComponentContext<T>.onUnbindViewImpl(
     checkIsComposing()
     key(key) {
         val component = currentComponent<T>()
-        val removeCallbackHolder = memo { CallbackHolder(null) }
+        val callbackHolder = memo { CallbackHolder(null) }
         if (inputs != null) {
             composer.remember(*inputs) {
-                removeCallbackHolder.callback?.invoke()
-                removeCallbackHolder.callback = component.onUnbindView(callback)
+                callbackHolder.callback?.invoke()
+                callbackHolder.callback = component.onUnbindView(callback)
             }
         } else {
             composer.changed(callback)
-            removeCallbackHolder.callback?.invoke()
-            removeCallbackHolder.callback = component.onUnbindView(callback)
+            callbackHolder.callback?.invoke()
+            callbackHolder.callback = component.onUnbindView(callback)
         }
-        onDispose { removeCallbackHolder.callback?.invoke() }
+        onDispose { callbackHolder.callback?.invoke() }
     }
 }
 

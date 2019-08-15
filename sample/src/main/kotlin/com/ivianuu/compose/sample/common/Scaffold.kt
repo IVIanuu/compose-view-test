@@ -28,7 +28,7 @@ fun ComponentComposition.Scaffold(
     content: (ComponentComposition.() -> Unit)? = null
 ) {
     ViewByLayoutRes<LinearLayout>(layoutRes = R.layout.scaffold) {
-        ViewById<FrameLayout>(R.id.app_bar) { appBar?.invoke(this@Scaffold) }
-        ViewById<FrameLayout>(R.id.content) { content?.invoke(this@Scaffold) }
+        ViewById<FrameLayout>(id = R.id.app_bar) { appBar?.invoke(this) }
+        ViewById<FrameLayout>(id = R.id.content) { content?.invoke(this) }
     }
 }
