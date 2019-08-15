@@ -76,7 +76,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         val updater = ViewUpdater<T>(composer)
         environment.viewUpdater = updater
         ComponentContext(composer, node).block()
-        node.updateBlocks = updater.updateBlocks
+        node.viewUpdater = updater
         if (updater.hasChanges) {
             node.generation++
         }

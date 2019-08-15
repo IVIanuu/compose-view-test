@@ -18,6 +18,7 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
+import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.ensureLayoutParams
 import com.ivianuu.compose.internal.log
@@ -42,7 +43,7 @@ class Component<T : View>(
 
     private var bindViewBlocks: MutableList<(T) -> Unit>? = null
     private var unbindViewBlocks: MutableList<(T) -> Unit>? = null
-    internal var updateBlocks: MutableList<(T) -> Unit>? = null
+    internal var viewUpdater: ViewUpdater<T>? = null
 
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
@@ -85,17 +86,32 @@ class Component<T : View>(
 
     fun bindView(view: T) {
         log { "bind view $key $view" }
+
+        val newView = view.component != this
+
         _boundViews += view
         view.component = this
 
         bindViewBlocks?.forEach { it(view) }
 
-        if (view.generation != generation) {
+        if (newView) {
+            log { "updater: $key update new view ${view.generation} to $generation" }
+            view.generation = generation
+            viewUpdater?.getBlocks(
+                ViewUpdater.Type.Init,
+                ViewUpdater.Type.Update,
+                ViewUpdater.Type.Value
+            )
+                ?.forEach { it(view) }
+        } else if (view.generation != generation) {
             log { "updater: $key update view ${view.generation} to $generation" }
             view.generation = generation
-            updateBlocks?.forEach { it(view) }
+            viewUpdater?.getBlocks(ViewUpdater.Type.Update, ViewUpdater.Type.Value)
+                ?.forEach { it(view) }
         } else {
             log { "updater: $key skip update $generation" }
+            viewUpdater?.getBlocks(ViewUpdater.Type.Update)
+                ?.forEach { it(view) }
         }
 
         childViewController.updateChildViews(this, view)

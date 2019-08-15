@@ -164,7 +164,7 @@ private class ComposeRecyclerViewAdapter :
 
             @SuppressLint("DiffUtilEquals")
             override fun areContentsTheSame(oldItem: Component<*>, newItem: Component<*>): Boolean =
-                true
+                false
         }
     }
 }

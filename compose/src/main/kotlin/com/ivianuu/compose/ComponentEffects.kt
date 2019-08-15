@@ -100,19 +100,19 @@ internal fun <T : View> ComponentContext<T>.onUnbindViewImpl(
     }
 }
 
-inline fun <T : View, V> ComponentContext<T>.set(value: V, crossinline block: T.(V) -> Unit) {
+fun <T : View, V> ComponentContext<T>.set(value: V, block: T.(V) -> Unit) {
     checkIsComposing()
     currentViewUpdater<T>().set(value) { block(it) }
 }
 
-inline fun <T : View> ComponentContext<T>.init(crossinline block: T.() -> Unit) {
+fun <T : View> ComponentContext<T>.init(block: T.() -> Unit) {
     checkIsComposing()
-    currentViewUpdater<T>().set(Unit) { block() }
+    currentViewUpdater<T>().init(block)
 }
 
-inline fun <T : View> ComponentContext<T>.update(crossinline block: T.() -> Unit) {
+fun <T : View> ComponentContext<T>.update(block: T.() -> Unit) {
     checkIsComposing()
-    currentViewUpdater<T>().set(Any()) { block() }
+    currentViewUpdater<T>().update(block)
 }
 
 private class CallbackHolder(var callback: (() -> Unit)? = null)
