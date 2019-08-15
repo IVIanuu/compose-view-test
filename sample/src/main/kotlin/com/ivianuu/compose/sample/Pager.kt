@@ -95,7 +95,7 @@ fun PagerRoute() = Route {
                     onPageChanged = { selectedPage = it },
                     children = {
                         (1..5).forEach { i ->
-                            group(i) {
+                            key(i) {
                                 val color = memo { AllColors.toList().shuffled()[i] }
                                 Page(i, color)
                             }

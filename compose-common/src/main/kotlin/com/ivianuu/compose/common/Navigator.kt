@@ -133,7 +133,7 @@ class Navigator(private val startRoute: Route) {
         visibleRoutes.reversed()
             .also { println("compose routes ${it.map { it.key }}") }
             .forEach {
-                componentComposition.group(it.key) {
+                componentComposition.key(it.key) {
                     TransitionHintsAmbient.Provider(wasPush) {
                         it._compose(componentComposition)
                     }

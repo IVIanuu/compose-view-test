@@ -32,9 +32,10 @@ fun HomeRoute() = Route {
     Scaffold(
         appBar = { AppBar("Home") },
         content = {
-            RecyclerView {
-                HomeItem.values()
-                    .forEach { HomeItem(it) }
+            RecyclerView(items = HomeItem.values()) { _, item ->
+                key(key = "hallo") {
+                    HomeItem(item)
+                }
             }
         }
     )

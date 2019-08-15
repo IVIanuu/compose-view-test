@@ -28,6 +28,42 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.component
 
+inline fun <T> ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    items: Array<T>,
+    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+) {
+    RecyclerView(layoutManager = layoutManager) {
+        items.forEachIndexed { index, item ->
+            itemBuilder(index, item)
+        }
+    }
+}
+
+inline fun <T> ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    items: Iterable<T>,
+    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+) {
+    RecyclerView(layoutManager = layoutManager) {
+        items.forEachIndexed { index, item ->
+            itemBuilder(index, item)
+        }
+    }
+}
+
+inline fun ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    itemCount: Int,
+    crossinline itemBuilder: ComponentComposition.(Int) -> Unit
+) {
+    RecyclerView(layoutManager = layoutManager) {
+        (0 until itemCount).forEach { index ->
+            itemBuilder(index)
+        }
+    }
+}
+
 fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     children: ComponentComposition.() -> Unit

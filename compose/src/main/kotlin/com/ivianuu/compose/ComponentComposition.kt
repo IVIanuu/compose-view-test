@@ -26,29 +26,36 @@ class ComponentComposition(val composer: ComponentComposer) {
     private val keysStack = Stack<MutableList<Any>>()
     private var keys = mutableListOf<Any>()
 
+    private val groupKeyStack = Stack<Any?>()
+    private var groupKey: Any? = null
+
+    fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
+
     fun <T : Component<*>> emit(
         key: Any,
         ctor: () -> T,
         update: (T.() -> Unit)? = null
     ) = with(composer) {
-        check(key !in keys) {
-            "Duplicated key $key"
+        val finalKey = joinKeyIfNeeded(key, groupKey)
+
+        check(finalKey !in keys) {
+            "Duplicated key $finalKey"
         }
 
-        keys.add(key)
+        keys.add(finalKey)
 
-        startNode(key)
         keysStack.push(keys)
         keys = mutableListOf()
+        startNode(finalKey)
 
-        log { "emit $key inserting ? $inserting" }
+        log { "emit $finalKey inserting ? $inserting" }
         val node = if (inserting) {
             ctor().also { emitNode(it) }
         } else {
             useNode() as T
         }
 
-        node._key = key
+        node._key = finalKey
 
         // todo remove
         node.inChangeHandler = ambient(InChangeHandlerAmbient)
@@ -60,22 +67,40 @@ class ComponentComposition(val composer: ComponentComposer) {
 
         endNode()
         keys = keysStack.pop()
-
     }
 
-    fun group(
+    fun key(
         key: Any,
         children: ComponentComposition.() -> Unit
     ) = with(composer) {
-        startGroup(key)
+        val previousGroupKey = groupKey
+        groupKeyStack.push(groupKey)
+        val finalKey = joinKeyIfNeeded(key, previousGroupKey)
+        groupKey = finalKey
+
+        startGroup(finalKey)
         keysStack.push(keys)
         keys = mutableListOf()
         children()
         keys = keysStack.pop()
         endGroup()
+
+        groupKey = groupKeyStack.pop()
     }
 
-    inline fun group(noinline children: ComponentComposition.() -> Unit) =
-        group(sourceLocation(), children)
+    inline fun key(noinline children: ComponentComposition.() -> Unit) =
+        key(sourceLocation(), children)
 
+}
+
+private data class JoinedKey(val left: Any, val right: Any) {
+    override fun toString(): String = "($left,$right)"
+}
+
+private fun joinKeyIfNeeded(key: Any, groupKey: Any?): Any {
+    return if (groupKey != null) {
+        JoinedKey(key, groupKey)
+    } else {
+        key
+    }
 }
