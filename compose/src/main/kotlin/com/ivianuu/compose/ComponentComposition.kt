@@ -17,17 +17,30 @@
 package com.ivianuu.compose
 
 import androidx.compose.EffectsDsl
+import java.util.*
 
 @Suppress("UNCHECKED_CAST")
 @EffectsDsl
 class ComponentComposition(val composer: ComponentComposer) {
+
+    private val keysStack = Stack<MutableList<Any>>()
+    private var keys = mutableListOf<Any>()
 
     fun <T : Component<*>> emit(
         key: Any,
         ctor: () -> T,
         update: (T.() -> Unit)? = null
     ) = with(composer) {
+        check(key !in keys) {
+            "Duplicated key $key"
+        }
+
+        keys.add(key)
+
         startNode(key)
+        keysStack.push(keys)
+        keys = mutableListOf()
+
         log { "emit $key inserting ? $inserting" }
         val node = if (inserting) {
             ctor().also { emitNode(it) }
@@ -46,6 +59,8 @@ class ComponentComposition(val composer: ComponentComposer) {
         node.update()
 
         endNode()
+        keys = keysStack.pop()
+
     }
 
     fun group(
@@ -53,7 +68,10 @@ class ComponentComposition(val composer: ComponentComposer) {
         children: ComponentComposition.() -> Unit
     ) = with(composer) {
         startGroup(key)
+        keysStack.push(keys)
+        keys = mutableListOf()
         children()
+        keys = keysStack.pop()
         endGroup()
     }
 
