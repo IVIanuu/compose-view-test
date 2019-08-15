@@ -23,12 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.common.Navigator
-import com.ivianuu.compose.common.RecyclerView
-import com.ivianuu.compose.load
-import com.ivianuu.compose.log
 import com.ivianuu.compose.setContent
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flowOf
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
 private fun ComponentComposition.App() {
     View<FrameLayout> {
-        bindView {
+        init {
             layoutParams = layoutParams.apply {
                 width = MATCH_PARENT
                 height = MATCH_PARENT

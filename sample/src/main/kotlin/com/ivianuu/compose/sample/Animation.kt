@@ -54,9 +54,9 @@ fun AnimationRoute() = Route {
 
                 View<View> {
                     layoutRes(R.layout.animation)
-                    bindView {
-                        animation_view.scaleX = value
-                        animation_view.scaleY = value
+                    set(value) {
+                        animation_view.scaleX = it
+                        animation_view.scaleY = it
                     }
                 }
             }

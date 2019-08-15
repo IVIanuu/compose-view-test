@@ -68,7 +68,7 @@ fun PagerRoute() = Route {
         Scaffold(
             appBar = {
                 View<LinearLayout> {
-                    bindView {
+                    init {
                         layoutParams = layoutParams.apply {
                             width = MATCH_PARENT
                             height = WRAP_CONTENT
@@ -113,9 +113,7 @@ private fun ComponentComposition.Page(
 ) {
     View<View> {
         layoutRes(R.layout.page)
-        bindView {
-            page_bg.setBackgroundColor(color.toArgb())
-            page_text.text = "#$index"
-        }
+        set(color) { page_bg.setBackgroundColor(it.toArgb()) }
+        set(index) { page_text.text = "#$it" }
     }
 }

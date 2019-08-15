@@ -46,6 +46,6 @@ fun ListRoute() = Route {
 private fun ComponentComposition.ListItem(text: String) {
     View<TextView>(key = text) {
         layoutRes(R.layout.list_item)
-        bindView { this.text = text }
+        set(text) { this.text = it }
     }
 }

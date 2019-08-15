@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Manuel Wrage
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +14,22 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout android:id="@+id/row_root"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="24dp"
+    android:layout_height="300dp"
     android:background="?selectableItemBackground"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <FrameLayout
-        android:id="@+id/home_color_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="16dp" />
+    android:gravity="center">
 
     <TextView
-        android:id="@+id/home_title"
-        android:textAppearance="?textAppearanceSubtitle1"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Pager" />
+        android:textAppearance="?textAppearanceHeadline3" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

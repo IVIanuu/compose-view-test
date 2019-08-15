@@ -25,9 +25,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.ContextAmbient
 import com.ivianuu.compose.View
-import com.ivianuu.compose.ambient
 import com.ivianuu.compose.component
 import com.ivianuu.compose.flow
 import kotlinx.coroutines.flow.Flow
@@ -89,19 +87,9 @@ fun ComponentComposition.RecyclerView(
     View<RecyclerView> {
         manageChildren = true
 
-        val context = ambient(ContextAmbient)
-
-        bindView {
-            if (this.layoutManager == null || (layoutManager != null && this.layoutManager != layoutManager)) {
-                this.layoutManager = layoutManager ?: LinearLayoutManager(context)
-            }
-
-            if (adapter == null) {
-                adapter = ComposeRecyclerViewAdapter()
-            }
-
-            (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList())
-        }
+        set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
+        init { adapter = ComposeRecyclerViewAdapter() }
+        update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
 
         unbindView {
             adapter = null

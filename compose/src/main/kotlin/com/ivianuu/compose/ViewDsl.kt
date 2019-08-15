@@ -20,6 +20,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.Composer
 import java.lang.reflect.Constructor
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.properties.Delegates
@@ -33,12 +34,22 @@ fun <T : View> ComponentComposition.View(
         key = key,
         ctor = { ViewDslComponent() },
         update = {
-            val dsl = ViewDsl<T>().apply(block)
+            val dsl = ViewDsl<T>()
+                .also {
+                    it.component = this
+                    it.composer = composer
+                }
+                .apply(block)
+
             viewType = dsl.viewType
             createView = dsl.createView
             bindViewBlocks = dsl.bindViewBlocks
             unbindViewBlocks = dsl.unbindViewBlocks
             manageChildren = dsl.manageChildren
+            updateBlocks = dsl.viewUpdater?.updateBlocks
+            if (dsl.viewUpdater != null && dsl.viewUpdater!!.hasChanges) {
+                generation++
+            }
         }
     )
 }
@@ -62,8 +73,27 @@ class ViewDsl<T : View> {
 
     var manageChildren = false
 
+    @PublishedApi
+    internal var viewUpdater: ViewUpdater<T>? = null
+
+    @PublishedApi
+    internal lateinit var component: Component<T>
+    @PublishedApi
+    internal lateinit var composer: Composer<*>
+
     inline fun <V> set(value: V, crossinline block: T.(V) -> Unit) {
-        bindView { block(value) }
+        if (viewUpdater == null) viewUpdater = ViewUpdater(composer)
+        viewUpdater!!.set(value) { block(it) }
+    }
+
+    inline fun init(crossinline block: T.() -> Unit) {
+        if (viewUpdater == null) viewUpdater = ViewUpdater(composer)
+        viewUpdater!!.set(Unit) { block() }
+    }
+
+    inline fun update(crossinline block: T.() -> Unit) {
+        if (viewUpdater == null) viewUpdater = ViewUpdater(composer)
+        viewUpdater!!.set(Any()) { block() }
     }
 
     fun bindView(block: T.() -> Unit) {
@@ -115,6 +145,9 @@ private class ViewDslComponent<T : View> : Component<T>() {
     lateinit var createView: (ViewGroup) -> T
     var bindViewBlocks: List<T.() -> Unit>? = null
     var unbindViewBlocks: List<T.() -> Unit>? = null
+    var updateBlocks: MutableList<T.() -> Unit>? = null
+
+    internal var generation = 0
 
     var manageChildren = false
 
@@ -124,9 +157,18 @@ private class ViewDslComponent<T : View> : Component<T>() {
     override fun bindView(view: T) {
         super.bindView(view)
         bindViewBlocks?.forEach { it(view) }
+
+        if (view.generation != generation) {
+            log { "updater: $key update view ${view.generation} to $generation" }
+            view.generation = generation
+            updateBlocks?.forEach { it(view) }
+        } else {
+            log { "updater: $key skip update $generation" }
+        }
     }
 
     override fun unbindView(view: T) {
+        view.generation = null
         unbindViewBlocks?.forEach { it(view) }
         super.unbindView(view)
     }
@@ -143,3 +185,11 @@ private class ViewDslComponent<T : View> : Component<T>() {
         if (!manageChildren) super.clearChildViews(view)
     }
 }
+
+private val generationKey = tagKey("generation")
+
+var View.generation: Int?
+    get() = getTag(generationKey) as? Int
+    set(value) {
+        setTag(generationKey, value)
+    }

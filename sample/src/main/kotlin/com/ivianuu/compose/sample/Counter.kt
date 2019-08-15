@@ -37,7 +37,7 @@ fun CounterRoute() = Route {
                 val (count, setCount) = state { 0 }
                 View<View> {
                     layoutRes(R.layout.counter)
-                    bindView {
+                    set(count) { count ->
                         title.text = "Count: $count"
                         inc.setOnClickListener { setCount(count + 1) }
                         dec.setOnClickListener { setCount(count - 1) }
