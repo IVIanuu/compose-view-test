@@ -53,6 +53,16 @@ fun ComponentComposition.launchOnActive(
     onActive { coroutineScope.launch(context, start, block) }
 }
 
+fun ComponentComposition.launchOnActive(
+    vararg inputs: Any?,
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val coroutineScope = coroutineScope
+    onActive(*inputs) { coroutineScope.launch(context, start, block) }
+}
+
 fun ComponentComposition.launchOnPreCommit(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
