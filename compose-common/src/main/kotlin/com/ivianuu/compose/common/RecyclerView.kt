@@ -17,6 +17,7 @@
 package com.ivianuu.compose.common
 
 import android.annotation.SuppressLint
+import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -29,6 +30,8 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.init
 import com.ivianuu.compose.internal.component
+import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.set
 import com.ivianuu.compose.update
@@ -89,13 +92,32 @@ fun ComponentComposition.RecyclerView(
     children: ComponentComposition.() -> Unit
 ) {
     View(childViewController = RecyclerViewChildViewController) {
+        val layoutManagerStateHolder = memo { LayoutManagerStateHolder() }
+
         set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
+
         init { adapter = ComposeRecyclerViewAdapter() }
+
         update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
-        onUnbindView { it.adapter = null } // calls unbindView on all children
+
+        update {
+            if (layoutManagerStateHolder.state != null) {
+                log { "recycler: restore" }
+                this.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                layoutManagerStateHolder.state = null
+            }
+        }
+
+        onUnbindView {
+            layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
+            it.adapter = null
+        } // calls unbindView on all children
+
         children()
     }
 }
+
+private data class LayoutManagerStateHolder(var state: Parcelable? = null)
 
 private object RecyclerViewChildViewController : ChildViewController<RecyclerView> {
     override fun initChildViews(component: Component<RecyclerView>, view: RecyclerView) {

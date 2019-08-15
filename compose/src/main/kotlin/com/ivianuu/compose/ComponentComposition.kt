@@ -84,7 +84,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         environment.currentComponent = null
         environment.viewUpdater = null
 
-        node.update()
+        onCommit { node.update() }
 
         endNode()
         keys = keysStack.pop()

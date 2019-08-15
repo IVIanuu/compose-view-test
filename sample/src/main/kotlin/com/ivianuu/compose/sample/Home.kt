@@ -34,7 +34,7 @@ import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.checkable.view.*
 import kotlinx.android.synthetic.main.home_item.view.*
 
-fun HomeRoute() = Route {
+fun HomeRoute() = Route(keepState = true) {
     val (checked, setChecked) = state { false }
 
     Scaffold(
@@ -105,7 +105,7 @@ private fun ComponentComposition.HomeItem(item: HomeItem) {
     val route = item.route(this)
     ViewByLayoutRes<View>(key = item, layoutRes = R.layout.home_item) {
         set(item) {
-            home_title.text = item.title + " ${System.currentTimeMillis()}"
+            home_title.text = item.title
             setOnClickListener { navigator.push(route) }
         }
 
