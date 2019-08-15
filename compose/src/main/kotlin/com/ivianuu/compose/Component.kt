@@ -18,6 +18,7 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.Ambient
 
 abstract class Component<T : View> {
 
@@ -31,6 +32,7 @@ abstract class Component<T : View> {
 
     private val _children = mutableListOf<Component<*>>()
     val children: List<Component<*>> get() = _children
+    val visibleChildren: List<Component<*>> get() = children.filterNot { it.hidden }
 
     val boundViews: Set<T> get() = _boundViews
     private val _boundViews = mutableSetOf<T>()
@@ -38,6 +40,7 @@ abstract class Component<T : View> {
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
     internal var wasPush = true
+    internal var hidden = false
 
     open fun update() {
         log { "update $key bound views ${_boundViews.size}" }
@@ -60,7 +63,7 @@ abstract class Component<T : View> {
         _children.clear()
         _children += newChildren
 
-        update()
+        _boundViews.forEach { updateChildViews(it) }
     }
 
     open fun createView(container: ViewGroup): T {
@@ -77,7 +80,6 @@ abstract class Component<T : View> {
         log { "bind view $key $view" }
         _boundViews += view
         view.component = this
-        updateChildViews(view)
     }
 
     open fun unbindView(view: T) {
@@ -88,20 +90,30 @@ abstract class Component<T : View> {
     }
 
     protected open fun initChildViews(view: T) {
-        log { "init child views $key ${view.javaClass} children ${children.map { it.key }}" }
+        val visibleChildren = visibleChildren
+
+        log { "init child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
         if (view !is ViewGroup) return
-        view.getViewManager().init(children)
+        view.getViewManager().init(visibleChildren)
     }
 
     protected open fun updateChildViews(view: T) {
-        log { "update child views $key ${view.javaClass} children ${children.map { it.key }}" }
+        val visibleChildren = visibleChildren
+        log { "update child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
         if (view !is ViewGroup) return
-        view.getViewManager().update(children, children.lastOrNull()?.wasPush ?: true)
+        view.getViewManager().update(visibleChildren, visibleChildren.lastOrNull()?.wasPush ?: true)
     }
 
     protected open fun clearChildViews(view: T) {
-        log { "clear child views $key ${view.javaClass} children ${children.map { it.key }}" }
+        log { "clear child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
         if (view !is ViewGroup) return
         view.getViewManager().clear()
     }
 }
+
+val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
+val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
+val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
+val HiddenAmbient = Ambient.of("Hidden") { Hidden(false) }
+
+data class Hidden(var value: Boolean)

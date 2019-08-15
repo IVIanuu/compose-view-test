@@ -61,6 +61,9 @@ class ComponentComposition(val composer: ComponentComposer) {
         node.inChangeHandler = ambient(InChangeHandlerAmbient)
         node.outChangeHandler = ambient(OutChangeHandlerAmbient)
         node.wasPush = ambient(TransitionHintsAmbient)
+        val hidden = ambient(HiddenAmbient)
+        node.hidden = hidden.value
+        hidden.value = false
 
         update?.let { node.it() }
         node.update()

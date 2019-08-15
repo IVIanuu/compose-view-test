@@ -18,7 +18,6 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Ambient
 
 abstract class ComponentChangeHandler {
 
@@ -64,10 +63,6 @@ class DefaultChangeHandler : ComponentChangeHandler() {
     override fun cancel() {
     }
 }
-
-val InChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("InTransition")
-val OutChangeHandlerAmbient = Ambient.of<ComponentChangeHandler?>("OutTransition")
-val TransitionHintsAmbient = Ambient.of("TransitionHints") { true }
 
 fun ComponentComposition.ChangeHandlers(
     handler: ComponentChangeHandler?,
