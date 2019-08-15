@@ -91,10 +91,7 @@ fun ComponentComposition.RecyclerView(
         init { adapter = ComposeRecyclerViewAdapter() }
         update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
 
-        unbindView {
-            adapter = null
-            this.layoutManager = null
-        }
+        unbindView { adapter = null } // calls unbindView on all children
 
         children()
     }
