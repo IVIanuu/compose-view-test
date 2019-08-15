@@ -31,9 +31,9 @@ class ViewUpdater<T : View>(internal val composer: Composer<*>) {
             if (inserting || nextSlot() != value) {
                 hasChanges = true
                 updateValue(value)
-                if (updateBlocks == null) updateBlocks = mutableListOf()
-                updateBlocks!! += { block(value) }
             } else skipValue()
+            if (updateBlocks == null) updateBlocks = mutableListOf()
+            updateBlocks!! += { block(value) }
         }
     }
 
