@@ -30,7 +30,6 @@ import com.ivianuu.compose.View
 import com.ivianuu.compose.ambient
 import com.ivianuu.compose.component
 import com.ivianuu.compose.flow
-import com.ivianuu.compose.memo
 import kotlinx.coroutines.flow.Flow
 
 inline fun <T> ComponentComposition.RecyclerView(
@@ -91,13 +90,10 @@ fun ComponentComposition.RecyclerView(
         manageChildren = true
 
         val context = ambient(ContextAmbient)
-        val finalLayoutManager = memo(layoutManager) {
-            layoutManager ?: LinearLayoutManager(context)
-        }
 
         bindView {
-            if (this.layoutManager != finalLayoutManager) {
-                this.layoutManager = finalLayoutManager
+            if (this.layoutManager == null || (layoutManager != null && this.layoutManager != layoutManager)) {
+                this.layoutManager = layoutManager ?: LinearLayoutManager(context)
             }
 
             if (adapter == null) {
@@ -107,7 +103,10 @@ fun ComponentComposition.RecyclerView(
             (adapter as ComposeRecyclerViewAdapter).submitList(component!!.children.toList())
         }
 
-        unbindView { adapter = null }
+        unbindView {
+            adapter = null
+            this.layoutManager = null
+        }
 
         children()
     }
