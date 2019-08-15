@@ -90,7 +90,6 @@ abstract class Component<T : View> {
 
     protected open fun initChildViews(view: T) {
         val visibleChildren = visibleChildren
-
         log { "init child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
         if (view !is ViewGroup) return
         view.getViewManager().init(visibleChildren)
