@@ -73,9 +73,8 @@ class ComponentComposition(val composer: ComponentComposer) {
         key: Any,
         children: ComponentComposition.() -> Unit
     ) = with(composer) {
-        val previousGroupKey = groupKey
+        val finalKey = joinKeyIfNeeded(key, groupKey)
         groupKeyStack.push(groupKey)
-        val finalKey = joinKeyIfNeeded(key, previousGroupKey)
         groupKey = finalKey
 
         startGroup(finalKey)
