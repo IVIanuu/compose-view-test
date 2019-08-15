@@ -28,7 +28,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 val ActivityAmbient = Ambient.of<Activity> { error("No activity found") }
-val ContextAmbient = Ambient.of<Context> { error("No context found") }
+val ContextAmbient = ActivityAmbient as Ambient<Context>
 
 fun ComponentActivity.setContent(
     container: ViewGroup = findViewById(android.R.id.content),
@@ -54,9 +54,7 @@ fun ComponentActivity.setContent(
 
     context.setComposable {
         ActivityAmbient.Provider(this@setContent) {
-            ContextAmbient.Provider(this@setContent) {
-                composable()
-            }
+            composable()
         }
     }
 
