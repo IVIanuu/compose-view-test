@@ -29,14 +29,14 @@ class ComponentComposition(val composer: ComponentComposer) {
     private val groupKeyStack = Stack<Any?>()
     private var groupKey: Any? = null
 
-    fun joinKey(left: Any, right: Any?): Any = composer.joinKey(left, right)
-
     fun <T : Component<*>> emit(
         key: Any,
         ctor: () -> T,
         update: (T.() -> Unit)? = null
     ) = with(composer) {
         val finalKey = joinKeyIfNeeded(key, groupKey)
+
+        log { "pre emit $finalKey inserting ? $inserting keys $keys" }
 
         check(finalKey !in keys) {
             "Duplicated key $finalKey"
@@ -67,6 +67,9 @@ class ComponentComposition(val composer: ComponentComposer) {
 
         endNode()
         keys = keysStack.pop()
+        if (keysStack.isEmpty()) {
+            keys.clear()
+        }
     }
 
     fun key(
@@ -86,9 +89,6 @@ class ComponentComposition(val composer: ComponentComposer) {
 
         groupKey = groupKeyStack.pop()
     }
-
-    inline fun key(noinline children: ComponentComposition.() -> Unit) =
-        key(sourceLocation(), children)
 
 }
 
