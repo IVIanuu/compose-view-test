@@ -16,18 +16,22 @@
 
 package com.ivianuu.compose.common
 
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.compose.Ambient
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
+import com.ivianuu.compose.HiddenAmbient
 import com.ivianuu.compose.TransitionHintsAmbient
 import com.ivianuu.compose.ambient
 import com.ivianuu.compose.invalidate
+import com.ivianuu.compose.log
 import com.ivianuu.compose.memo
+import com.ivianuu.compose.onActive
+import com.ivianuu.compose.onDispose
 import com.ivianuu.compose.sourceLocation
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -36,20 +40,28 @@ import kotlinx.coroutines.launch
 
 fun ComponentComposition.Navigator(startRoute: ComponentComposition.() -> Route) {
     val activity = ambient(ActivityAmbient)
+    val backPressedDispatcher = (activity as OnBackPressedDispatcherOwner).onBackPressedDispatcher
     val navigator = memo { Navigator(startRoute()) }
 
-    val onBackPressedCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            navigator.pop()
+    val onBackPressedCallback = memo {
+        object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                navigator.pop()
+            }
         }
     }
-    (activity as ComponentActivity).onBackPressedDispatcher.addCallback(
-        activity,
-        onBackPressedCallback
-    )
 
-    navigator.backStackChangeObserver = { onBackPressedCallback.isEnabled = it.size > 1 }
+    onActive {
+        backPressedDispatcher.addCallback(onBackPressedCallback)
+        onDispose { onBackPressedCallback.remove() }
+    }
 
+    navigator.backStackChangeObserver = {
+        log { "backpress: enabled ? ${it.size > 1}" }
+        onBackPressedCallback.isEnabled = it.size > 1
+    }
+
+    onDispose { navigator.backStackChangeObserver = null }
     activity.lifecycle.addObserver(object : LifecycleEventObserver {
         override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
             if (event == Lifecycle.Event.ON_DESTROY) {
@@ -123,6 +135,23 @@ class Navigator(private val startRoute: Route) {
     fun compose(componentComposition: ComponentComposition) {
         this@Navigator.invalidate = componentComposition.invalidate
 
+        backStack
+            .filter { it.keepState || it.isVisible() }
+            .forEach {
+                componentComposition.key(it.key) {
+                    TransitionHintsAmbient.Provider(wasPush) {
+                        val hidden = ambient(HiddenAmbient)
+                        hidden.value = !it.isVisible()
+                        HiddenAmbient.Provider(hidden) {
+                            it._compose(componentComposition)
+                        }
+                    }
+                }
+            }
+    }
+
+    // todo improve
+    private fun Route.isVisible(): Boolean {
         val visibleRoutes = mutableListOf<Route>()
 
         for (route in _backStack.reversed()) {
@@ -130,17 +159,8 @@ class Navigator(private val startRoute: Route) {
             if (!route.isFloating) break
         }
 
-        visibleRoutes.reversed()
-            .also { println("compose routes ${it.map { it.key }}") }
-            .forEach {
-                componentComposition.key(it.key) {
-                    TransitionHintsAmbient.Provider(wasPush) {
-                        it._compose(componentComposition)
-                    }
-                }
-            }
+        return this in visibleRoutes
     }
-
 }
 
 private val NavigatorAmbient = Ambient.of<Navigator>()
@@ -151,6 +171,7 @@ interface Route {
     val key: Any
 
     val isFloating: Boolean
+    val keepState: Boolean
 
     fun ComponentComposition.compose()
 
@@ -164,12 +185,14 @@ interface Route {
 
 inline fun Route(
     isFloating: Boolean = false,
+    keepState: Boolean = false,
     noinline compose: ComponentComposition.() -> Unit
-) = Route(sourceLocation(), isFloating, compose)
+) = Route(sourceLocation(), isFloating, keepState, compose)
 
 fun Route(
     key: Any,
     isFloating: Boolean = false,
+    keepState: Boolean = false,
     content: ComponentComposition.() -> Unit
 ) = object : Route {
 
@@ -178,6 +201,8 @@ fun Route(
 
     override val isFloating: Boolean
         get() = isFloating
+    override val keepState: Boolean
+        get() = keepState
 
     override fun ComponentComposition.compose() {
         content.invoke(this)
