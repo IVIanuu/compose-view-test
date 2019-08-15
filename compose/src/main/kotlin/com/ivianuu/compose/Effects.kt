@@ -120,8 +120,8 @@ fun <T> ComponentComposition.key(
     block: ComponentComposition.() -> T
 ): T = with(composer) {
     val environment = ambient(ComponentEnvironmentAmbient)
-    environment.pushGroupKey(key)
-    startGroup(key)
+    val finalKey = environment.pushGroupKey(key)
+    startGroup(finalKey)
     val result = block()
     endGroup()
     environment.popGroupKey()

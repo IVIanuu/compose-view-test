@@ -21,29 +21,42 @@ import androidx.activity.OnBackPressedDispatcherOwner
 import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ambient
+import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.key
 import com.ivianuu.compose.onActive
 
-private class CallbackHolder {
-    private val callbacks = mutableListOf<OnBackPressedCallback>()
+fun ComponentComposition.observeBackPress(onBackPressed: () -> Unit) {
+    observeBackPressImpl(onBackPressed)
 }
 
 fun ComponentComposition.observeBackPress(
     vararg inputs: Any?,
     onBackPressed: () -> Unit
 ) {
-    //key()
-
-    val activity = ambient(ActivityAmbient)
-    val backPressedDispatcher = (activity as OnBackPressedDispatcherOwner).onBackPressedDispatcher
-
-    val onBackPressedCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            onBackPressed()
-        }
+    key(inputs = *inputs) {
+        observeBackPressImpl(onBackPressed)
     }
+}
 
+private fun ComponentComposition.observeBackPressImpl(onBackPressed: () -> Unit) {
+    val activity = ambient(ActivityAmbient)
     onActive {
+        val backPressedDispatcher =
+            (activity as OnBackPressedDispatcherOwner).onBackPressedDispatcher
+
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onBackPressed()
+            }
+        }
+
         backPressedDispatcher.addCallback(onBackPressedCallback)
-        onDispose { onBackPressedCallback.remove() }
+
+        log { "back press: on active" }
+
+        onDispose {
+            log { "back press on inactive" }
+            onBackPressedCallback.remove()
+        }
     }
 }

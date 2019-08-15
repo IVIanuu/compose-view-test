@@ -38,9 +38,11 @@ internal class ComponentEnvironment(
     private var groupKey: Any? = null
     private val groupKeyStack = Stack<Any?>()
 
-    fun pushGroupKey(key: Any) {
+    fun pushGroupKey(key: Any): Any {
         groupKeyStack.push(groupKey)
-        groupKey = key
+        val finalKey = if (groupKey != null) JoinedKey(key, groupKey) else key
+        groupKey = finalKey
+        return finalKey
     }
 
     fun popGroupKey() {
