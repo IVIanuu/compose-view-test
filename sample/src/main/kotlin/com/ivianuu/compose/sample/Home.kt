@@ -33,9 +33,7 @@ fun HomeRoute() = Route {
         appBar = { AppBar("Home") },
         content = {
             RecyclerView(items = HomeItem.values()) { _, item ->
-                key(key = "hallo") {
-                    HomeItem(item)
-                }
+                HomeItem(item)
             }
         }
     )
