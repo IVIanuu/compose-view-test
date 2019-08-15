@@ -133,6 +133,7 @@ fun <T> ComponentComposition.key(
     key: Any,
     block: ComponentComposition.() -> T
 ): T = with(composer) {
+    checkIsComposing()
     val environment = ambient(ComponentEnvironmentAmbient)
     val finalKey = environment.pushGroupKey(key)
     startGroup(finalKey)

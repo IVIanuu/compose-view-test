@@ -38,7 +38,9 @@ fun ComponentComposition.Navigator(
     val navigator = memo { Navigator(startRoute(), invalidate) }
 
     if (handleBack && navigator.backStack.size > 1) {
-        handleBack { navigator.pop() }
+        key(navigator.backStack.size) {
+            handleBack { navigator.pop() }
+        }
     }
 
     NavigatorAmbient.Provider(navigator) {

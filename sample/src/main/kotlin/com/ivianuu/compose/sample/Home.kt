@@ -83,13 +83,18 @@ private enum class HomeItem(
         color = Color.Maroon,
         route = { ListRoute() }
     ),
+    MultipleChildren(
+        title = "Multiple children",
+        color = Color.Lime,
+        route = { MultipleChildrenRoute() }
+    ),
     Pager(
         title = "Pager",
         color = Color.Cyan,
         route = { PagerRoute() }
     ),
     Transition(
-        title = "ChangeHandlers",
+        title = "Change handlers",
         color = Color.Red,
         route = { TransitionDemos() }
     ),
