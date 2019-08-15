@@ -19,7 +19,6 @@ package com.ivianuu.compose.common
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.Ambient
-import androidx.compose.Recompose
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -27,6 +26,7 @@ import com.ivianuu.compose.ActivityAmbient
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.TransitionHintsAmbient
 import com.ivianuu.compose.ambient
+import com.ivianuu.compose.invalidate
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sourceLocation
 import kotlinx.coroutines.CompletableDeferred
@@ -73,7 +73,7 @@ class Navigator(private val startRoute: Route) {
 
     val backStack: List<Route> get() = _backStack
     private val _backStack = mutableListOf<Route>()
-    lateinit var recompose: () -> Unit
+    lateinit var invalidate: () -> Unit
 
     private var wasPush = true
 
@@ -91,7 +91,7 @@ class Navigator(private val startRoute: Route) {
         _backStack += route
         wasPush = true
         backStackChangeObserver?.invoke(_backStack)
-        recompose()
+        invalidate()
         val deferredResult = CompletableDeferred<Any?>()
         resultsByRoute[route] = deferredResult
         return deferredResult.await() as? T
@@ -104,7 +104,7 @@ class Navigator(private val startRoute: Route) {
             deferredResult?.complete(result)
             wasPush = false
             backStackChangeObserver?.invoke(_backStack)
-            recompose()
+            invalidate()
         }
     }
 
@@ -117,11 +117,11 @@ class Navigator(private val startRoute: Route) {
         _backStack += root
         wasPush = false
         backStackChangeObserver?.invoke(_backStack)
-        recompose()
+        invalidate()
     }
 
-    fun compose(componentComposition: ComponentComposition) = Recompose { recompose ->
-        this@Navigator.recompose = recompose
+    fun compose(componentComposition: ComponentComposition) {
+        this@Navigator.invalidate = componentComposition.invalidate
 
         val visibleRoutes = mutableListOf<Route>()
 
