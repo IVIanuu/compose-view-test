@@ -113,7 +113,7 @@ private fun ComponentComposition.Page(
     color: Color
 ) {
     ViewByLayoutRes<View>(layoutRes = R.layout.page) {
-        set<View, Color>(color) { page_bg.setBackgroundColor(it.toArgb()) }
-        set<View, Int>(index) { page_text.text = "#$it" }
+        set(color) { page_bg.setBackgroundColor(it.toArgb()) }
+        set(index) { page_text.text = "#$it" }
     }
 }

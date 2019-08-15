@@ -59,7 +59,7 @@ private fun ComponentComposition.Checkable(
     onChange: (Boolean) -> Unit
 ) {
     ViewByLayoutRes<View>(layoutRes = R.layout.checkable) {
-        set<View, Boolean>(value) {
+        set(value) {
             title.text = "Checked: $value"
             checkbox.isChecked = value
             setOnClickListener { onChange(!value) }
@@ -103,14 +103,14 @@ private fun ComponentComposition.HomeItem(item: HomeItem) {
     val navigator = navigator
     val route = item.route(this)
     ViewByLayoutRes<View>(key = item, layoutRes = R.layout.home_item) {
-        set<View, HomeItem>(item) {
+        set(item) {
             home_title.text = item.title + " ${System.currentTimeMillis()}"
             setOnClickListener { navigator.push(route) }
         }
 
         ViewById<View>(id = R.id.home_color_container) {
             ViewByLayoutRes<ImageView>(layoutRes = R.layout.home_color) {
-                set<ImageView, Color>(item.color) {
+                set(item.color) {
                     setColorFilter(
                         it.toArgb(),
                         PorterDuff.Mode.SRC_IN
