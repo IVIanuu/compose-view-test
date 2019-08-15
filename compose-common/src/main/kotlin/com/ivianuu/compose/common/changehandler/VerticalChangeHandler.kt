@@ -29,21 +29,17 @@ fun VerticalChangeHandler(duration: Long = AnimatorChangeHandler.NO_DURATION): A
         val viewAnimators = mutableListOf<Animator>()
 
         if (isPush && to != null) {
-            viewAnimators.add(
-                ObjectAnimator.ofFloat(
-                    to,
-                    View.TRANSLATION_Y,
-                    to.height.toFloat(),
-                    0f
-                )
+            viewAnimators += ObjectAnimator.ofFloat(
+                to,
+                View.TRANSLATION_Y,
+                to.height.toFloat(),
+                0f
             )
         } else if (!isPush && from != null) {
-            viewAnimators.add(
-                ObjectAnimator.ofFloat(
-                    from,
-                    View.TRANSLATION_Y,
-                    from.height.toFloat()
-                )
+            viewAnimators += ObjectAnimator.ofFloat(
+                from,
+                View.TRANSLATION_Y,
+                from.height.toFloat()
             )
         }
 

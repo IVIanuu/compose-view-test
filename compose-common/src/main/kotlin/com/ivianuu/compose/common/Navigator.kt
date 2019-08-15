@@ -80,7 +80,7 @@ class Navigator(private val startRoute: Route) {
     private val resultsByRoute = mutableMapOf<Route, CompletableDeferred<Any?>>()
 
     init {
-        _backStack.add(startRoute)
+        _backStack += startRoute
     }
 
     fun push(route: Route) {
@@ -88,7 +88,7 @@ class Navigator(private val startRoute: Route) {
     }
 
     suspend fun <T> push(route: Route): T? {
-        _backStack.add(route)
+        _backStack += route
         wasPush = true
         backStackChangeObserver?.invoke(_backStack)
         recompose()
@@ -114,7 +114,7 @@ class Navigator(private val startRoute: Route) {
         deferredResult?.complete(result)
         val root = _backStack.first()
         _backStack.clear()
-        _backStack.add(root)
+        _backStack += root
         wasPush = false
         backStackChangeObserver?.invoke(_backStack)
         recompose()
@@ -126,7 +126,7 @@ class Navigator(private val startRoute: Route) {
         val visibleRoutes = mutableListOf<Route>()
 
         for (route in _backStack.reversed()) {
-            visibleRoutes.add(route)
+            visibleRoutes += route
             if (!route.isFloating) break
         }
 

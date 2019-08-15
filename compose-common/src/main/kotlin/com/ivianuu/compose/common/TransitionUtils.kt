@@ -126,7 +126,7 @@ private fun bfsAddViewChildren(views: MutableList<View>, startView: View) {
                 startIndex
             )
         }
-        .forEach { views.add(it) }
+        .forEach { views += it }
 }
 
 private fun containedBeforeIndex(views: List<View>, view: View, maxIndex: Int): Boolean {
