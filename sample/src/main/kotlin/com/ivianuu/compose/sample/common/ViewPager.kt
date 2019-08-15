@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.ivianuu.compose.ChildViewController
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
@@ -36,7 +37,7 @@ fun ComponentComposition.ViewPager(
     onPageChanged: (Int) -> Unit,
     children: ComponentComposition.() -> Unit
 ) {
-    View<ViewPager2>(manageChildren = true) {
+    View<ViewPager2>(childViewController = ViewPagerChildViewController) {
         init { adapter = ComposePagerAdapter() }
 
         val component = component
@@ -114,4 +115,15 @@ private class ComposePagerAdapter :
         }
     }
 
+}
+
+private object ViewPagerChildViewController : ChildViewController<ViewPager2> {
+    override fun initChildViews(component: Component<ViewPager2>, view: ViewPager2) {
+    }
+
+    override fun updateChildViews(component: Component<ViewPager2>, view: ViewPager2) {
+    }
+
+    override fun clearChildViews(component: Component<ViewPager2>, view: ViewPager2) {
+    }
 }

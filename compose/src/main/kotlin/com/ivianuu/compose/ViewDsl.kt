@@ -29,14 +29,14 @@ import kotlin.reflect.KClass
 fun <T : View> ComponentComposition.View(
     key: Any,
     viewType: Any,
-    manageChildren: Boolean = true,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
     createView: (ViewGroup) -> T,
     block: ComponentContext<T>.() -> Unit
 ) {
     emit(
         key = key,
         viewType = viewType,
-        manageChildren = manageChildren,
+        childViewController = childViewController,
         createView = createView,
         block = block
     )
@@ -44,13 +44,13 @@ fun <T : View> ComponentComposition.View(
 
 inline fun <reified T : View> ComponentComposition.View(
     key: Any = sourceLocation(),
-    manageChildren: Boolean = true,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
     noinline block: ComponentContext<T>.() -> Unit
 ) {
     View(
         key = key,
         type = T::class,
-        manageChildren = manageChildren,
+        childViewController = childViewController,
         block = block
     )
 }
@@ -60,13 +60,13 @@ private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
 fun <T : View> ComponentComposition.View(
     key: Any,
     type: KClass<T>,
-    manageChildren: Boolean = true,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
     block: ComponentContext<T>.() -> Unit
 ) {
     View<T>(
         key = key,
         viewType = type,
-        manageChildren = manageChildren,
+        childViewController = childViewController,
         createView = { container ->
             constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
                 .newInstance(container.context) as T
@@ -77,13 +77,13 @@ fun <T : View> ComponentComposition.View(
 
 inline fun <T : View> ComponentComposition.ViewByLayoutRes(
     layoutRes: Int,
-    manageChildren: Boolean = true,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
     noinline block: ComponentContext<T>.() -> Unit
 ) {
     ViewByLayoutRes(
         key = sourceLocation(),
         layoutRes = layoutRes,
-        manageChildren = manageChildren,
+        childViewController = childViewController,
         block = block
     )
 }
@@ -91,13 +91,13 @@ inline fun <T : View> ComponentComposition.ViewByLayoutRes(
 fun <T : View> ComponentComposition.ViewByLayoutRes(
     key: Any,
     layoutRes: Int,
-    manageChildren: Boolean = true,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
     block: ComponentContext<T>.() -> Unit
 ) {
     View(
         key = key,
         viewType = layoutRes,
-        manageChildren = manageChildren,
+        childViewController = childViewController,
         createView = { container ->
             LayoutInflater.from(container.context)
                 .inflate(layoutRes, container, false) as T
@@ -108,13 +108,13 @@ fun <T : View> ComponentComposition.ViewByLayoutRes(
 
 inline fun <T : View> ComponentComposition.ViewById(
     id: Int,
-    manageChildren: Boolean = true,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
     noinline block: ComponentContext<T>.() -> Unit
 ) {
     ViewById(
         key = sourceLocation(),
         id = id,
-        manageChildren = manageChildren,
+        childViewController = childViewController,
         block = block
     )
 }
@@ -122,13 +122,13 @@ inline fun <T : View> ComponentComposition.ViewById(
 fun <T : View> ComponentComposition.ViewById(
     key: Any,
     id: Int,
-    manageChildren: Boolean = true,
+    childViewController: ChildViewController<T> = DefaultChildViewController(),
     block: ComponentContext<T>.() -> Unit
 ) {
     View(
         key = key,
         viewType = id,
-        manageChildren = manageChildren,
+        childViewController = childViewController,
         createView = { container ->
             container.findViewById<T>(id)
                 .also { it.byId = true }

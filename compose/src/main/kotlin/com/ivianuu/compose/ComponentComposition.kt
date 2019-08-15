@@ -37,7 +37,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
     fun <T : View> emit(
         key: Any,
         viewType: Any,
-        manageChildren: Boolean = true,
+        childViewController: ChildViewController<T>,
         createView: (ViewGroup) -> T,
         block: ComponentContext<T>.() -> Unit
     ) = with(composer) {
@@ -57,7 +57,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         log { "emit $finalKey inserting ? $inserting" }
         val node = if (inserting) {
-            Component(viewType, manageChildren, createView)
+            Component(viewType, childViewController, createView)
                 .also { emitNode(it) }
         } else {
             useNode() as Component<T>

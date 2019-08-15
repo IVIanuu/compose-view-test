@@ -22,6 +22,8 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
+import com.ivianuu.compose.ChildViewController
+import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.currentComponent
@@ -35,7 +37,10 @@ fun ComponentComposition.TabLayout(
     onTabChanged: (Int) -> Unit,
     children: ComponentComposition.() -> Unit
 ) {
-    ViewByLayoutRes<TabLayout>(layoutRes = R.layout.tab_layout, manageChildren = false) {
+    ViewByLayoutRes<TabLayout>(
+        layoutRes = R.layout.tab_layout,
+        childViewController = TabLayoutChildViewController
+    ) {
         val component = currentComponent<TabLayout>()
         onBindView {
             with(it) {
@@ -89,6 +94,17 @@ fun ComponentComposition.TabLayout(
         }
 
         children()
+    }
+}
+
+private object TabLayoutChildViewController : ChildViewController<TabLayout> {
+    override fun initChildViews(component: Component<TabLayout>, view: TabLayout) {
+    }
+
+    override fun updateChildViews(component: Component<TabLayout>, view: TabLayout) {
+    }
+
+    override fun clearChildViews(component: Component<TabLayout>, view: TabLayout) {
     }
 }
 

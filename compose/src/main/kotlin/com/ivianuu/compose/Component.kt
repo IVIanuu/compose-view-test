@@ -25,7 +25,7 @@ import com.ivianuu.compose.internal.tagKey
 
 class Component<T : View>(
     val viewType: Any,
-    val manageChildren: Boolean,
+    val childViewController: ChildViewController<T>,
     val createView: (ViewGroup) -> T
 ) {
 
@@ -47,7 +47,8 @@ class Component<T : View>(
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
     internal var isPush = true
-    internal var hidden = false
+    var hidden = false
+        internal set
     internal var generation = 0
 
     fun update() {
@@ -71,14 +72,14 @@ class Component<T : View>(
         _children.clear()
         _children += newChildren
 
-        _boundViews.forEach { updateChildViews(it) }
+        _boundViews.forEach { childViewController.updateChildViews(this, it) }
     }
 
     fun createView(container: ViewGroup): T {
         log { "create view $key" }
         val view = createView.invoke(container)
         view.ensureLayoutParams(container)
-        initChildViews(view)
+        childViewController.initChildViews(this, view)
         return view
     }
 
@@ -97,43 +98,16 @@ class Component<T : View>(
             log { "updater: $key skip update $generation" }
         }
 
-        updateChildViews(view)
+        childViewController.updateChildViews(this, view)
     }
 
     fun unbindView(view: T) {
-        clearChildViews(view)
+        childViewController.clearChildViews(this, view)
         log { "unbind view $key $view" }
         unbindViewBlocks?.forEach { it(view) }
         view.generation = null
         view.component = null
         _boundViews -= view
-    }
-
-    private fun initChildViews(view: T) {
-        if (manageChildren) {
-            val visibleChildren = visibleChildren
-            log { "init child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
-            if (view !is ViewGroup) return
-            view.getViewManager().init(visibleChildren)
-        }
-    }
-
-    private fun updateChildViews(view: T) {
-        if (manageChildren) {
-            val visibleChildren = visibleChildren
-            log { "update child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
-            if (view !is ViewGroup) return
-            view.getViewManager()
-                .update(visibleChildren, visibleChildren.lastOrNull()?.isPush ?: true)
-        }
-    }
-
-    private fun clearChildViews(view: T) {
-        if (manageChildren) {
-            log { "clear child views $key ${view.javaClass} visible children ${visibleChildren.map { it.key }} all children ${children.map { it.key }}" }
-            if (view !is ViewGroup) return
-            view.getViewManager().clear()
-        }
     }
 
     internal fun onBindView(callback: (T) -> Unit): () -> Unit {

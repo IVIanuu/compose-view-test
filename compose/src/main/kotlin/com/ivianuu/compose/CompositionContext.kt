@@ -26,7 +26,7 @@ class CompositionContext {
 
     private val root = Component(
         viewType = "Root",
-        manageChildren = true,
+        childViewController = DefaultChildViewController(),
         createView = { it }
     ).apply { _key = "Root" }
 

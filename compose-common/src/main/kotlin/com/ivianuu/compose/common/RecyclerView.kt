@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.ivianuu.compose.ChildViewController
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
@@ -87,12 +88,23 @@ fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    View<RecyclerView>(manageChildren = false) {
+    View(childViewController = RecyclerViewChildViewController) {
         set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
         init { adapter = ComposeRecyclerViewAdapter() }
         update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
         onUnbindView { it.adapter = null } // calls unbindView on all children
         children()
+    }
+}
+
+private object RecyclerViewChildViewController : ChildViewController<RecyclerView> {
+    override fun initChildViews(component: Component<RecyclerView>, view: RecyclerView) {
+    }
+
+    override fun updateChildViews(component: Component<RecyclerView>, view: RecyclerView) {
+    }
+
+    override fun clearChildViews(component: Component<RecyclerView>, view: RecyclerView) {
     }
 }
 
