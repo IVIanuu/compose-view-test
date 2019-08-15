@@ -65,6 +65,9 @@ inline fun <T> ComponentComposition.model(vararg inputs: Any?, noinline init: ()
 inline fun <T> ComponentComposition.ambient(key: Ambient<T>) =
     androidx.compose.ambient(key = key).resolve(composer, sourceLocation())
 
+inline val ComponentComposition.invalidate: () -> Unit
+    get() = androidx.compose.invalidate.resolve(composer, sourceLocation())
+
 @PublishedApi
 internal fun <T> Effect<T>.resolve(composer: ComponentComposer, key: Any): T {
     check(ComposeAccessor.isComposing(composer)) {
