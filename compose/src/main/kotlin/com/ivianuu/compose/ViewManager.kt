@@ -89,6 +89,8 @@ class ViewManager(val container: ViewGroup) {
         // check if we should animate the top views
         val replacingTopChildren =
             newTopChild != null && oldTopChild != null && newTopChild != oldTopChild
+                    && oldTopChild !in newChildren
+                    && newTopChild !in oldChildren
 
         // Remove all views which are not present anymore from top to bottom
         removedChildren
