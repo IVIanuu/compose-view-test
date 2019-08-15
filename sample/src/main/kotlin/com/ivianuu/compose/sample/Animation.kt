@@ -22,7 +22,6 @@ import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.onActive
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
@@ -30,8 +29,7 @@ import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.animation.view.*
 
 fun AnimationRoute() = Route {
-    val handler = memo { FadeChangeHandler() }
-    ChangeHandlers(handler = handler) {
+    ChangeHandlers(handler = FadeChangeHandler()) {
         Scaffold(
             appBar = { AppBar("Animation") },
             content = {

@@ -23,13 +23,11 @@ import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 
 fun ListRoute() = Route {
-    val handler = memo { VerticalChangeHandler() }
-    ChangeHandlers(handler = handler) {
+    ChangeHandlers(handler = VerticalChangeHandler()) {
         Scaffold(
             appBar = { AppBar("List") },
             content = {
