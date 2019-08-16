@@ -79,8 +79,8 @@ class ComposeClassBuilder(val delegateClassBuilder: ClassBuilder) : DelegatingCl
         val original = super.newMethod(origin, access, name, desc, signature, exceptions)
 
         if (origin.descriptor == null) return original
-        // do not mutate inline functions
-        if ((origin.descriptor as FunctionDescriptor).isInline) return original
+        // do not replace with s inline functions
+        if ((origin.descriptor as? FunctionDescriptor)?.isInline == true) return original
 
         var lineNumber = 0
 
