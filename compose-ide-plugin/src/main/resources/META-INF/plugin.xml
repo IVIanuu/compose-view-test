@@ -27,6 +27,6 @@
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <classBuilderFactoryInterceptorExtension
-            implementation="com.ivianuu.compose.compiler.ComposeClassBuilderInterceptorExtension" />
+            implementation="com.ivianuu.compose.compiler.SourceLocationClassBuilderInterceptorExtension" />
     </extensions>
 </idea-plugin>
