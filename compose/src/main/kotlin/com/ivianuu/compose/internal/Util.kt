@@ -31,10 +31,7 @@ inline fun log(block: () -> String) {
     }
 }
 
-inline fun sourceLocation(): String {
-    val element = Throwable().stackTrace.first()
-    return "${element.className}:${element.methodName}:${element.lineNumber}"
-}
+inline fun sourceLocation(): Any = 0
 
 fun ViewGroup.children(): List<View> {
     return (0 until childCount)

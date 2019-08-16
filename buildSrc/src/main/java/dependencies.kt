@@ -31,7 +31,7 @@ object Build {
 object Publishing {
     const val groupId = "com.ivianuu.compose"
     const val vcsUrl = "https://github.com/IVIanuu/compose"
-    const val version = "${Build.versionName}-dev21"
+    const val version = "${Build.versionName}-dev22"
 }
 
 object Versions {
@@ -41,7 +41,13 @@ object Versions {
     const val androidxUi = "1.0.0-alpha01"
     const val androidxRecyclerView = "1.1.0-beta01"
 
+    const val autoService = "1.0-rc6"
+
     const val bintray = "1.8.4"
+
+    const val buildConfig = "1.1.8"
+
+    const val compose = "0.0.1-dev22"
 
     const val coroutines = "1.3.0-RC"
 
@@ -64,15 +70,26 @@ object Deps {
         "androidx.recyclerview:recyclerview:${Versions.androidxRecyclerView}"
     const val androidxUiCore = "androidx.ui:ui-core:${Versions.androidxUi}"
 
+    const val autoService = "com.google.auto.service:auto-service:${Versions.autoService}"
+
     const val bintrayGradlePlugin =
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:${Versions.bintray}"
+
+    const val buildConfigPlugin =
+        "gradle.plugin.de.fuerstenau:BuildConfigPlugin:${Versions.buildConfig}"
+
+    const val composeGradlePlugin = "com.ivianuu.compose:compose-gradle-plugin:${Versions.compose}"
 
     const val coroutinesAndroid =
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val coroutinesCore =
         "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
 
+    const val kotlinCompilerEmbeddable =
+        "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
+    const val kotlinGradlePluginApi =
+        "org.jetbrains.kotlin:kotlin-gradle-plugin-api:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
 

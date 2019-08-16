@@ -21,11 +21,14 @@ buildscript {
         google()
         jcenter()
         mavenCentral()
+        maven("https://plugins.gradle.org/m2")
     }
 
     dependencies {
         classpath(Deps.androidGradlePlugin)
         classpath(Deps.bintrayGradlePlugin)
+        classpath(Deps.buildConfigPlugin)
+        classpath(Deps.composeGradlePlugin)
         classpath(Deps.kotlinGradlePlugin)
         classpath(Deps.mavenGradlePlugin)
     }

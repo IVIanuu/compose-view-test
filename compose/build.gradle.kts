@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
-    id("kotlin-android")
+    kotlin("android")
+    id("com.ivianuu.compose")
 }
 
 apply(from = "https://raw.githubusercontent.com/IVIanuu/gradle-scripts/master/android-build-lib.gradle")
