@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.common.dsl
+package com.ivianuu.compose.common.dsl.util
 
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ContextAmbient

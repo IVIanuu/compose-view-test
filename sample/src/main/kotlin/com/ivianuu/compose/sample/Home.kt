@@ -24,8 +24,8 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.ViewById
 import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
+import com.ivianuu.compose.common.dsl.RecyclerView
 import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.key
 import com.ivianuu.compose.sample.common.Scaffold

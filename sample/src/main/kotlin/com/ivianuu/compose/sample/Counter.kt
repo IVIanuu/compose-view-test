@@ -27,7 +27,6 @@ import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.dsl.LinearLayout
 import com.ivianuu.compose.common.dsl.TextView
-import com.ivianuu.compose.common.dsl.dpInt
 import com.ivianuu.compose.common.dsl.gravity
 import com.ivianuu.compose.common.dsl.layoutMargin
 import com.ivianuu.compose.common.dsl.layoutSize
@@ -35,6 +34,7 @@ import com.ivianuu.compose.common.dsl.onClick
 import com.ivianuu.compose.common.dsl.orientation
 import com.ivianuu.compose.common.dsl.text
 import com.ivianuu.compose.common.dsl.textAppearance
+import com.ivianuu.compose.common.dsl.util.dpInt
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.state
 

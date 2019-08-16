@@ -28,9 +28,9 @@ import com.ivianuu.compose.ambient
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.dsl.background
-import com.ivianuu.compose.common.dsl.dpInt
 import com.ivianuu.compose.common.dsl.layoutGravity
 import com.ivianuu.compose.common.dsl.layoutSize
+import com.ivianuu.compose.common.dsl.util.dpInt
 import com.ivianuu.compose.onActive
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set

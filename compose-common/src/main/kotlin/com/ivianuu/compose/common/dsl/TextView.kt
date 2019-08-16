@@ -47,3 +47,11 @@ fun <T : TextView> ComponentBuilder<T>.textAppearance(res: Int) {
     val context = ambient(ContextAmbient)
     set(res) { setTextAppearance(context, res) }
 }
+
+fun <T : TextView> ComponentBuilder<T>.textColor(color: Int) {
+    set(color) { setTextColor(color) }
+}
+
+fun <T : TextView> ComponentBuilder<T>.maxLines(maxLines: Int) {
+    set(maxLines) { setMaxLines(maxLines) }
+}

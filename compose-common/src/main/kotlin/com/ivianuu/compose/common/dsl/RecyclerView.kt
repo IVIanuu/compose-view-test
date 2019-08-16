@@ -16,45 +16,185 @@
 
 package com.ivianuu.compose.common.dsl
 
+import android.annotation.SuppressLint
+import android.os.Parcelable
 import android.view.View
-import android.widget.RelativeLayout.*
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.ivianuu.compose.ChildViewController
+import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentBuilder
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.setBy
+import com.ivianuu.compose.common.flow
+import com.ivianuu.compose.init
+import com.ivianuu.compose.internal.component
+import com.ivianuu.compose.memo
+import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.set
+import com.ivianuu.compose.update
+import kotlinx.coroutines.flow.Flow
 
-fun ComponentComposition.RecyclerView(block: (ComponentBuilder<RecyclerView>.() -> Unit)? = null) {
-    View(block = block)
+inline fun <T> ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    flow: Flow<Iterable<T>>,
+    crossinline placeholder: ComponentComposition.() -> Unit = {},
+    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+) {
+    val items = flow(flow)
+    if (items != null) {
+        RecyclerView(layoutManager = layoutManager, items = items, itemBuilder = itemBuilder)
+    } else {
+        placeholder()
+    }
 }
 
-fun <T : View> ComponentBuilder<T>.relativeLayoutRule(verb: Int, subject: Int) {
-    setBy(verb, subject) {
-        layoutParams = (layoutParams as LayoutParams).apply {
-            addRule(verb, subject)
+inline fun <T> ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    items: Array<T>,
+    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+) {
+    RecyclerView(layoutManager = layoutManager) {
+        items.forEachIndexed { index, item ->
+            itemBuilder(index, item)
         }
     }
 }
 
-fun <T : View> ComponentBuilder<T>.toLeftOf(id: Int) = relativeLayoutRule(START_OF, id)
-fun <T : View> ComponentBuilder<T>.toRightOf(id: Int) = relativeLayoutRule(END_OF, id)
+inline fun <T> ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    items: Iterable<T>,
+    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+) {
+    RecyclerView(layoutManager = layoutManager) {
+        items.forEachIndexed { index, item ->
+            itemBuilder(index, item)
+        }
+    }
+}
 
-fun <T : View> ComponentBuilder<T>.above(id: Int) = relativeLayoutRule(ABOVE, id)
-fun <T : View> ComponentBuilder<T>.below(id: Int) = relativeLayoutRule(BELOW, id)
+inline fun ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    itemCount: Int,
+    crossinline itemBuilder: ComponentComposition.(Int) -> Unit
+) {
+    RecyclerView(layoutManager = layoutManager) {
+        (0 until itemCount).forEach { index ->
+            itemBuilder(index)
+        }
+    }
+}
 
-fun <T : View> ComponentBuilder<T>.alignBaseline(id: Int) = relativeLayoutRule(ALIGN_BASELINE, id)
+fun ComponentComposition.RecyclerView(
+    layoutManager: RecyclerView.LayoutManager? = null,
+    children: ComponentComposition.() -> Unit
+) {
+    View(childViewController = RecyclerViewChildViewController) {
+        val layoutManagerStateHolder = memo { LayoutManagerStateHolder() }
 
-fun <T : View> ComponentBuilder<T>.alignLeft(id: Int) = relativeLayoutRule(ALIGN_START, id)
-fun <T : View> ComponentBuilder<T>.alignTop(id: Int) = relativeLayoutRule(ALIGN_TOP, id)
-fun <T : View> ComponentBuilder<T>.alignRight(id: Int) = relativeLayoutRule(ALIGN_RIGHT, id)
-fun <T : View> ComponentBuilder<T>.alignBottom(id: Int) = relativeLayoutRule(ALIGN_BOTTOM, id)
+        set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
 
-fun <T : View> ComponentBuilder<T>.alignParentLeft() = relativeLayoutRule(ALIGN_PARENT_START, TRUE)
-fun <T : View> ComponentBuilder<T>.alignParenTop() = relativeLayoutRule(ALIGN_PARENT_TOP, TRUE)
-fun <T : View> ComponentBuilder<T>.alignParentRight() = relativeLayoutRule(ALIGN_PARENT_END, TRUE)
-fun <T : View> ComponentBuilder<T>.alignParentBottom() =
-    relativeLayoutRule(ALIGN_PARENT_BOTTOM, TRUE)
+        init { adapter = ComposeRecyclerViewAdapter() }
 
-fun <T : View> ComponentBuilder<T>.centerHorizontal() = relativeLayoutRule(CENTER_HORIZONTAL, TRUE)
-fun <T : View> ComponentBuilder<T>.centerVertical() = relativeLayoutRule(CENTER_VERTICAL, TRUE)
-fun <T : View> ComponentBuilder<T>.centerInParent() = relativeLayoutRule(CENTER_IN_PARENT, TRUE)
+        update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
+
+        update {
+            if (layoutManagerStateHolder.state != null) {
+                this.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                layoutManagerStateHolder.state = null
+            }
+        }
+
+        onUnbindView {
+            layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
+            it.adapter = null
+        } // calls unbindView on all children
+
+        children()
+    }
+}
+
+fun <T : RecyclerView> ComponentBuilder<T>.adapter(adapter: RecyclerView.Adapter<*>?) {
+    set(adapter) { this.adapter = it }
+}
+
+fun <T : RecyclerView> ComponentBuilder<T>.layoutManager(layoutManager: RecyclerView.LayoutManager?) {
+    set(layoutManager) { this.layoutManager = it }
+}
+
+private data class LayoutManagerStateHolder(var state: Parcelable? = null)
+
+private object RecyclerViewChildViewController : ChildViewController<RecyclerView> {
+    override fun initChildViews(component: Component<RecyclerView>, view: RecyclerView) {
+    }
+
+    override fun updateChildViews(component: Component<RecyclerView>, view: RecyclerView) {
+    }
+
+    override fun clearChildViews(component: Component<RecyclerView>, view: RecyclerView) {
+    }
+}
+
+private class ComposeRecyclerViewAdapter :
+    ListAdapter<Component<*>, ComposeRecyclerViewAdapter.Holder>(ITEM_CALLBACK) {
+
+    private var lastItemViewTypeRequest: Component<*>? = null
+
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+        val component =
+            lastItemViewTypeRequest ?: currentList.first { it.getViewType() == viewType }
+        val view = component.createView(parent)
+        return Holder(view)
+    }
+
+    override fun onBindViewHolder(holder: Holder, position: Int) {
+        holder.bind(getItem(position) as Component<View>)
+    }
+
+    override fun onViewRecycled(holder: Holder) {
+        super.onViewRecycled(holder)
+        holder.unbind()
+    }
+
+    override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
+
+    override fun getItemViewType(position: Int): Int {
+        val component = getItem(position)
+        lastItemViewTypeRequest = component
+        return component.getViewType().hashCode()
+    }
+
+    private fun Component<*>.getViewType(): Any = viewType to children.map { it.getViewType() }
+
+    class Holder(val view: View) : RecyclerView.ViewHolder(view) {
+
+        private var boundComponent: Component<View>? = null
+
+        fun bind(component: Component<View>) {
+            boundComponent = component
+            component.bindView(view)
+        }
+
+        fun unbind() {
+            boundComponent?.unbindView(view)
+        }
+    }
+
+    private companion object {
+        val ITEM_CALLBACK = object : DiffUtil.ItemCallback<Component<*>>() {
+            override fun areItemsTheSame(oldItem: Component<*>, newItem: Component<*>): Boolean =
+                oldItem.key == newItem.key
+
+            @SuppressLint("DiffUtilEquals")
+            override fun areContentsTheSame(oldItem: Component<*>, newItem: Component<*>): Boolean =
+                true
+        }
+    }
+}

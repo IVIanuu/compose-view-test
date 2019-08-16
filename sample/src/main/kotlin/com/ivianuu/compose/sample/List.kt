@@ -20,9 +20,9 @@ import android.widget.TextView
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
+import com.ivianuu.compose.common.dsl.RecyclerView
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 
