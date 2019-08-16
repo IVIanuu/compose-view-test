@@ -14,32 +14,13 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.sample
+package com.ivianuu.compose.common.dsl
 
-import android.os.Bundle
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
-import androidx.appcompat.app.AppCompatActivity
+import com.ivianuu.compose.ComponentBuilder
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.common.Navigator
-import com.ivianuu.compose.common.dsl.layoutSize
-import com.ivianuu.compose.setContent
 
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { App() }
-    }
-}
-
-private fun ComponentComposition.App() {
-    View<FrameLayout> {
-        layoutSize(MATCH_PARENT)
-
-        Navigator {
-            HomeRoute()
-        }
-    }
+fun ComponentComposition.FrameLayout(block: (ComponentBuilder<FrameLayout>.() -> Unit)? = null) {
+    View(block = block)
 }

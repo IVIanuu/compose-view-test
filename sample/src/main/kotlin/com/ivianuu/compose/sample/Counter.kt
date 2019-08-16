@@ -16,15 +16,27 @@
 
 package com.ivianuu.compose.sample
 
-import android.view.View
+import android.view.Gravity.CENTER
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.LinearLayout.VERTICAL
+import com.google.android.material.button.MaterialButton
 import com.ivianuu.compose.ChangeHandlers
-import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.View
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
+import com.ivianuu.compose.common.dsl.LinearLayout
+import com.ivianuu.compose.common.dsl.TextView
+import com.ivianuu.compose.common.dsl.dpInt
+import com.ivianuu.compose.common.dsl.gravity
+import com.ivianuu.compose.common.dsl.layoutMargin
+import com.ivianuu.compose.common.dsl.layoutSize
+import com.ivianuu.compose.common.dsl.onClick
+import com.ivianuu.compose.common.dsl.orientation
+import com.ivianuu.compose.common.dsl.text
+import com.ivianuu.compose.common.dsl.textAppearance
 import com.ivianuu.compose.sample.common.Scaffold
-import com.ivianuu.compose.set
 import com.ivianuu.compose.state
-import kotlinx.android.synthetic.main.counter.view.*
 
 fun CounterRoute() = Route {
     ChangeHandlers(handler = HorizontalChangeHandler()) {
@@ -32,11 +44,30 @@ fun CounterRoute() = Route {
             appBar = { AppBar("Counter") },
             content = {
                 val (count, setCount) = state { 0 }
-                ViewByLayoutRes<View>(layoutRes = R.layout.counter) {
-                    set(count) { count ->
-                        title.text = "Count: $count"
-                        inc.setOnClickListener { setCount(count + 1) }
-                        dec.setOnClickListener { setCount(count - 1) }
+
+                LinearLayout {
+                    layoutSize(MATCH_PARENT)
+                    orientation(VERTICAL)
+                    gravity(CENTER)
+
+                    TextView {
+                        layoutSize(WRAP_CONTENT)
+                        textAppearance(R.style.TextAppearance_MaterialComponents_Headline3)
+                        text("Count: $count")
+                    }
+
+                    View<MaterialButton> {
+                        layoutSize(WRAP_CONTENT)
+                        layoutMargin(top = dpInt(8))
+                        text("Inc")
+                        onClick { setCount(count + 1) }
+                    }
+
+                    View<MaterialButton> {
+                        layoutSize(WRAP_CONTENT)
+                        layoutMargin(top = dpInt(8))
+                        text("Dec")
+                        onClick { setCount(count - 1) }
                     }
                 }
             }

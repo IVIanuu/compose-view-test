@@ -17,16 +17,24 @@
 package com.ivianuu.compose.sample
 
 import android.animation.ValueAnimator
+import android.view.Gravity.CENTER
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import com.ivianuu.compose.ChangeHandlers
-import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.ContextAmbient
+import com.ivianuu.compose.View
+import com.ivianuu.compose.ambient
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
+import com.ivianuu.compose.common.dsl.background
+import com.ivianuu.compose.common.dsl.dpInt
+import com.ivianuu.compose.common.dsl.layoutGravity
+import com.ivianuu.compose.common.dsl.layoutSize
 import com.ivianuu.compose.onActive
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 import com.ivianuu.compose.state
-import kotlinx.android.synthetic.main.animation.view.*
 
 fun AnimationRoute() = Route {
     ChangeHandlers(handler = FadeChangeHandler()) {
@@ -50,10 +58,18 @@ fun AnimationRoute() = Route {
                     onDispose { animation.cancel() }
                 }
 
-                ViewByLayoutRes<View>(layoutRes = R.layout.animation) {
-                    set(value) {
-                        animation_view.scaleX = it
-                        animation_view.scaleY = it
+                View<FrameLayout> {
+                    layoutSize(MATCH_PARENT)
+
+                    View<View> {
+                        layoutSize(dpInt(100))
+                        layoutGravity(CENTER)
+                        background(color = ambient(ContextAmbient).resources.getColor(R.color.colorPrimary))
+
+                        set(value) {
+                            scaleX = it
+                            scaleY = it
+                        }
                     }
                 }
             }

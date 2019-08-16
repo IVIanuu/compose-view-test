@@ -14,32 +14,22 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.sample
+package com.ivianuu.compose.common.dsl
 
-import android.os.Bundle
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.FrameLayout
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.LinearLayout
+import com.ivianuu.compose.ComponentBuilder
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.common.Navigator
-import com.ivianuu.compose.common.dsl.layoutSize
-import com.ivianuu.compose.setContent
+import com.ivianuu.compose.set
 
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { App() }
-    }
+fun ComponentComposition.LinearLayout(block: (ComponentBuilder<LinearLayout>.() -> Unit)? = null) {
+    View(block = block)
 }
 
-private fun ComponentComposition.App() {
-    View<FrameLayout> {
-        layoutSize(MATCH_PARENT)
+fun <T : LinearLayout> ComponentBuilder<T>.gravity(gravity: Int) {
+    set(gravity) { this.gravity = it }
+}
 
-        Navigator {
-            HomeRoute()
-        }
-    }
+fun <T : LinearLayout> ComponentBuilder<T>.orientation(orientation: Int) {
+    set(orientation) { this.orientation = it }
 }

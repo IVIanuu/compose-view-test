@@ -16,19 +16,34 @@
 
 package com.ivianuu.compose.sample.common
 
-import android.widget.FrameLayout
-import android.widget.LinearLayout
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.LinearLayout.VERTICAL
 import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.ViewById
-import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.sample.R
+import com.ivianuu.compose.common.dsl.FrameLayout
+import com.ivianuu.compose.common.dsl.LinearLayout
+import com.ivianuu.compose.common.dsl.layoutHeight
+import com.ivianuu.compose.common.dsl.layoutSize
+import com.ivianuu.compose.common.dsl.layoutWidth
+import com.ivianuu.compose.common.dsl.orientation
 
 fun ComponentComposition.Scaffold(
     appBar: (ComponentComposition.() -> Unit)? = null,
     content: (ComponentComposition.() -> Unit)? = null
 ) {
-    ViewByLayoutRes<LinearLayout>(layoutRes = R.layout.scaffold) {
-        ViewById<FrameLayout>(id = R.id.app_bar) { appBar?.invoke(this) }
-        ViewById<FrameLayout>(id = R.id.content) { content?.invoke(this) }
+    LinearLayout {
+        layoutSize(MATCH_PARENT)
+        orientation(VERTICAL)
+
+        FrameLayout {
+            layoutWidth(MATCH_PARENT)
+            layoutHeight(WRAP_CONTENT)
+            appBar?.invoke(this)
+        }
+
+        FrameLayout {
+            layoutSize(MATCH_PARENT)
+            content?.invoke(this)
+        }
     }
 }
