@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 
 @AutoService(ComponentRegistrar::class)
-class MyComponentRegistrar : ComponentRegistrar {
+class ComposeComponentRegistrar : ComponentRegistrar {
     override fun registerProjectComponents(
         project: MockProject,
         configuration: CompilerConfiguration
