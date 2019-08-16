@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.codegen.extensions.ClassBuilderInterceptorExtension
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
@@ -78,6 +79,8 @@ class ComposeClassBuilder(val delegateClassBuilder: ClassBuilder) : DelegatingCl
         val original = super.newMethod(origin, access, name, desc, signature, exceptions)
 
         if (origin.descriptor == null) return original
+        // do not mutate inline functions
+        if ((origin.descriptor as FunctionDescriptor).isInline) return original
 
         var lineNumber = 0
 
