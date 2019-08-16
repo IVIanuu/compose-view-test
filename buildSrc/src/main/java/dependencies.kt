@@ -31,7 +31,7 @@ object Build {
 object Publishing {
     const val groupId = "com.ivianuu.compose"
     const val vcsUrl = "https://github.com/IVIanuu/compose"
-    const val version = "${Build.versionName}-dev22"
+    const val version = "${Build.versionName}-dev30"
 }
 
 object Versions {
@@ -47,7 +47,7 @@ object Versions {
 
     const val buildConfig = "1.1.8"
 
-    const val compose = "0.0.1-dev22"
+    const val compose = "0.0.1-dev26"
 
     const val coroutines = "1.3.0-RC"
 
