@@ -37,7 +37,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         viewType: Any,
         childViewController: ChildViewController<T>,
         createView: (ViewGroup) -> T,
-        block: (ComponentContext<T>.() -> Unit)? = null
+        block: (ComponentBuilder<T>.() -> Unit)? = null
     ) = with(composer) {
         checkIsComposing()
 
@@ -75,7 +75,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
             val updater = ViewUpdater<T>(composer)
             environment.currentComponent = node
             environment.viewUpdater = updater
-            ComponentContext(composer, node).block()
+            ComponentBuilder(composer, node).block()
             node.viewUpdater = updater
             if (updater.hasChanges) {
                 node.generation++
