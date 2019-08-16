@@ -28,6 +28,8 @@ class ComposeExpressionCodegenExtension : ExpressionCodegenExtension {
         c: ExpressionCodegenExtension.Context
     ): StackValue? {
         val resultingDescriptor = resolvedCall.resultingDescriptor
+        // todo make sure that we only com.ivianuu.compose.internal.sourceLocation
+        //  println("${resultingDescriptor.fqNameSafe}")
         return if (resultingDescriptor.name.asString() == "sourceLocation"
             && resultingDescriptor.returnType == resultingDescriptor.builtIns.anyType
         ) {
