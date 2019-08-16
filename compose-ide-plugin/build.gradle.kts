@@ -13,16 +13,6 @@ intellij {
     setPlugins("org.jetbrains.kotlin:1.3.41-release-IJ2019.2-1")
 }
 
-configurations {
-    register("include")
-}
-
 dependencies {
-    "include"(project(":compose-compiler"))
-}
-
-tasks.withType<Jar> {
-    from(configurations.getByName("include").map {
-        if (it.isDirectory) it else zipTree(it)
-    })
+    compile(project(":compose-compiler"))
 }
