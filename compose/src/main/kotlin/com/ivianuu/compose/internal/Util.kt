@@ -31,7 +31,7 @@ inline fun log(block: () -> String) {
     }
 }
 
-inline fun sourceLocation(): Any = 0
+fun sourceLocation(): Any = 0
 
 fun ViewGroup.children(): List<View> {
     return (0 until childCount)
