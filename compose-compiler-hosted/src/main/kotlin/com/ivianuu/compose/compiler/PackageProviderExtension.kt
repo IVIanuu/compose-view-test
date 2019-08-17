@@ -16,8 +16,8 @@
 
 package com.ivianuu.compose.compiler
 
+import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.analyzer.ModuleInfo
-import org.jetbrains.kotlin.com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor

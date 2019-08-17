@@ -13,5 +13,5 @@ intellij {
 }
 
 dependencies {
-    compile(project(":compose-compiler"))
+    implementation(project(":compose-compiler-hosted"))
 }

@@ -89,8 +89,8 @@ object Deps {
 
     const val jarJarGradlePlugin = "org.anarres.jarjar:jarjar-gradle:${Versions.jarJar}"
 
-    const val kotlinCompilerEmbeddable =
-        "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"
+    const val kotlinCompiler =
+        "org.jetbrains.kotlin:kotlin-compiler:${Versions.kotlin}"
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
     const val kotlinGradlePluginApi =
         "org.jetbrains.kotlin:kotlin-gradle-plugin-api:${Versions.kotlin}"
