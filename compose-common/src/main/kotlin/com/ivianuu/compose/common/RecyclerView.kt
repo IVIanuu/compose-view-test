@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ivianuu.compose.common.dsl
+package com.ivianuu.compose.common
 
 import android.annotation.SuppressLint
 import android.os.Parcelable
@@ -26,10 +26,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ivianuu.compose.ChildViewController
 import com.ivianuu.compose.Component
-import com.ivianuu.compose.ComponentBuilder
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
-import com.ivianuu.compose.common.flow
 import com.ivianuu.compose.init
 import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.memo
@@ -115,14 +113,6 @@ fun ComponentComposition.RecyclerView(
 
         children()
     }
-}
-
-fun <T : RecyclerView> ComponentBuilder<T>.adapter(adapter: RecyclerView.Adapter<*>?) {
-    set(adapter) { this.adapter = it }
-}
-
-fun <T : RecyclerView> ComponentBuilder<T>.layoutManager(layoutManager: RecyclerView.LayoutManager?) {
-    set(layoutManager) { this.layoutManager = it }
 }
 
 private data class LayoutManagerStateHolder(var state: Parcelable? = null)

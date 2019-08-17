@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.common.Navigator
-import com.ivianuu.compose.common.dsl.layoutSize
+import com.ivianuu.compose.init
 import com.ivianuu.compose.setContent
 
 class MainActivity : AppCompatActivity() {
@@ -36,7 +36,12 @@ class MainActivity : AppCompatActivity() {
 
 private fun ComponentComposition.App() {
     View<FrameLayout> {
-        layoutSize(MATCH_PARENT)
+        init {
+            layoutParams = layoutParams.apply {
+                width = MATCH_PARENT
+                height = MATCH_PARENT
+            }
+        }
 
         Navigator {
             HomeRoute()
