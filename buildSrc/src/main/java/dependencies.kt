@@ -51,6 +51,8 @@ object Versions {
 
     const val coroutines = "1.3.0-RC"
 
+    const val jarJar = "1.0.1"
+
     const val kotlin = "1.3.41"
 
     const val leakCanary = "2.0-beta-2"
@@ -84,6 +86,8 @@ object Deps {
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val coroutinesCore =
         "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+
+    const val jarJarGradlePlugin = "org.anarres.jarjar:jarjar-gradle:${Versions.jarJar}"
 
     const val kotlinCompilerEmbeddable =
         "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"

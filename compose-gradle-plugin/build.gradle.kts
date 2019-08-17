@@ -30,6 +30,5 @@ buildConfig {
 dependencies {
     api(Deps.autoService)
     kapt(Deps.autoService)
-    api(project(":compose-compiler"))
     api(Deps.kotlinGradlePluginApi)
 }

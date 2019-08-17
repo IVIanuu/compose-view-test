@@ -2,6 +2,7 @@ include(
     ":compose",
     ":compose-common",
     ":compose-compiler",
+    ":compose-compiler-hosted",
     ":compose-gradle-plugin",
     ":compose-ide-plugin",
     ":sample"
