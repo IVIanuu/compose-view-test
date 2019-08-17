@@ -224,6 +224,8 @@ internal fun <T : View> ComponentBuilder<T>.onUnbindViewImpl(
     }
 }
 
+private class CallbackHolder(var callback: (() -> Unit)? = null)
+
 fun <T : View, V> ComponentBuilder<T>.set(value: V, block: T.(V) -> Unit) {
     checkIsComposing()
     currentViewUpdater<T>().set(value) { block(it) }
@@ -244,4 +246,5 @@ fun <T : View> ComponentBuilder<T>.update(block: T.() -> Unit) {
     currentViewUpdater<T>().update(block)
 }
 
-private class CallbackHolder(var callback: (() -> Unit)? = null)
+inline fun <T : View> ComponentBuilder<T>.currentComponent() =
+    (this as ComponentComposition).currentComponent<T>()

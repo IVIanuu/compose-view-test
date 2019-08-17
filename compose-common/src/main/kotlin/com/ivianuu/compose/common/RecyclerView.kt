@@ -28,8 +28,8 @@ import com.ivianuu.compose.ChildViewController
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
-import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.set
@@ -97,7 +97,8 @@ fun ComponentComposition.RecyclerView(
 
         init { adapter = ComposeRecyclerViewAdapter() }
 
-        update { (adapter as ComposeRecyclerViewAdapter).submitList(component!!.visibleChildren.toList()) }
+        val component = currentComponent()
+        update { (adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) }
 
         update {
             if (layoutManagerStateHolder.state != null) {
