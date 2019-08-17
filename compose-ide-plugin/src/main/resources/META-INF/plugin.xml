@@ -28,7 +28,9 @@
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <classBuilderFactoryInterceptorExtension
             implementation="com.ivianuu.compose.compiler.SourceLocationClassBuilderInterceptorExtension" />
-        <packageFragmentProviderExtension
-            implementation="com.ivianuu.compose.compiler.ComposePackageFragmentProviderExtension" />
+        <expressionCodegenExtension
+            implementation="com.ivianuu.compose.compiler.ComposeExpressionCodegenExtension" />
+        <syntheticScopeProviderExtension
+            implementation="com.ivianuu.compose.compiler.ComposeSyntheticScopeProviderExtension" />
     </extensions>
 </idea-plugin>
