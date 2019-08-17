@@ -70,10 +70,12 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         node.isPush = environment.isPush
         node.hidden = environment.hidden
         environment.hidden = false
+        node.byId = environment.byId
+        environment.byId = false
 
         if (block != null) {
             val updater = ViewUpdater<T>(composer)
-            environment.currentComponent = node
+            environment.pushComponent(node)
             environment.viewUpdater = updater
             ComponentBuilder(composer, node).block()
             node.viewUpdater = updater
@@ -82,7 +84,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
             }
 
             environment.viewUpdater = null
-            environment.currentComponent = null
+            environment.popComponent()
         }
 
         onCommit { node.update() }

@@ -47,13 +47,6 @@ var View.component: Component<*>?
         setTag(componentKey, value)
     }
 
-private val byIdKey = tagKey("byId")
-internal var View.byId: Boolean
-    get() = getTag(byIdKey) as? Boolean ?: false
-    set(value) {
-        setTag(byIdKey, value)
-    }
-
 private val genDefaultLayoutParams by lazy {
     val method = ViewGroup::class.java.getDeclaredMethod("generateDefaultLayoutParams")
     method.isAccessible = true

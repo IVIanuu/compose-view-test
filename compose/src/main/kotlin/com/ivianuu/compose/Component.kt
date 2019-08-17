@@ -48,7 +48,9 @@ class Component<T : View>(
     internal var inChangeHandler: ComponentChangeHandler? = null
     internal var outChangeHandler: ComponentChangeHandler? = null
     internal var isPush = true
-    var hidden = false
+    internal var hidden = false
+        internal set
+    internal var byId = false
         internal set
     internal var generation = 0
 

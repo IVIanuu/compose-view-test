@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import androidx.compose.Composer
 import androidx.compose.EffectsDsl
 import androidx.compose.remember
-import com.ivianuu.compose.internal.byId
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.currentViewUpdater
 import com.ivianuu.compose.internal.sourceLocation
@@ -130,16 +129,15 @@ fun <T : View> ComponentComposition.ViewById(
     childViewController: ChildViewController<T> = DefaultChildViewController(),
     block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    View(
-        key = key,
-        viewType = id,
-        childViewController = childViewController,
-        createView = { container ->
-            container.findViewById<T>(id)
-                .also { it.byId = true }
-        },
-        block = block
-    )
+    ById(value = true) {
+        View(
+            key = key,
+            viewType = id,
+            childViewController = childViewController,
+            createView = { it.findViewById(id) },
+            block = block
+        )
+    }
 }
 
 @EffectsDsl

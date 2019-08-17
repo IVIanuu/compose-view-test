@@ -31,12 +31,25 @@ internal class ComponentEnvironment(
     var outChangeHandler: ComponentChangeHandler? = null,
     var isPush: Boolean = true,
     var hidden: Boolean = false,
-    var currentComponent: Component<*>? = null,
+    var byId: Boolean = false,
     var viewUpdater: ViewUpdater<*>? = null
 ) {
 
+    var currentComponent: Component<*>? = null
+        private set
+    private val currentComponentStack = Stack<Component<*>>()
+
     private var groupKey: Any? = null
     private val groupKeyStack = Stack<Any?>()
+
+    fun pushComponent(component: Component<*>) {
+        currentComponentStack.push(currentComponent)
+        currentComponent = component
+    }
+
+    fun popComponent() {
+        currentComponent = currentComponentStack.pop()
+    }
 
     fun pushGroupKey(key: Any): Any {
         groupKeyStack.push(groupKey)
@@ -56,7 +69,9 @@ internal class ComponentEnvironment(
         outChangeHandler = null
         isPush = true
         hidden = false
+        byId = false
         currentComponent = null
+        currentComponentStack.clear()
         viewUpdater = null
         groupKey = null
         groupKeyStack.clear()

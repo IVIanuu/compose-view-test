@@ -18,7 +18,6 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.internal.byId
 import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.tagKey
@@ -155,8 +154,6 @@ class ViewManager(val container: ViewGroup) {
             null
         }
 
-        (to as? Component<View>)?.bindView(toView!!)
-
         val changeData = ComponentChangeHandler.ChangeData(
             container = container,
             from = fromView,
@@ -164,27 +161,29 @@ class ViewManager(val container: ViewGroup) {
             isPush = isPush,
             callback = object : ComponentChangeHandler.Callback {
                 override fun addToView() {
-                    if (toView != null && !toView.byId && toView.parent == null) {
-                        if (isPush || from == null) {
-                            container.addView(toView)
-                        } else {
-                            container.addView(toView, container.indexOfChild(fromView))
+                    if (toView != null) {
+                        (to as? Component<View>)?.bindView(toView)
+
+                        if (!to!!.byId && toView.parent == null) {
+                            if (isPush || from == null) {
+                                container.addView(toView)
+                            } else {
+                                container.addView(toView, container.indexOfChild(fromView))
+                            }
                         }
                     }
                 }
 
                 override fun removeFromView() {
-                    if (fromView != null && !fromView.byId) {
-                        container.removeView(fromView)
+                    if (fromView != null) {
+                        if (!from!!.byId) container.removeView(fromView)
+                        (from as Component<View>).unbindView(fromView)
+                        viewsByChild.remove(from)
                     }
                 }
 
                 override fun onComplete() {
                     if (to != null) runningTransitions -= to
-                    if (from != null && fromView != null) {
-                        (from as Component<View>).unbindView(fromView)
-                        viewsByChild.remove(from)
-                    }
                 }
             }
         )
