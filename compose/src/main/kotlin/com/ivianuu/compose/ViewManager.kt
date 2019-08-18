@@ -182,7 +182,9 @@ class ViewManager(val container: ViewGroup) {
                 override fun removeFromView() {
                     if (fromView != null) {
                         if (!from!!.byId) container.removeView(fromView)
-                        (from as Component<View>).unbindView(fromView)
+                        from as Component<View>
+                        from.unbindChildViews(fromView)
+                        from.unbindView(fromView)
                         _viewsByChild.remove(from)
                     }
                 }

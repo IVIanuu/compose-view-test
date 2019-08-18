@@ -144,6 +144,13 @@ class Component<T : View> {
         }
     }
 
+    fun unbindChildViews(view: T) {
+        if (view !is ViewGroup) return
+        view.getViewManager().viewsByChild.forEach { (component, view) ->
+            (component as Component<View>).unbindView(view)
+        }
+    }
+
     @PublishedApi
     internal fun onCreateView(callback: (ViewGroup) -> T): () -> Unit {
         createViewBlock = callback

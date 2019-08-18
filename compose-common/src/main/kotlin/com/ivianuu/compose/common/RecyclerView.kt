@@ -191,6 +191,7 @@ private class ComposeRecyclerViewAdapter :
         }
 
         fun unbind() {
+            boundComponent?.unbindChildViews(view)
             boundComponent?.unbindView(view)
         }
     }
