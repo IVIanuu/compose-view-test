@@ -76,7 +76,6 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         onCommit {
             node.boundViews.forEach {
                 node.bindView(it)
-                node.layoutChildViews(it)
             }
         }
 

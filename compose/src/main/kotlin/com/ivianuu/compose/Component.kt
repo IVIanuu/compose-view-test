@@ -22,7 +22,6 @@ import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.ensureLayoutParams
 import com.ivianuu.compose.internal.log
-import com.ivianuu.compose.internal.stackTrace
 import com.ivianuu.compose.internal.tagKey
 import kotlin.properties.Delegates
 
@@ -101,7 +100,7 @@ class Component<T : View> {
         bindViewBlocks?.forEach { it(view) }
 
         if (newView) {
-            log { "updater: $key update new view ${view.generation} to $generation" }
+            log { "updater: $key -> update new view ${view.generation} to $generation" }
             view.generation = generation
             viewUpdater?.getBlocks(
                 ViewUpdater.Type.Init,
@@ -110,12 +109,12 @@ class Component<T : View> {
             )
                 ?.forEach { it(view) }
         } else if (view.generation != generation) {
-            log { "updater: $key update view ${view.generation} to $generation" }
+            log { "updater: $key -> update view ${view.generation} to $generation" }
             view.generation = generation
             viewUpdater?.getBlocks(ViewUpdater.Type.Update, ViewUpdater.Type.Value)
                 ?.forEach { it(view) }
         } else {
-            log { "updater: $key skip update $generation" }
+            log { "updater: $key -> skip update $generation" }
             viewUpdater?.getBlocks(ViewUpdater.Type.Update)
                 ?.forEach { it(view) }
         }
@@ -158,10 +157,6 @@ class Component<T : View> {
 
     fun unbindChildViews(view: T) {
         log { "lifecycle: $key -> unbind child views $view block ? $layoutChildViewsBlock" }
-
-        if (key.toString().contains("36")) {
-            stackTrace { key.toString() }
-        }
 
         if (unbindChildViewsBlock != null) {
             unbindChildViewsBlock!!.invoke(view)

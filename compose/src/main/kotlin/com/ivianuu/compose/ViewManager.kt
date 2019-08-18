@@ -149,7 +149,12 @@ class ViewManager(val container: ViewGroup) {
 
         val toView = if (to != null) {
             _viewsByChild.getOrPut(to) {
-                to.createView(container)
+                to as Component<View>
+                val view = to.createView(container)
+                to.bindView(view)
+                to.layoutChildViews(view)
+                to.bindChildViews(view)
+                return@getOrPut view
             }
         } else {
             null
@@ -163,12 +168,6 @@ class ViewManager(val container: ViewGroup) {
             callback = object : ComponentChangeHandler.Callback {
                 override fun addToView() {
                     if (toView != null) {
-                        (to as? Component<View>)?.let {
-                            it.bindView(toView)
-                            it.layoutChildViews(toView)
-                            it.bindChildViews(toView)
-                        }
-
                         if (!to!!.byId && toView.parent == null) {
                             if (isPush || from == null) {
                                 container.addView(toView)
