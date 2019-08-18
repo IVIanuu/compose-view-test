@@ -41,9 +41,9 @@ class CompositionContext {
             with(ComponentComposition(cc as Composer<Component<*>>)) {
                 val state = memo { ComponentEnvironment() }
                 ComponentEnvironmentAmbient.Provider(value = state) {
-                    state.pushComponent(root)
+                    state.currentComponent = root
                     this@CompositionContext.composable?.invoke(this)
-                    state.popComponent()
+                    state.currentComponent = null
                 }
                 state.reset()
             }
@@ -72,7 +72,6 @@ class CompositionContext {
         root.createView(container)
         root.bindView(container)
         root.layoutChildViews(container)
-        root.bindChildViews(container)
     }
 
     fun removeContainer() {

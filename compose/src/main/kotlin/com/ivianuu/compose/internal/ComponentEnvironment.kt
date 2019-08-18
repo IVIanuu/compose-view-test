@@ -22,7 +22,6 @@ import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ambient
-import java.util.*
 
 internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")
 
@@ -32,47 +31,10 @@ internal class ComponentEnvironment(
     var isPush: Boolean = true,
     var hidden: Boolean = false,
     var byId: Boolean = false,
-    var viewUpdater: ViewUpdater<*>? = null
+    var viewUpdater: ViewUpdater<*>? = null,
+    var currentComponent: Component<*>? = null,
+    var groupKey: Any? = null
 ) {
-
-    var currentComponent: Component<*>? = null
-        private set
-    private val componentStack = Stack<Component<*>?>()
-
-    private var groupKey: Any? = null
-    private val groupKeyStack = Stack<Any?>()
-
-    private var currentChildren = mutableListOf<Any>()
-    private val childrenStack = Stack<MutableList<Any>>()
-
-    fun pushComponent(component: Component<*>) {
-        check(component.key !in currentChildren) {
-            "Duplicated key ${component.key}"
-        }
-
-        currentChildren.add(component.key)
-
-        componentStack.push(currentComponent)
-        currentComponent = component
-        childrenStack.push(currentChildren)
-        currentChildren = mutableListOf()
-    }
-
-    fun popComponent() {
-        currentComponent = componentStack.pop()
-        currentChildren = childrenStack.pop()
-    }
-
-    fun pushGroupKey(key: Any): Any {
-        groupKeyStack.push(groupKey)
-        val finalKey = if (groupKey != null) JoinedKey(key, groupKey) else key
-        groupKey = finalKey
-        return finalKey
-    }
-
-    fun popGroupKey() {
-        groupKey = groupKeyStack.pop()
-    }
 
     fun joinKey(key: Any): Any = if (groupKey != null) JoinedKey(key, groupKey) else key
 
@@ -83,12 +45,8 @@ internal class ComponentEnvironment(
         hidden = false
         byId = false
         currentComponent = null
-        componentStack.clear()
-        currentChildren = mutableListOf()
-        childrenStack.clear()
         viewUpdater = null
         groupKey = null
-        groupKeyStack.clear()
     }
 }
 

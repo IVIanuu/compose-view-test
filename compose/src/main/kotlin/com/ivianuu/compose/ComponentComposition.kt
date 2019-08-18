@@ -45,7 +45,6 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         } else {
             useNode() as Component<T>
         }
-        log { "post emit $finalKey" }
 
         node._key = finalKey
 
@@ -59,7 +58,8 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         if (block != null) {
             val updater = ViewUpdater<T>(composer)
-            environment.pushComponent(node)
+            val prevComponent = environment.currentComponent
+            environment.currentComponent = node
             environment.viewUpdater = updater
             ComponentBuilder(composer, node).block()
             node.viewUpdater = updater
@@ -68,18 +68,17 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
             }
 
             environment.viewUpdater = null
-            environment.popComponent()
+            environment.currentComponent = prevComponent
         }
 
         onCommit {
             node.boundViews.forEach {
                 node.bindView(it)
+                node.layoutChildViews(it)
             }
         }
 
-        log { "pre end node $finalKey" }
         endNode()
-        log { "post end node $finalKey" }
     }
 
 }

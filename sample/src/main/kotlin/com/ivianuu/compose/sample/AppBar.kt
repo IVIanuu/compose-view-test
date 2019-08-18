@@ -23,8 +23,9 @@ import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.set
 
 fun ComponentComposition.AppBar(title: String) {
-    val navigator = navigator
     ViewByLayoutRes<MaterialToolbar>(layoutRes = R.layout.app_bar) {
+        val navigator = navigator
+
         set(title) { this.title = it }
         set(navigator.backStack.size > 1) {
             if (it) {

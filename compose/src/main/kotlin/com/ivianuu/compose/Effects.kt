@@ -135,11 +135,12 @@ fun <T> ComponentComposition.key(
 ): T = with(composer) {
     checkIsComposing()
     val environment = ambient(ComponentEnvironmentAmbient)
-    val finalKey = environment.pushGroupKey(key)
-    startGroup(finalKey)
+    val prevGroupKey = environment.groupKey
+    environment.groupKey = key
+    startGroup(key)
     val result = block()
     endGroup()
-    environment.popGroupKey()
+    environment.groupKey = prevGroupKey
     return@with result
 }
 

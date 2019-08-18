@@ -27,6 +27,7 @@ import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.getViewManager
 import com.ivianuu.compose.onBindView
+import com.ivianuu.compose.onLayoutChildViews
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.sample.R
 
@@ -76,6 +77,8 @@ fun ComponentComposition.TabLayout(
                 })
             }
         }
+
+        onLayoutChildViews { }
 
         onUnbindView { view ->
             with(view) {
