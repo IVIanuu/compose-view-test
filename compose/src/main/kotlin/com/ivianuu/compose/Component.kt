@@ -45,7 +45,11 @@ class Component<T : View> {
     private var createViewBlock: ((ViewGroup) -> T)? = null
     private var bindViewBlocks: MutableList<(T) -> Unit>? = null
     private var unbindViewBlocks: MutableList<(T) -> Unit>? = null
+
     private var layoutChildViewsBlock: ((T) -> Unit)? = null
+    private var bindChildViewsBlock: ((T) -> Unit)? = null
+    private var unbindChildViewsBlock: ((T) -> Unit)? = null
+
     internal var viewUpdater: ViewUpdater<T>? = null
 
     internal var inChangeHandler: ComponentChangeHandler? = null
@@ -138,16 +142,28 @@ class Component<T : View> {
     }
 
     fun bindChildViews(view: T) {
-        if (view !is ViewGroup) return
-        view.getViewManager().viewsByChild.forEach { (component, view) ->
-            (component as Component<View>).bindView(view)
+        log { "bind child views $key $view block ? $layoutChildViewsBlock" }
+
+        if (bindChildViewsBlock != null) {
+            bindChildViewsBlock!!.invoke(view)
+        } else {
+            if (view !is ViewGroup) return
+            view.getViewManager().viewsByChild.forEach { (component, view) ->
+                (component as Component<View>).bindView(view)
+            }
         }
     }
 
     fun unbindChildViews(view: T) {
-        if (view !is ViewGroup) return
-        view.getViewManager().viewsByChild.forEach { (component, view) ->
-            (component as Component<View>).unbindView(view)
+        log { "unbind child views $key $view block ? $layoutChildViewsBlock" }
+
+        if (unbindChildViewsBlock != null) {
+            unbindChildViewsBlock!!.invoke(view)
+        } else {
+            if (view !is ViewGroup) return
+            view.getViewManager().viewsByChild.forEach { (component, view) ->
+                (component as Component<View>).unbindView(view)
+            }
         }
     }
 
@@ -175,6 +191,18 @@ class Component<T : View> {
     internal fun onLayoutChildViews(callback: (T) -> Unit): () -> Unit {
         layoutChildViewsBlock = callback
         return { layoutChildViewsBlock = null }
+    }
+
+    @PublishedApi
+    internal fun onBindChildViews(callback: (T) -> Unit): () -> Unit {
+        bindChildViewsBlock = callback
+        return { bindChildViewsBlock = null }
+    }
+
+    @PublishedApi
+    internal fun onUnbindChildViews(callback: (T) -> Unit): () -> Unit {
+        unbindChildViewsBlock = callback
+        return { unbindChildViewsBlock = null }
     }
 }
 

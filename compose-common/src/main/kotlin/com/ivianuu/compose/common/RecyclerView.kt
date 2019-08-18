@@ -30,7 +30,9 @@ import com.ivianuu.compose.View
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
 import com.ivianuu.compose.memo
+import com.ivianuu.compose.onBindChildViews
 import com.ivianuu.compose.onLayoutChildViews
+import com.ivianuu.compose.onUnbindChildViews
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.set
 import com.ivianuu.compose.update
@@ -91,15 +93,9 @@ fun ComponentComposition.RecyclerView(
     children: ComponentComposition.() -> Unit
 ) {
     View<RecyclerView> {
+        // layout manager
         val layoutManagerStateHolder = memo { LayoutManagerStateHolder() }
-
         set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
-
-        init { adapter = ComposeRecyclerViewAdapter() }
-
-        val component = currentComponent()
-        onLayoutChildViews { (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) }
-
         update {
             if (layoutManagerStateHolder.state != null) {
                 this.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
@@ -107,10 +103,21 @@ fun ComponentComposition.RecyclerView(
             }
         }
 
+        // adapter
+        init { adapter = ComposeRecyclerViewAdapter() }
+
         onUnbindView {
             layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
             it.adapter = null
         } // calls unbindView on all children
+
+        val component = currentComponent()
+        onLayoutChildViews { (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) }
+
+        onBindChildViews {
+        }
+        onUnbindChildViews {
+        }
 
         children()
     }

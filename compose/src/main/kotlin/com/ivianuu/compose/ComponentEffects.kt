@@ -22,6 +22,31 @@ import androidx.compose.remember
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.sourceLocation
 
+inline fun <T : View> ComponentBuilder<T>.onCreateView(
+    noinline callback: (ViewGroup) -> T
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = null,
+        callback = callback
+    ) { component, _callback ->
+        component.onCreateView(_callback)
+    }
+}
+
+inline fun <T : View> ComponentBuilder<T>.onCreateView(
+    vararg inputs: Any?,
+    noinline callback: (ViewGroup) -> T
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = inputs,
+        callback = callback
+    ) { component, _callback ->
+        component.onCreateView(_callback)
+    }
+}
+
 inline fun <T : View> ComponentBuilder<T>.onBindView(
     noinline callback: (T) -> Unit
 ) {
@@ -97,28 +122,53 @@ inline fun <T : View> ComponentBuilder<T>.onLayoutChildViews(
     }
 }
 
-inline fun <T : View> ComponentBuilder<T>.onCreateView(
-    noinline callback: (ViewGroup) -> T
+inline fun <T : View> ComponentBuilder<T>.onBindChildViews(
+    noinline callback: (T) -> Unit
 ) {
     callbackEffect(
         key = sourceLocation(),
         inputs = null,
         callback = callback
     ) { component, _callback ->
-        component.onCreateView(_callback)
+        component.onBindChildViews(_callback)
     }
 }
 
-inline fun <T : View> ComponentBuilder<T>.onCreateView(
+inline fun <T : View> ComponentBuilder<T>.onBindChildViews(
     vararg inputs: Any?,
-    noinline callback: (ViewGroup) -> T
+    noinline callback: (T) -> Unit
 ) {
     callbackEffect(
         key = sourceLocation(),
         inputs = inputs,
         callback = callback
     ) { component, _callback ->
-        component.onCreateView(_callback)
+        component.onBindChildViews(_callback)
+    }
+}
+
+inline fun <T : View> ComponentBuilder<T>.onUnbindChildViews(
+    noinline callback: (T) -> Unit
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = null,
+        callback = callback
+    ) { component, _callback ->
+        component.onUnbindChildViews(_callback)
+    }
+}
+
+inline fun <T : View> ComponentBuilder<T>.onUnbindChildViews(
+    vararg inputs: Any?,
+    noinline callback: (T) -> Unit
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = inputs,
+        callback = callback
+    ) { component, _callback ->
+        component.onUnbindChildViews(_callback)
     }
 }
 
