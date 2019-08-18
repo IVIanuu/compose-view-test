@@ -62,8 +62,6 @@ class Component<T : View> {
     internal var generation = 0
 
     fun updateChildren(newChildren: List<Component<*>>) {
-        if (_children == newChildren) return
-
         log { "update children $key new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
 
         _children
@@ -77,7 +75,10 @@ class Component<T : View> {
         _children.clear()
         _children += newChildren
 
-        _boundViews.forEach { layoutChildViews(it) }
+        _boundViews.forEach {
+            layoutChildViews(it)
+            bindChildViews(it)
+        }
     }
 
     fun createView(container: ViewGroup): T {

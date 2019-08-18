@@ -31,6 +31,16 @@ inline fun log(block: () -> String) {
     }
 }
 
+inline fun stackTrace(msg: () -> String) {
+    if (loggingEnabled) {
+        try {
+            error(msg())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
+
 fun sourceLocation(): Any = 0
 
 fun ViewGroup.children(): List<View> {

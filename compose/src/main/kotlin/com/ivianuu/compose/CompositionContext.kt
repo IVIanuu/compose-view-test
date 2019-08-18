@@ -41,9 +41,9 @@ class CompositionContext {
             with(ComponentComposition(cc as Composer<Component<*>>)) {
                 val state = memo { ComponentEnvironment() }
                 ComponentEnvironmentAmbient.Provider(value = state) {
-                    state.currentComponent = root
+                    state.pushComponent(root)
                     this@CompositionContext.composable?.invoke(this)
-                    state.currentComponent = null
+                    state.popComponent()
                 }
                 state.reset()
             }

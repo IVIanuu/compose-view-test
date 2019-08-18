@@ -28,7 +28,7 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
     private val childrenByParent =
         mutableMapOf<Component<*>, MutableList<Component<*>>>()
 
-    private fun MutableMap<Component<*>, MutableList<Component<*>>>.getOrPut(key: Component<*>): MutableList<Component<*>> {
+    private fun MutableMap<Component<*>, MutableList<Component<*>>>.getOrInit(key: Component<*>): MutableList<Component<*>> {
         return getOrPut(key) {
             mutableListOf<Component<*>>().apply {
                 addAll(key.children)
@@ -42,28 +42,32 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
-        childrenByParent.getOrPut(this).add(index, instance)
+        val children = childrenByParent.getOrInit(this)
+        check(children.none { it.key == instance.key }) {
+            "Duplicated key ${instance.key}"
+        }
+        children.add(index, instance)
     }
 
     override fun Component<*>.move(from: Int, to: Int, count: Int) {
-        val children = childrenByParent.getOrPut(this)
+        val children = childrenByParent.getOrInit(this)
         repeat(count) { children.add(to, children.removeAt(from)) }
     }
 
     override fun Component<*>.removeAt(index: Int, count: Int) {
-        val children = childrenByParent.getOrPut(this)
+        val children = childrenByParent.getOrInit(this)
         (index until index + count).forEach { children.removeAt(it) }
     }
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
-            instance.updateChildren(childrenByParent[current] ?: current.children)
+            instance.updateChildren(childrenByParent[current] ?: current.children.toList())
             childrenByParent.remove(current)
 
             current = currentStack.pop()
 
             if (current == root) {
-                root.updateChildren(childrenByParent[root] ?: current.children)
+                root.updateChildren(childrenByParent[root] ?: root.children.toList())
                 childrenByParent.remove(root)
             }
         }

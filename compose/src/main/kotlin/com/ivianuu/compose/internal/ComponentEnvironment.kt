@@ -22,6 +22,7 @@ import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ambient
+import java.util.*
 
 internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")
 
@@ -31,10 +32,35 @@ internal class ComponentEnvironment(
     var isPush: Boolean = true,
     var hidden: Boolean = false,
     var byId: Boolean = false,
-    var viewUpdater: ViewUpdater<*>? = null,
-    var currentComponent: Component<*>? = null,
-    var groupKey: Any? = null
+    var viewUpdater: ViewUpdater<*>? = null
 ) {
+
+    var currentComponent: Component<*>? = null
+        private set
+    private val currentComponentStack = Stack<Component<*>>()
+
+    private var groupKey: Any? = null
+    private val groupKeyStack = Stack<Any?>()
+
+    fun pushComponent(component: Component<*>) {
+        currentComponentStack.push(currentComponent)
+        currentComponent = component
+    }
+
+    fun popComponent() {
+        currentComponent = currentComponentStack.pop()
+    }
+
+    fun pushGroupKey(key: Any): Any {
+        groupKeyStack.push(groupKey)
+        val finalKey = if (groupKey != null) JoinedKey(key, groupKey) else key
+        groupKey = finalKey
+        return finalKey
+    }
+
+    fun popGroupKey() {
+        groupKey = groupKeyStack.pop()
+    }
 
     fun joinKey(key: Any): Any = if (groupKey != null) JoinedKey(key, groupKey) else key
 
@@ -45,9 +71,12 @@ internal class ComponentEnvironment(
         hidden = false
         byId = false
         currentComponent = null
+        currentComponentStack.clear()
         viewUpdater = null
         groupKey = null
+        groupKeyStack.clear()
     }
+
 }
 
 @PublishedApi
