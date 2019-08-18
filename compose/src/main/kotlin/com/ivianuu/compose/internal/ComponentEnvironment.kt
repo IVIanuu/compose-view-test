@@ -37,18 +37,30 @@ internal class ComponentEnvironment(
 
     var currentComponent: Component<*>? = null
         private set
-    private val currentComponentStack = Stack<Component<*>>()
+    private val componentStack = Stack<Component<*>?>()
 
     private var groupKey: Any? = null
     private val groupKeyStack = Stack<Any?>()
 
+    private var currentChildren = mutableListOf<Any>()
+    private val childrenStack = Stack<MutableList<Any>>()
+
     fun pushComponent(component: Component<*>) {
-        currentComponentStack.push(currentComponent)
+        check(component.key !in currentChildren) {
+            "Duplicated key ${component.key}"
+        }
+
+        currentChildren.add(component.key)
+
+        componentStack.push(currentComponent)
         currentComponent = component
+        childrenStack.push(currentChildren)
+        currentChildren = mutableListOf()
     }
 
     fun popComponent() {
-        currentComponent = currentComponentStack.pop()
+        currentComponent = componentStack.pop()
+        currentChildren = childrenStack.pop()
     }
 
     fun pushGroupKey(key: Any): Any {
@@ -71,7 +83,9 @@ internal class ComponentEnvironment(
         hidden = false
         byId = false
         currentComponent = null
-        currentComponentStack.clear()
+        componentStack.clear()
+        currentChildren = mutableListOf()
+        childrenStack.clear()
         viewUpdater = null
         groupKey = null
         groupKeyStack.clear()

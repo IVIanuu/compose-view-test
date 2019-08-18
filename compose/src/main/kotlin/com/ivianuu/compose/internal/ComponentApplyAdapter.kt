@@ -37,28 +37,35 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
     }
 
     override fun Component<*>.start(instance: Component<*>) {
+        log { "composition $key start" }
         currentStack.push(current)
         current = this
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
+        log { "composition $key insert at $index ${instance.key}" }
         childrenByParent.getOrPut(this).add(index, instance)
     }
 
     override fun Component<*>.move(from: Int, to: Int, count: Int) {
         val children = childrenByParent.getOrPut(this)
-        repeat(count) { children.add(to, children.removeAt(from)) }
+        repeat(count) {
+            log { "composition $key move from $from to $to" }
+            children.add(to, children.removeAt(from))
+        }
     }
 
     override fun Component<*>.removeAt(index: Int, count: Int) {
         val children = childrenByParent.getOrPut(this)
         (index until index + count).forEach {
+            log { "composition $key remove at $it" }
             children.removeAt(it)
         }
     }
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
+            log { "composition ${current.key} end" }
             instance.updateChildren(childrenByParent.getOrPut(current))
             childrenByParent.remove(current)
 

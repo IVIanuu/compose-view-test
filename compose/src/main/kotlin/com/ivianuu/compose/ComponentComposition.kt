@@ -23,13 +23,9 @@ import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.log
-import java.util.*
 
 @EffectsDsl
 open class ComponentComposition internal constructor(val composer: Composer<Component<*>>) {
-
-    private val keysStack = Stack<MutableList<Any>>()
-    private var keys = mutableListOf<Any>()
 
     fun <T : View> emit(
         key: Any,
@@ -41,14 +37,6 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         val finalKey = environment.joinKey(key)
 
-        check(finalKey !in keys) {
-            "Duplicated key $finalKey"
-        }
-
-        keys.add(finalKey)
-
-        keysStack.push(keys)
-        keys = mutableListOf()
         startNode(finalKey)
 
         log { "emit $finalKey inserting ? $inserting" }
@@ -57,6 +45,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         } else {
             useNode() as Component<T>
         }
+        log { "post emit $finalKey" }
 
         node._key = finalKey
 
@@ -88,12 +77,9 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
             }
         }
 
+        log { "pre end node $finalKey" }
         endNode()
-
-        keys = keysStack.pop()
-        if (keysStack.isEmpty()) {
-            keys.clear()
-        }
+        log { "post end node $finalKey" }
     }
 
 }
