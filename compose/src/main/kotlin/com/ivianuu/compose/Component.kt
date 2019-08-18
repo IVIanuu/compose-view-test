@@ -22,6 +22,7 @@ import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.ensureLayoutParams
 import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.internal.stackTrace
 import com.ivianuu.compose.internal.tagKey
 import kotlin.properties.Delegates
 
@@ -62,7 +63,7 @@ class Component<T : View> {
     internal var generation = 0
 
     fun updateChildren(newChildren: List<Component<*>>) {
-        log { "update children $key new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
+        log { "lifecycle: $key -> update children new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
 
         _children
             .filter { it !in newChildren }
@@ -83,14 +84,14 @@ class Component<T : View> {
 
     fun createView(container: ViewGroup): T {
         check(createViewBlock != null)
-        log { "create view $key" }
+        log { "lifecycle: $key -> create view $container" }
         val view = createViewBlock!!(container)
         view.ensureLayoutParams(container)
         return view
     }
 
     fun bindView(view: T) {
-        log { "bind view $key $view" }
+        log { "lifecycle: $key -> bind view $view" }
 
         val newView = view.component != this
 
@@ -121,7 +122,7 @@ class Component<T : View> {
     }
 
     fun unbindView(view: T) {
-        log { "unbind view $key $view" }
+        log { "lifecycle: $key -> unbind view $view" }
         unbindViewBlocks?.forEach { it(view) }
         view.generation = null
         view.component = null
@@ -129,7 +130,7 @@ class Component<T : View> {
     }
 
     fun layoutChildViews(view: T) {
-        log { "layout child views $key $view block ? $layoutChildViewsBlock" }
+        log { "lifecycle: $key -> layout child views $view block ? $layoutChildViewsBlock" }
 
         if (layoutChildViewsBlock != null) {
             layoutChildViewsBlock!!.invoke(view)
@@ -143,7 +144,7 @@ class Component<T : View> {
     }
 
     fun bindChildViews(view: T) {
-        log { "bind child views $key $view block ? $layoutChildViewsBlock" }
+        log { "lifecycle: $key -> bind child views $view block ? $layoutChildViewsBlock" }
 
         if (bindChildViewsBlock != null) {
             bindChildViewsBlock!!.invoke(view)
@@ -156,7 +157,11 @@ class Component<T : View> {
     }
 
     fun unbindChildViews(view: T) {
-        log { "unbind child views $key $view block ? $layoutChildViewsBlock" }
+        log { "lifecycle: $key -> unbind child views $view block ? $layoutChildViewsBlock" }
+
+        if (key.toString().contains("36")) {
+            stackTrace { key.toString() }
+        }
 
         if (unbindChildViewsBlock != null) {
             unbindChildViewsBlock!!.invoke(view)

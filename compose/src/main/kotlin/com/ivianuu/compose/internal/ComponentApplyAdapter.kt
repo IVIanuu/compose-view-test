@@ -61,15 +61,16 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
-            instance.updateChildren(childrenByParent[current] ?: current.children.toList())
-            childrenByParent.remove(current)
-
+            endCurrent()
             current = currentStack.pop()
-
             if (current == root) {
-                root.updateChildren(childrenByParent[root] ?: root.children.toList())
-                childrenByParent.remove(root)
+                endCurrent()
             }
         }
+    }
+
+    private fun endCurrent() {
+        current.updateChildren(childrenByParent[current] ?: current.children.toList())
+        childrenByParent.remove(current)
     }
 }

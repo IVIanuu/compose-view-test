@@ -28,21 +28,41 @@ import com.ivianuu.compose.common.changehandler.CircularRevealChangeHandler
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
+import com.ivianuu.compose.common.launchOnActive
 import com.ivianuu.compose.common.navigator
+import com.ivianuu.compose.key
 import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
 import com.ivianuu.compose.sample.handler.FlipChangeHandler
+import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.transition_demo.view.*
+import kotlinx.coroutines.delay
 
 fun TransitionDemos() = Route {
-    ChangeHandlers(handler = VerticalChangeHandler()) {
+    ChangeHandlers(handler = FadeChangeHandler()) {
         Scaffold(
             appBar = { AppBar(title = "Transitions") },
             content = {
-                val parentNavigator = navigator
-                Navigator {
-                    TransitionDemo(TransitionDemo.values().first(), parentNavigator)
+                val (loading, setLoading) = state { true }
+                launchOnActive {
+                    delay(1000)
+                    setLoading(false)
+                }
+
+                if (loading) {
+                    key("loading") {
+                        ChangeHandlers(handler = FadeChangeHandler()) {
+                            ViewByLayoutRes<View>(layoutRes = R.layout.full_screen_loading)
+                        }
+                    }
+                } else {
+                    key("transitions") {
+                        val parentNavigator = navigator
+                        Navigator {
+                            TransitionDemo(TransitionDemo.values().first(), parentNavigator)
+                        }
+                    }
                 }
             }
         )

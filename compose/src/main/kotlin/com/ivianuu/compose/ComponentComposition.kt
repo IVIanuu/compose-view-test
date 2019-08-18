@@ -39,7 +39,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         startNode(finalKey)
 
-        log { "emit $finalKey inserting ? $inserting" }
+        log { "composer: emit $finalKey inserting ? $inserting" }
         val node = if (inserting) {
             Component<T>().also { emitNode(it) }
         } else {

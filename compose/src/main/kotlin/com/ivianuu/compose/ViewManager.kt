@@ -31,7 +31,7 @@ class ViewManager(val container: ViewGroup) {
     private val _viewsByChild = mutableMapOf<Component<*>, View>()
 
     fun init(children: List<Component<*>>) {
-        log { "view manager ${container.component?.key} init ${children.map { it.key }}" }
+        log { "view manager: ${container.component?.key} -> init ${children.map { it.key }}" }
 
         this.children.clear()
         this.children += children
@@ -48,7 +48,7 @@ class ViewManager(val container: ViewGroup) {
     }
 
     fun clear() {
-        log { "view manager ${container.component?.key} clear ${children.map { it.key }}" }
+        log { "view manager: ${container.component?.key} -> clear ${children.map { it.key }}" }
 
         children.forEach {
             performChange(
@@ -63,7 +63,7 @@ class ViewManager(val container: ViewGroup) {
     }
 
     fun update(newChildren: List<Component<*>>, isPush: Boolean) {
-        log { "view manager ${container.component?.key} update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
+        log { "view manager: ${container.component?.key} -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 
         if (children == newChildren) return
 
@@ -100,9 +100,9 @@ class ViewManager(val container: ViewGroup) {
         // Add any new views to the backStack from bottom to top
         addedChildren
             .dropLast(if (replacingTopChildren) 1 else 0)
-            .forEachIndexed { i, child ->
+            .forEach { child ->
                 performChange(
-                    from = addedChildren.getOrNull(i - 1),
+                    from = null,
                     to = child,
                     isPush = true,
                     changeHandler = child.inChangeHandler
@@ -140,7 +140,7 @@ class ViewManager(val container: ViewGroup) {
         }
         handlerToUse.hasBeenUsed = true
 
-        log { "view manager ${container.component?.key} perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
+        log { "view manager: ${container.component?.key} -> perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }

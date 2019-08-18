@@ -24,6 +24,8 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ambient
 import java.util.*
 
+// todo remove once we found a better solution to pass data around
+
 internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")
 
 internal class ComponentEnvironment(

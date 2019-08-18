@@ -63,11 +63,11 @@ class CompositionContext {
         private set
 
     init {
-        log { "Context: init" }
+        log { "context: init" }
     }
 
     fun setContainer(container: ViewGroup) {
-        log { "Context: set container $container" }
+        log { "context: set container $container" }
         this.container = container
         root.createView(container)
         root.bindView(container)
@@ -75,23 +75,23 @@ class CompositionContext {
     }
 
     fun removeContainer() {
-        log { "Context: remove container" }
+        log { "context: remove container" }
         root.unbindView(container!!)
         this.container = null
     }
 
     fun setComposable(composable: ComponentComposition.() -> Unit) {
-        log { "Context: set composable" }
+        log { "context: set composable" }
         this.composable = composable
     }
 
     fun compose() {
-        log { "Context: compose" }
+        log { "context: compose" }
         composeContext.compose()
     }
 
     fun dispose() {
-        log { "Context: dispose" }
+        log { "context: dispose" }
         removeContainer()
         // todo must be improved
         this.composable = null
