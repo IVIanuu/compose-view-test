@@ -23,12 +23,12 @@ import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.ensureLayoutParams
 import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.tagKey
+import kotlin.properties.Delegates
 
-class Component<T : View>(
-    val viewType: Any,
-    val childViewController: ChildViewController<T>,
-    val createView: (ViewGroup) -> T
-) {
+class Component<T : View> {
+
+    var viewType: Any by Delegates.notNull()
+        internal set
 
     internal var _key: Any? = null
     val key: Any get() = _key ?: error("Not mounted ${javaClass.canonicalName}")
@@ -39,10 +39,13 @@ class Component<T : View>(
     val children: List<Component<*>> get() = _children
     val visibleChildren: List<Component<*>> get() = children.filterNot { it.hidden }
 
+    val boundViews: Set<T> get() = _boundViews
     private val _boundViews = mutableSetOf<T>()
 
+    private var createViewBlock: ((ViewGroup) -> T)? = null
     private var bindViewBlocks: MutableList<(T) -> Unit>? = null
     private var unbindViewBlocks: MutableList<(T) -> Unit>? = null
+    private var layoutChildViewsBlock: ((T) -> Unit)? = null
     internal var viewUpdater: ViewUpdater<T>? = null
 
     internal var inChangeHandler: ComponentChangeHandler? = null
@@ -53,11 +56,6 @@ class Component<T : View>(
     internal var byId = false
         internal set
     internal var generation = 0
-
-    fun update() {
-        log { "update $key bound views ${_boundViews.size}" }
-        _boundViews.forEach { bindView(it) }
-    }
 
     fun updateChildren(newChildren: List<Component<*>>) {
         if (_children == newChildren) return
@@ -75,14 +73,14 @@ class Component<T : View>(
         _children.clear()
         _children += newChildren
 
-        _boundViews.forEach { childViewController.updateChildViews(this, it) }
+        _boundViews.forEach { layoutChildViews(it) }
     }
 
     fun createView(container: ViewGroup): T {
+        check(createViewBlock != null)
         log { "create view $key" }
-        val view = createView.invoke(container)
+        val view = createViewBlock!!(container)
         view.ensureLayoutParams(container)
-        childViewController.initChildViews(this, view)
         return view
     }
 
@@ -115,12 +113,9 @@ class Component<T : View>(
             viewUpdater?.getBlocks(ViewUpdater.Type.Update)
                 ?.forEach { it(view) }
         }
-
-        childViewController.updateChildViews(this, view)
     }
 
     fun unbindView(view: T) {
-        childViewController.clearChildViews(this, view)
         log { "unbind view $key $view" }
         unbindViewBlocks?.forEach { it(view) }
         view.generation = null
@@ -128,18 +123,52 @@ class Component<T : View>(
         _boundViews -= view
     }
 
+    fun layoutChildViews(view: T) {
+        log { "layout child views $key $view block ? $layoutChildViewsBlock" }
+
+        if (layoutChildViewsBlock != null) {
+            layoutChildViewsBlock!!.invoke(view)
+        } else {
+            if (view !is ViewGroup) return
+            view.getViewManager().update(
+                visibleChildren,
+                visibleChildren.lastOrNull()?.isPush ?: true
+            )
+        }
+    }
+
+    fun bindChildViews(view: T) {
+        if (view !is ViewGroup) return
+        view.getViewManager().viewsByChild.forEach { (component, view) ->
+            (component as Component<View>).bindView(view)
+        }
+    }
+
+    @PublishedApi
+    internal fun onCreateView(callback: (ViewGroup) -> T): () -> Unit {
+        createViewBlock = callback
+        return { createViewBlock = null }
+    }
+
+    @PublishedApi
     internal fun onBindView(callback: (T) -> Unit): () -> Unit {
         if (bindViewBlocks == null) bindViewBlocks = mutableListOf()
         bindViewBlocks!! += callback
         return { bindViewBlocks!! -= callback }
     }
 
+    @PublishedApi
     internal fun onUnbindView(callback: (T) -> Unit): () -> Unit {
         if (unbindViewBlocks == null) unbindViewBlocks = mutableListOf()
         unbindViewBlocks!! += callback
         return { unbindViewBlocks!! -= callback }
     }
 
+    @PublishedApi
+    internal fun onLayoutChildViews(callback: (T) -> Unit): () -> Unit {
+        layoutChildViewsBlock = callback
+        return { layoutChildViewsBlock = null }
+    }
 }
 
 private val generationKey = tagKey("generation")

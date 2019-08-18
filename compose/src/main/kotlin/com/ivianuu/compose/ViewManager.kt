@@ -27,7 +27,8 @@ class ViewManager(val container: ViewGroup) {
     val children = mutableListOf<Component<*>>()
     private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
 
-    private val viewsByChild = mutableMapOf<Component<*>, View>()
+    val viewsByChild: Map<Component<*>, View> get() = _viewsByChild
+    private val _viewsByChild = mutableMapOf<Component<*>, View>()
 
     fun init(children: List<Component<*>>) {
         log { "view manager ${container.component?.key} init ${children.map { it.key }}" }
@@ -144,10 +145,10 @@ class ViewManager(val container: ViewGroup) {
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val fromView = viewsByChild[from]
+        val fromView = _viewsByChild[from]
 
         val toView = if (to != null) {
-            viewsByChild.getOrPut(to) {
+            _viewsByChild.getOrPut(to) {
                 to.createView(container)
             }
         } else {
@@ -162,7 +163,11 @@ class ViewManager(val container: ViewGroup) {
             callback = object : ComponentChangeHandler.Callback {
                 override fun addToView() {
                     if (toView != null) {
-                        (to as? Component<View>)?.bindView(toView)
+                        (to as? Component<View>)?.let {
+                            it.bindView(toView)
+                            it.layoutChildViews(toView)
+                            it.bindChildViews(toView)
+                        }
 
                         if (!to!!.byId && toView.parent == null) {
                             if (isPush || from == null) {
@@ -178,7 +183,7 @@ class ViewManager(val container: ViewGroup) {
                     if (fromView != null) {
                         if (!from!!.byId) container.removeView(fromView)
                         (from as Component<View>).unbindView(fromView)
-                        viewsByChild.remove(from)
+                        _viewsByChild.remove(from)
                     }
                 }
 

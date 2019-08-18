@@ -26,11 +26,11 @@ import com.ivianuu.compose.internal.log
 
 class CompositionContext {
 
-    private val root = Component(
-        viewType = "Root",
-        childViewController = DefaultChildViewController(),
-        createView = { it }
-    ).apply { _key = "Root" }
+    private val root = Component<ViewGroup>().apply {
+        _key = "Root"
+        viewType = "Root"
+        onCreateView { it }
+    }
 
     private val composeComponent = object : androidx.compose.Component() {
         @Suppress("PLUGIN_ERROR")
@@ -71,6 +71,8 @@ class CompositionContext {
         this.container = container
         root.createView(container)
         root.bindView(container)
+        root.layoutChildViews(container)
+        root.bindChildViews(container)
     }
 
     fun removeContainer() {

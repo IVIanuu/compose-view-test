@@ -24,13 +24,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.ivianuu.compose.ChildViewController
 import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
 import com.ivianuu.compose.memo
+import com.ivianuu.compose.onLayoutChildViews
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.set
 import com.ivianuu.compose.update
@@ -90,7 +90,7 @@ fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    View(childViewController = RecyclerViewChildViewController) {
+    View<RecyclerView> {
         val layoutManagerStateHolder = memo { LayoutManagerStateHolder() }
 
         set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
@@ -98,7 +98,7 @@ fun ComponentComposition.RecyclerView(
         init { adapter = ComposeRecyclerViewAdapter() }
 
         val component = currentComponent()
-        update { (adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) }
+        onLayoutChildViews { (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) }
 
         update {
             if (layoutManagerStateHolder.state != null) {
@@ -118,17 +118,6 @@ fun ComponentComposition.RecyclerView(
 
 private data class LayoutManagerStateHolder(var state: Parcelable? = null)
 
-private object RecyclerViewChildViewController : ChildViewController<RecyclerView> {
-    override fun initChildViews(component: Component<RecyclerView>, view: RecyclerView) {
-    }
-
-    override fun updateChildViews(component: Component<RecyclerView>, view: RecyclerView) {
-    }
-
-    override fun clearChildViews(component: Component<RecyclerView>, view: RecyclerView) {
-    }
-}
-
 private class ComposeRecyclerViewAdapter :
     ListAdapter<Component<*>, ComposeRecyclerViewAdapter.Holder>(ITEM_CALLBACK) {
 
@@ -136,12 +125,39 @@ private class ComposeRecyclerViewAdapter :
 
     init {
         setHasStableIds(true)
+        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                println("adapter: inserted $positionStart $itemCount")
+            }
+
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+                super.onItemRangeChanged(positionStart, itemCount)
+                println("adapter: changed $positionStart $itemCount")
+            }
+
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
+                println("adapter: removed $fromPosition $toPosition $itemCount")
+            }
+
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                super.onItemRangeRemoved(positionStart, itemCount)
+                println("adapter: removed $positionStart $itemCount")
+            }
+        })
+    }
+
+    override fun submitList(list: List<Component<*>>?) {
+        println("adapter: submit list ${list?.map { it.key }}")
+        super.submitList(list)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component =
             lastItemViewTypeRequest ?: currentList.first { it.getViewType() == viewType }
         val view = component.createView(parent)
+        (component as Component<View>).layoutChildViews(view)
         return Holder(view)
     }
 
@@ -171,6 +187,7 @@ private class ComposeRecyclerViewAdapter :
         fun bind(component: Component<View>) {
             boundComponent = component
             component.bindView(view)
+            component.bindChildViews(view)
         }
 
         fun unbind() {
