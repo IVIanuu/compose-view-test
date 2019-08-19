@@ -29,13 +29,13 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
+import com.ivianuu.compose.internal.stackTrace
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.onBindChildViews
 import com.ivianuu.compose.onLayoutChildViews
 import com.ivianuu.compose.onUnbindChildViews
 import com.ivianuu.compose.onUnbindView
 import com.ivianuu.compose.set
-import com.ivianuu.compose.update
 import kotlinx.coroutines.flow.Flow
 
 inline fun <T> ComponentComposition.RecyclerView(
@@ -93,26 +93,26 @@ fun ComponentComposition.RecyclerView(
     children: ComponentComposition.() -> Unit
 ) {
     View<RecyclerView> {
-        // layout manager
         val layoutManagerStateHolder = memo { LayoutManagerStateHolder() }
         set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
-        update {
-            if (layoutManagerStateHolder.state != null) {
-                this.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
-                layoutManagerStateHolder.state = null
-            }
-        }
 
-        // adapter
         init { adapter = ComposeRecyclerViewAdapter() }
 
         onUnbindView {
             layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
             it.adapter = null
+            stackTrace { "" }
         } // calls unbindView on all children
 
         val component = currentComponent()
-        onLayoutChildViews { (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) }
+        onLayoutChildViews {
+            (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) {
+                if (layoutManagerStateHolder.state != null) {
+                    it.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                    layoutManagerStateHolder.state = null
+                }
+            }
+        }
 
         onBindChildViews {
         }

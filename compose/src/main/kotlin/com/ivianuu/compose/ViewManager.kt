@@ -38,6 +38,8 @@ class ViewManager(val container: ViewGroup) {
 
         children
             .forEach {
+                log { "view manager: ${container.component?.key} -> add new ${it.key}" }
+
                 performChange(
                     null,
                     it,
@@ -51,6 +53,8 @@ class ViewManager(val container: ViewGroup) {
         log { "view manager: ${container.component?.key} -> clear ${children.map { it.key }}" }
 
         children.forEach {
+            log { "view manager: ${container.component?.key} -> remove old ${it.key}" }
+
             performChange(
                 it,
                 null,
@@ -88,6 +92,8 @@ class ViewManager(val container: ViewGroup) {
             .dropLast(if (replacingTopChildren) 1 else 0)
             .reversed()
             .forEach { child ->
+                log { "view manager: ${container.component?.key} -> remove old ${child.key}" }
+
                 cancelTransition(child)
                 performChange(
                     from = child,
@@ -101,6 +107,8 @@ class ViewManager(val container: ViewGroup) {
         addedChildren
             .dropLast(if (replacingTopChildren) 1 else 0)
             .forEach { child ->
+                log { "view manager: ${container.component?.key} -> add new ${child.key}" }
+
                 performChange(
                     from = null,
                     to = child,
@@ -111,6 +119,7 @@ class ViewManager(val container: ViewGroup) {
 
         // Replace the old visible top with the new one
         if (replacingTopChildren) {
+            log { "view manager: ${container.component?.key} -> replace top new ${newTopChild?.key} old ${oldTopChild?.key}" }
             val transition = if (isPush) newTopChild?.inChangeHandler
             else oldTopChild?.outChangeHandler
 

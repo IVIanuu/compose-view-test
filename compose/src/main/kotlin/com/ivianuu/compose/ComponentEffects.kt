@@ -17,35 +17,9 @@
 package com.ivianuu.compose
 
 import android.view.View
-import android.view.ViewGroup
 import androidx.compose.remember
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.sourceLocation
-
-inline fun <T : View> ComponentBuilder<T>.onCreateView(
-    noinline callback: (ViewGroup) -> T
-) {
-    callbackEffect(
-        key = sourceLocation(),
-        inputs = null,
-        callback = callback
-    ) { component, _callback ->
-        component.onCreateView(_callback)
-    }
-}
-
-inline fun <T : View> ComponentBuilder<T>.onCreateView(
-    vararg inputs: Any?,
-    noinline callback: (ViewGroup) -> T
-) {
-    callbackEffect(
-        key = sourceLocation(),
-        inputs = inputs,
-        callback = callback
-    ) { component, _callback ->
-        component.onCreateView(_callback)
-    }
-}
 
 inline fun <T : View> ComponentBuilder<T>.onBindView(
     noinline callback: (T) -> Unit

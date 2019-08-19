@@ -17,6 +17,7 @@
 package com.ivianuu.compose
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.compose.Composer
 import androidx.compose.EffectsDsl
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
@@ -29,6 +30,8 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
     fun <T : View> emit(
         key: Any,
+        viewType: Any,
+        createView: (ViewGroup) -> T,
         block: (ComponentBuilder<T>.() -> Unit)? = null
     ) = with(composer) {
         checkIsComposing()
@@ -41,12 +44,14 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         log { "composer: emit $finalKey inserting ? $inserting" }
         val node = if (inserting) {
-            Component<T>().also { emitNode(it) }
+            Component(
+                key = finalKey,
+                viewType = viewType,
+                createView = createView
+            ).also { emitNode(it) }
         } else {
             useNode() as Component<T>
         }
-
-        node._key = finalKey
 
         node.inChangeHandler = environment.inChangeHandler
         environment.inChangeHandler = null

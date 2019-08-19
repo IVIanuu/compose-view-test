@@ -26,11 +26,11 @@ import com.ivianuu.compose.internal.log
 
 class CompositionContext {
 
-    private val root = Component<ViewGroup>().apply {
-        _key = "Root"
-        viewType = "Root"
-        onCreateView { it }
-    }
+    private val root = Component(
+        key = "Root",
+        viewType = "Root",
+        createView = { it }
+    )
 
     private val composeComponent = object : androidx.compose.Component() {
         @Suppress("PLUGIN_ERROR")
