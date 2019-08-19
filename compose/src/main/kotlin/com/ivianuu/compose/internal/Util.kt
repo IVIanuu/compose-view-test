@@ -31,6 +31,16 @@ inline fun log(block: () -> String) {
     }
 }
 
+inline fun stackTrace(msg: () -> String) {
+    if (loggingEnabled) {
+        try {
+            error(msg())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
+
 fun sourceLocation(): Any = 0
 
 fun ViewGroup.children(): List<View> {
@@ -47,11 +57,11 @@ var View.component: Component<*>?
         setTag(componentKey, value)
     }
 
-private val byIdKey = tagKey("byId")
-internal var View.byId: Boolean
-    get() = getTag(byIdKey) as? Boolean ?: false
+private val viewTypeKey = tagKey("viewType")
+var View.viewType: Any?
+    get() = getTag(viewTypeKey)
     set(value) {
-        setTag(byIdKey, value)
+        setTag(viewTypeKey, value)
     }
 
 private val genDefaultLayoutParams by lazy {

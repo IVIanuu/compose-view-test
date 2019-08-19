@@ -24,18 +24,13 @@ import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.log
-import java.util.*
 
 @EffectsDsl
 open class ComponentComposition internal constructor(val composer: Composer<Component<*>>) {
 
-    private val keysStack = Stack<MutableList<Any>>()
-    private var keys = mutableListOf<Any>()
-
     fun <T : View> emit(
         key: Any,
         viewType: Any,
-        childViewController: ChildViewController<T>,
         createView: (ViewGroup) -> T,
         block: (ComponentBuilder<T>.() -> Unit)? = null
     ) = with(composer) {
@@ -45,35 +40,33 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         val finalKey = environment.joinKey(key)
 
-        check(finalKey !in keys) {
-            "Duplicated key $finalKey"
-        }
-
-        keys.add(finalKey)
-
-        keysStack.push(keys)
-        keys = mutableListOf()
         startNode(finalKey)
 
-        log { "emit $finalKey inserting ? $inserting" }
+        log { "composer: emit $finalKey inserting ? $inserting" }
         val node = if (inserting) {
-            Component(viewType, childViewController, createView)
-                .also { emitNode(it) }
+            Component(
+                key = finalKey,
+                viewType = viewType,
+                createView = createView
+            ).also { emitNode(it) }
         } else {
             useNode() as Component<T>
         }
 
-        node._key = finalKey
-
         node.inChangeHandler = environment.inChangeHandler
+        environment.inChangeHandler = null
         node.outChangeHandler = environment.outChangeHandler
+        environment.outChangeHandler = null
         node.isPush = environment.isPush
+        environment.isPush = true
         node.hidden = environment.hidden
         environment.hidden = false
+        node.byId = environment.byId
+        environment.byId = false
 
         if (block != null) {
             val updater = ViewUpdater<T>(composer)
-            environment.currentComponent = node
+            environment.pushComponent(node)
             environment.viewUpdater = updater
             ComponentBuilder(composer, node).block()
             node.viewUpdater = updater
@@ -82,17 +75,16 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
             }
 
             environment.viewUpdater = null
-            environment.currentComponent = null
+            environment.popComponent()
         }
 
-        onCommit { node.update() }
+        onCommit {
+            node.boundViews.forEach {
+                node.bindView(it)
+            }
+        }
 
         endNode()
-
-        keys = keysStack.pop()
-        if (keysStack.isEmpty()) {
-            keys.clear()
-        }
     }
 
 }

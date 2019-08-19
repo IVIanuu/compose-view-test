@@ -18,7 +18,6 @@ package com.ivianuu.compose
 
 import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.internal.byId
 import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.tagKey
@@ -28,42 +27,11 @@ class ViewManager(val container: ViewGroup) {
     val children = mutableListOf<Component<*>>()
     private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
 
-    private val viewsByChild = mutableMapOf<Component<*>, View>()
-
-    fun init(children: List<Component<*>>) {
-        log { "view manager ${container.component?.key} init ${children.map { it.key }}" }
-
-        this.children.clear()
-        this.children += children
-
-        children
-            .forEach {
-                performChange(
-                    null,
-                    it,
-                    true,
-                    null
-                )
-            }
-    }
-
-    fun clear() {
-        log { "view manager ${container.component?.key} clear ${children.map { it.key }}" }
-
-        children.forEach {
-            performChange(
-                it,
-                null,
-                false,
-                null
-            )
-        }
-
-        children.clear()
-    }
+    val viewsByChild: Map<Component<*>, View> get() = _viewsByChild
+    private val _viewsByChild = mutableMapOf<Component<*>, View>()
 
     fun update(newChildren: List<Component<*>>, isPush: Boolean) {
-        log { "view manager ${container.component?.key} update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
+        log { "view manager: ${container.component?.key} -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 
         if (children == newChildren) return
 
@@ -88,6 +56,8 @@ class ViewManager(val container: ViewGroup) {
             .dropLast(if (replacingTopChildren) 1 else 0)
             .reversed()
             .forEach { child ->
+                log { "view manager: ${container.component?.key} -> remove old ${child.key}" }
+
                 cancelTransition(child)
                 performChange(
                     from = child,
@@ -100,9 +70,11 @@ class ViewManager(val container: ViewGroup) {
         // Add any new views to the backStack from bottom to top
         addedChildren
             .dropLast(if (replacingTopChildren) 1 else 0)
-            .forEachIndexed { i, child ->
+            .forEach { child ->
+                log { "view manager: ${container.component?.key} -> add new ${child.key}" }
+
                 performChange(
-                    from = addedChildren.getOrNull(i - 1),
+                    from = null,
                     to = child,
                     isPush = true,
                     changeHandler = child.inChangeHandler
@@ -111,6 +83,7 @@ class ViewManager(val container: ViewGroup) {
 
         // Replace the old visible top with the new one
         if (replacingTopChildren) {
+            log { "view manager: ${container.component?.key} -> replace top new ${newTopChild?.key} old ${oldTopChild?.key}" }
             val transition = if (isPush) newTopChild?.inChangeHandler
             else oldTopChild?.outChangeHandler
 
@@ -140,22 +113,25 @@ class ViewManager(val container: ViewGroup) {
         }
         handlerToUse.hasBeenUsed = true
 
-        log { "view manager ${container.component?.key} perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
+        log { "view manager: ${container.component?.key} -> perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val fromView = viewsByChild[from]
+        val fromView = _viewsByChild[from]
 
         val toView = if (to != null) {
-            viewsByChild.getOrPut(to) {
-                to.createView(container)
+            _viewsByChild.getOrPut(to) {
+                to as Component<View>
+                val view = to.createView(container)
+                to.bindView(view)
+                to.layoutChildViews(view)
+                to.bindChildViews(view)
+                return@getOrPut view
             }
         } else {
             null
         }
-
-        (to as? Component<View>)?.bindView(toView!!)
 
         val changeData = ComponentChangeHandler.ChangeData(
             container = container,
@@ -164,27 +140,29 @@ class ViewManager(val container: ViewGroup) {
             isPush = isPush,
             callback = object : ComponentChangeHandler.Callback {
                 override fun addToView() {
-                    if (toView != null && !toView.byId && toView.parent == null) {
-                        if (isPush || from == null) {
-                            container.addView(toView)
-                        } else {
-                            container.addView(toView, container.indexOfChild(fromView))
+                    if (toView != null) {
+                        if (!to!!.byId && toView.parent == null) {
+                            if (isPush || from == null) {
+                                container.addView(toView)
+                            } else {
+                                container.addView(toView, container.indexOfChild(fromView))
+                            }
                         }
                     }
                 }
 
                 override fun removeFromView() {
-                    if (fromView != null && !fromView.byId) {
-                        container.removeView(fromView)
+                    if (fromView != null) {
+                        if (!from!!.byId) container.removeView(fromView)
+                        from as Component<View>
+                        from.unbindChildViews(fromView)
+                        from.unbindView(fromView)
+                        _viewsByChild.remove(from)
                     }
                 }
 
                 override fun onComplete() {
                     if (to != null) runningTransitions -= to
-                    if (from != null && fromView != null) {
-                        (from as Component<View>).unbindView(fromView)
-                        viewsByChild.remove(from)
-                    }
                 }
             }
         )

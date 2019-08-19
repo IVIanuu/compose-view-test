@@ -59,5 +59,14 @@ fun ComponentComposition.Hidden(
     children()
 }
 
+fun ComponentComposition.ById(
+    value: Boolean,
+    children: ComponentComposition.() -> Unit
+) {
+    val state = ambient(ComponentEnvironmentAmbient)
+    state.byId = value
+    children()
+}
+
 fun <T : View> ComponentComposition.currentComponent(): Component<T> =
     ambient(ComponentEnvironmentAmbient).currentComponent as Component<T>

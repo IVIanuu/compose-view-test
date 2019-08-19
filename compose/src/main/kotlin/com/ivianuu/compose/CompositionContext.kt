@@ -27,10 +27,10 @@ import com.ivianuu.compose.internal.log
 class CompositionContext {
 
     private val root = Component(
+        key = "Root",
         viewType = "Root",
-        childViewController = DefaultChildViewController(),
         createView = { it }
-    ).apply { _key = "Root" }
+    )
 
     private val composeComponent = object : androidx.compose.Component() {
         @Suppress("PLUGIN_ERROR")
@@ -41,7 +41,9 @@ class CompositionContext {
             with(ComponentComposition(cc as Composer<Component<*>>)) {
                 val state = memo { ComponentEnvironment() }
                 ComponentEnvironmentAmbient.Provider(value = state) {
+                    state.pushComponent(root)
                     this@CompositionContext.composable?.invoke(this)
+                    state.popComponent()
                 }
                 state.reset()
             }
@@ -61,34 +63,35 @@ class CompositionContext {
         private set
 
     init {
-        log { "Context: init" }
+        log { "context: init" }
     }
 
     fun setContainer(container: ViewGroup) {
-        log { "Context: set container $container" }
+        log { "context: set container $container" }
         this.container = container
         root.createView(container)
         root.bindView(container)
+        root.layoutChildViews(container)
     }
 
     fun removeContainer() {
-        log { "Context: remove container" }
+        log { "context: remove container" }
         root.unbindView(container!!)
         this.container = null
     }
 
     fun setComposable(composable: ComponentComposition.() -> Unit) {
-        log { "Context: set composable" }
+        log { "context: set composable" }
         this.composable = composable
     }
 
     fun compose() {
-        log { "Context: compose" }
+        log { "context: compose" }
         composeContext.compose()
     }
 
     fun dispose() {
-        log { "Context: dispose" }
+        log { "context: dispose" }
         removeContainer()
         // todo must be improved
         this.composable = null

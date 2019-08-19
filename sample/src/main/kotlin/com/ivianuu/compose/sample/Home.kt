@@ -94,7 +94,7 @@ private enum class HomeItem(
         route = { PagerRoute() }
     ),
     Transition(
-        title = "Change handlers",
+        title = "Transitions",
         color = Color.Red,
         route = { TransitionDemos() }
     ),

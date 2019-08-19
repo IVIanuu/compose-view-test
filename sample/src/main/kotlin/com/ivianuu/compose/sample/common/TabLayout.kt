@@ -22,14 +22,12 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
-import com.ivianuu.compose.ChildViewController
-import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.getViewManager
 import com.ivianuu.compose.onBindView
-import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.onLayoutChildViews
 import com.ivianuu.compose.sample.R
 
 fun ComponentComposition.TabLayout(
@@ -37,11 +35,8 @@ fun ComponentComposition.TabLayout(
     onTabChanged: (Int) -> Unit,
     children: ComponentComposition.() -> Unit
 ) {
-    ViewByLayoutRes(
-        layoutRes = R.layout.tab_layout,
-        childViewController = TabLayoutChildViewController
-    ) {
-        val component = currentComponent<TabLayout>()
+    ViewByLayoutRes<TabLayout>(layoutRes = R.layout.tab_layout) {
+        val component = currentComponent()
         onBindView {
             with(it) {
                 component.children
@@ -82,29 +77,9 @@ fun ComponentComposition.TabLayout(
             }
         }
 
-        onUnbindView { view ->
-            with(view) {
-                (0 until tabCount)
-                    .forEach {
-                        (getTabAt(it)!!.customView as FrameLayout)
-                            .getViewManager().clear()
-                    }
-                removeAllTabs()
-            }
-        }
+        onLayoutChildViews { }
 
         children()
-    }
-}
-
-private object TabLayoutChildViewController : ChildViewController<TabLayout> {
-    override fun initChildViews(component: Component<TabLayout>, view: TabLayout) {
-    }
-
-    override fun updateChildViews(component: Component<TabLayout>, view: TabLayout) {
-    }
-
-    override fun clearChildViews(component: Component<TabLayout>, view: TabLayout) {
     }
 }
 

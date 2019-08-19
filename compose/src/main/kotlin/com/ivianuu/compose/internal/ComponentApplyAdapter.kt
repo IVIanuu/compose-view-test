@@ -28,7 +28,7 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
     private val childrenByParent =
         mutableMapOf<Component<*>, MutableList<Component<*>>>()
 
-    private fun MutableMap<Component<*>, MutableList<Component<*>>>.getOrPut(key: Component<*>): MutableList<Component<*>> {
+    private fun MutableMap<Component<*>, MutableList<Component<*>>>.getOrInit(key: Component<*>): MutableList<Component<*>> {
         return getOrPut(key) {
             mutableListOf<Component<*>>().apply {
                 addAll(key.children)
@@ -37,44 +37,40 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
     }
 
     override fun Component<*>.start(instance: Component<*>) {
-        log { "composition $key start" }
         currentStack.push(current)
         current = this
     }
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
-        log { "composition $key insert at $index ${instance.key}" }
-        childrenByParent.getOrPut(this).add(index, instance)
+        val children = childrenByParent.getOrInit(this)
+        check(children.none { it.key == instance.key }) {
+            "Duplicated key ${instance.key}"
+        }
+        children.add(index, instance)
     }
 
     override fun Component<*>.move(from: Int, to: Int, count: Int) {
-        val children = childrenByParent.getOrPut(this)
-        repeat(count) {
-            log { "composition $key move from $from to $to" }
-            children.add(to, children.removeAt(from))
-        }
+        val children = childrenByParent.getOrInit(this)
+        repeat(count) { children.add(to, children.removeAt(from)) }
     }
 
     override fun Component<*>.removeAt(index: Int, count: Int) {
-        val children = childrenByParent.getOrPut(this)
-        (index until index + count).forEach {
-            log { "composition $key remove at $it" }
-            children.removeAt(it)
-        }
+        val children = childrenByParent.getOrInit(this)
+        (index until index + count).forEach { children.removeAt(it) }
     }
 
     override fun Component<*>.end(instance: Component<*>, parent: Component<*>) {
         if (this != current && current == instance) {
-            log { "composition ${current.key} end" }
-            instance.updateChildren(childrenByParent.getOrPut(current))
-            childrenByParent.remove(current)
-
+            endCurrent()
             current = currentStack.pop()
-
             if (current == root) {
-                root.updateChildren(childrenByParent.getOrPut(root))
-                childrenByParent.remove(root)
+                endCurrent()
             }
         }
+    }
+
+    private fun endCurrent() {
+        current.updateChildren(childrenByParent[current] ?: current.children.toList())
+        childrenByParent.remove(current)
     }
 }
