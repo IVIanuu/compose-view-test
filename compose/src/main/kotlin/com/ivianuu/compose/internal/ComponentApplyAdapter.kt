@@ -70,7 +70,9 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
     }
 
     private fun endCurrent() {
-        current.updateChildren(childrenByParent[current] ?: current.children.toList())
-        childrenByParent.remove(current)
+        val children = childrenByParent.remove(current)
+        if (children != null && current.children != children) {
+            current.updateChildren(children)
+        }
     }
 }
