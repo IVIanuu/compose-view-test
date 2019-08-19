@@ -30,42 +30,6 @@ class ViewManager(val container: ViewGroup) {
     val viewsByChild: Map<Component<*>, View> get() = _viewsByChild
     private val _viewsByChild = mutableMapOf<Component<*>, View>()
 
-    fun init(children: List<Component<*>>) {
-        log { "view manager: ${container.component?.key} -> init ${children.map { it.key }}" }
-
-        this.children.clear()
-        this.children += children
-
-        children
-            .forEach {
-                log { "view manager: ${container.component?.key} -> add new ${it.key}" }
-
-                performChange(
-                    null,
-                    it,
-                    true,
-                    null
-                )
-            }
-    }
-
-    fun clear() {
-        log { "view manager: ${container.component?.key} -> clear ${children.map { it.key }}" }
-
-        children.forEach {
-            log { "view manager: ${container.component?.key} -> remove old ${it.key}" }
-
-            performChange(
-                it,
-                null,
-                false,
-                null
-            )
-        }
-
-        children.clear()
-    }
-
     fun update(newChildren: List<Component<*>>, isPush: Boolean) {
         log { "view manager: ${container.component?.key} -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 
