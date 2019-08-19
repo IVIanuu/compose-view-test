@@ -31,7 +31,8 @@ class Component<T : View>(
     val createView: (ViewGroup) -> T
 ) {
 
-    private var _parent: Component<*>? = null
+    var _parent: Component<*>? = null
+        private set
 
     private val _children = mutableListOf<Component<*>>()
     val children: List<Component<*>> get() = _children
@@ -146,7 +147,8 @@ class Component<T : View>(
             bindChildViewsBlock!!.invoke(view)
         } else {
             if (view !is ViewGroup) return
-            val allViews = view.getViewManager().viewsByChild.values
+
+            /*val allViews = view.getViewManager().viewsByChild.values
             children
                 .mapNotNull { child ->
                     val childView = allViews.firstOrNull { childView ->
@@ -160,11 +162,11 @@ class Component<T : View>(
                     log { "bind child views found $childView for ${child.key} bound to view was ? ${childView.component?.key}" }
                     child.bindView(childView)
                     // todo child.bindChildViews(childView)
-                }
+                }*/
 
-            /*view.getViewManager().viewsByChild.forEach { (component, view) ->
+            view.getViewManager().viewsByChild.forEach { (component, view) ->
                 (component as Component<View>).bindView(view)
-            }*/
+            }
         }
     }
 
@@ -176,7 +178,7 @@ class Component<T : View>(
         } else {
             if (view !is ViewGroup) return
 
-            val allViews = view.getViewManager().viewsByChild.values
+            /*val allViews = view.getViewManager().viewsByChild.values
             children
                 .mapNotNull { child ->
                     val childView = allViews.firstOrNull { childView ->
@@ -189,12 +191,12 @@ class Component<T : View>(
                     child as Component<View>
                     // todo child.unbindChildViews(childView)
                     child.unbindView(childView)
-                }
+                }*/
 
 
-            /*view.getViewManager().viewsByChild.forEach { (component, view) ->
+            view.getViewManager().viewsByChild.forEach { (component, view) ->
                 (component as Component<View>).unbindView(view)
-            }*/
+            }
         }
     }
 

@@ -26,8 +26,6 @@ import java.util.*
 
 // todo remove once we found a better solution to pass data around
 
-internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")
-
 internal class ComponentEnvironment(
     var inChangeHandler: ComponentChangeHandler? = null,
     var outChangeHandler: ComponentChangeHandler? = null,
@@ -84,3 +82,5 @@ internal class ComponentEnvironment(
 @PublishedApi
 internal fun <T : View> ComponentComposition.currentViewUpdater(): ViewUpdater<T> =
     ambient(ComponentEnvironmentAmbient).viewUpdater as ViewUpdater<T>
+
+internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")

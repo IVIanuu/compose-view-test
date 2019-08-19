@@ -29,7 +29,6 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
-import com.ivianuu.compose.internal.stackTrace
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.onBindChildViews
 import com.ivianuu.compose.onLayoutChildViews
@@ -101,16 +100,14 @@ fun ComponentComposition.RecyclerView(
         onUnbindView {
             layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
             it.adapter = null
-            stackTrace { "" }
         } // calls unbindView on all children
 
         val component = currentComponent()
         onLayoutChildViews {
-            (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList()) {
-                if (layoutManagerStateHolder.state != null) {
-                    it.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
-                    layoutManagerStateHolder.state = null
-                }
+            (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList())
+            if (layoutManagerStateHolder.state != null) {
+                it.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                layoutManagerStateHolder.state = null
             }
         }
 
