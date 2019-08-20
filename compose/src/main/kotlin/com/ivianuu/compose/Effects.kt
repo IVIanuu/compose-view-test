@@ -174,6 +174,14 @@ inline fun ComponentComposition.static(
     endGroup()
 }
 
+fun ComponentComposition.scope(block: ComponentComposition.() -> Unit) = with(composer) {
+    composer.startGroup(sourceLocation())
+    composer.startJoin(false) { block() }
+    block()
+    composer.doneJoin(false)
+    composer.endGroup()
+}
+
 inline fun <T> ComponentComposition.key(
     key: Any,
     block: ComponentComposition.() -> T
