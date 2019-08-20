@@ -23,7 +23,6 @@ import androidx.compose.EffectsDsl
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.checkIsComposing
-import com.ivianuu.compose.internal.join
 import com.ivianuu.compose.internal.log
 
 @EffectsDsl
@@ -42,54 +41,50 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
 
         log { "composer: emit $finalKey" }
 
-        join {
-            log { "composer: run $finalKey inserting ? $inserting" }
+        startNode(finalKey)
 
-            startNode(finalKey)
-
-            val node = if (inserting) {
-                Component(
-                    key = finalKey,
-                    viewType = viewType,
-                    createView = createView
-                ).also { emitNode(it) }
-            } else {
-                useNode() as Component<T>
-            }
-
-            node.inChangeHandler = environment.inChangeHandler
-            environment.inChangeHandler = null
-            node.outChangeHandler = environment.outChangeHandler
-            environment.outChangeHandler = null
-            node.isPush = environment.isPush
-            environment.isPush = true
-            node.hidden = environment.hidden
-            environment.hidden = false
-            node.byId = environment.byId
-            environment.byId = false
-
-            if (block != null) {
-                val updater = ViewUpdater<T>(composer)
-                environment.pushComponent(node)
-                environment.viewUpdater = updater
-                ComponentBuilder(composer, node).block()
-                node.viewUpdater = updater
-                if (updater.hasChanges) {
-                    node.generation++
-                }
-
-                environment.viewUpdater = null
-                environment.popComponent()
-            }
-
-            onCommit {
-                node.boundViews.forEach {
-                    node.bindView(it)
-                }
-            }
-
-            endNode()
+        val node = if (inserting) {
+            Component(
+                key = finalKey,
+                viewType = viewType,
+                createView = createView
+            ).also { emitNode(it) }
+        } else {
+            useNode() as Component<T>
         }
+
+        node.inChangeHandler = environment.inChangeHandler
+        environment.inChangeHandler = null
+        node.outChangeHandler = environment.outChangeHandler
+        environment.outChangeHandler = null
+        node.isPush = environment.isPush
+        environment.isPush = true
+        node.hidden = environment.hidden
+        environment.hidden = false
+        node.byId = environment.byId
+        environment.byId = false
+
+        if (block != null) {
+            val updater = ViewUpdater<T>(composer)
+            environment.pushComponent(node)
+            environment.viewUpdater = updater
+            ComponentBuilder(composer, node).block()
+            node.viewUpdater = updater
+            if (updater.hasChanges) {
+                node.generation++
+            }
+
+            environment.viewUpdater = null
+            environment.popComponent()
+        }
+
+        onCommit {
+            node.boundViews.forEach {
+                node.bindView(it)
+            }
+        }
+
+        endNode()
     }
 
 }

@@ -41,12 +41,6 @@ inline fun stackTrace(msg: () -> String) {
     }
 }
 
-fun Composer<*>.join(block: Composer<*>.() -> Unit) {
-    startJoin(false) { block() }
-    block()
-    doneJoin(false)
-}
-
 fun sourceLocation(): Any = 0
 
 fun ViewGroup.children(): List<View> {
