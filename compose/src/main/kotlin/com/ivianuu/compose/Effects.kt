@@ -20,6 +20,7 @@ import androidx.compose.Ambient
 import androidx.compose.CommitScope
 import androidx.compose.Composer
 import androidx.compose.Effect
+import androidx.compose.invocation
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.JoinedKey
 import com.ivianuu.compose.internal.checkIsComposing
@@ -129,7 +130,59 @@ inline fun <T> ComponentComposition.ambient(key: Ambient<T>) =
         sourceLocation()
     )
 
-fun <T> ComponentComposition.key(
+inline fun ComponentComposition.distinct(
+    vararg inputs: Any?,
+    block: ComponentComposition.() -> Unit
+) = with(composer) {
+    startGroup(sourceLocation())
+
+    if (arrayChanged(inputs)) {
+        startGroup(invocation)
+        block()
+        endGroup()
+    } else {
+        skipGroup(invocation)
+    }
+
+    endGroup()
+}
+
+@PublishedApi
+internal fun ComponentComposition.arrayChanged(inputs: Array<out Any?>) = with(composer) {
+    return@with if ((nextSlot() as? Array<out Any?>)?.let { !it.contentEquals(inputs) } ?: true || inserting) {
+        updateValue(inputs)
+        true
+    } else {
+        skipValue()
+        false
+    }
+}
+
+inline fun ComponentComposition.static(
+    block: ComponentComposition.() -> Unit
+) = with(composer) {
+    startGroup(sourceLocation())
+
+    if (inserting) {
+        startGroup(invocation)
+        block()
+        endGroup()
+    } else {
+        skipGroup(invocation)
+    }
+
+    endGroup()
+}
+
+fun ComponentComposition.scope(block: ComponentComposition.() -> Unit) = with(composer) {
+    composer.startGroup(sourceLocation())
+    composer.startJoin(false) { block() }
+    block()
+    composer.doneJoin(false)
+    composer.endGroup()
+}
+
+inline fun <T> ComponentComposition.key(
     key: Any,
     block: ComponentComposition.() -> T
 ): T = with(composer) {
@@ -148,7 +201,7 @@ inline fun <T> ComponentComposition.key(
     noinline block: ComponentComposition.() -> T
 ) = key(key = sourceLocation(), inputs = *inputs, block = block)
 
-fun <T> ComponentComposition.key(
+inline fun <T> ComponentComposition.key(
     key: Any,
     vararg inputs: Any?,
     block: ComponentComposition.() -> T

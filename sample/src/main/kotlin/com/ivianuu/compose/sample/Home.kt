@@ -71,7 +71,7 @@ private fun ComponentComposition.Checkable(
 private enum class HomeItem(
     val title: String,
     val color: Color,
-    val route: ComponentComposition.() -> Route
+    val route: () -> Route
 ) {
     Counter(
         title = "Counter",
@@ -106,21 +106,24 @@ private enum class HomeItem(
 }
 
 private fun ComponentComposition.HomeItem(item: HomeItem) {
-    val navigator = navigator
-    val route = item.route(this)
-    ViewByLayoutRes<View>(key = item, layoutRes = R.layout.home_item) {
-        set(item) {
-            home_title.text = item.title
-            setOnClickListener { navigator.push(route) }
-        }
+    key(item) {
+        val navigator = navigator
+        val route = item.route()
 
-        ViewById<View>(id = R.id.home_color_container) {
-            ViewByLayoutRes<ImageView>(layoutRes = R.layout.home_color) {
-                set(item.color) {
-                    setColorFilter(
-                        it.toArgb(),
-                        PorterDuff.Mode.SRC_IN
-                    )
+        ViewByLayoutRes<View>(layoutRes = R.layout.home_item) {
+            set(item) {
+                home_title.text = item.title
+                setOnClickListener { navigator.push(route) }
+            }
+
+            ViewById<View>(id = R.id.home_color_container) {
+                ViewByLayoutRes<ImageView>(layoutRes = R.layout.home_color) {
+                    set(item.color) {
+                        setColorFilter(
+                            it.toArgb(),
+                            PorterDuff.Mode.SRC_IN
+                        )
+                    }
                 }
             }
         }

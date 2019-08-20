@@ -24,6 +24,7 @@ import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.onActive
 import com.ivianuu.compose.sample.common.Scaffold
+import com.ivianuu.compose.scope
 import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.animation.view.*
@@ -33,27 +34,29 @@ fun AnimationRoute() = Route {
         Scaffold(
             appBar = { AppBar("Animation") },
             content = {
-                val (value, setValue) = state { 0f }
+                scope {
+                    val (value, setValue) = state { 0f }
 
-                onActive {
-                    val animation = ValueAnimator()
-                    animation.setFloatValues(0f, 1f)
-                    animation.repeatMode = ValueAnimator.REVERSE
-                    animation.repeatCount = ValueAnimator.INFINITE
+                    onActive {
+                        val animation = ValueAnimator()
+                        animation.setFloatValues(0f, 1f)
+                        animation.repeatMode = ValueAnimator.REVERSE
+                        animation.repeatCount = ValueAnimator.INFINITE
 
-                    animation.addUpdateListener {
-                        setValue(it.animatedFraction)
+                        animation.addUpdateListener {
+                            setValue(it.animatedFraction)
+                        }
+
+                        animation.start()
+
+                        onDispose { animation.cancel() }
                     }
 
-                    animation.start()
-
-                    onDispose { animation.cancel() }
-                }
-
-                ViewByLayoutRes<View>(layoutRes = R.layout.animation) {
-                    set(value) {
-                        animation_view.scaleX = it
-                        animation_view.scaleY = it
+                    ViewByLayoutRes<View>(layoutRes = R.layout.animation) {
+                        set(value) {
+                            animation_view.scaleX = it
+                            animation_view.scaleY = it
+                        }
                     }
                 }
             }

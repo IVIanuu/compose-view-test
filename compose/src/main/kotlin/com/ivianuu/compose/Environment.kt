@@ -19,7 +19,7 @@ package com.ivianuu.compose
 import android.view.View
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 
-fun ComponentComposition.ChangeHandlers(
+inline fun ComponentComposition.ChangeHandlers(
     handler: ComponentChangeHandler?,
     children: ComponentComposition.() -> Unit
 ) {
@@ -30,7 +30,7 @@ fun ComponentComposition.ChangeHandlers(
     )
 }
 
-fun ComponentComposition.ChangeHandlers(
+inline fun ComponentComposition.ChangeHandlers(
     inHandler: ComponentChangeHandler? = null,
     outHandler: ComponentChangeHandler? = null,
     children: ComponentComposition.() -> Unit
@@ -41,7 +41,7 @@ fun ComponentComposition.ChangeHandlers(
     children()
 }
 
-fun ComponentComposition.TransitionHints(
+inline fun ComponentComposition.TransitionHints(
     isPush: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
@@ -50,7 +50,7 @@ fun ComponentComposition.TransitionHints(
     children()
 }
 
-fun ComponentComposition.Hidden(
+inline fun ComponentComposition.Hidden(
     value: Boolean,
     children: ComponentComposition.() -> Unit
 ) {
@@ -59,7 +59,7 @@ fun ComponentComposition.Hidden(
     children()
 }
 
-fun ComponentComposition.ById(
+inline fun ComponentComposition.ById(
     value: Boolean,
     children: ComponentComposition.() -> Unit
 ) {

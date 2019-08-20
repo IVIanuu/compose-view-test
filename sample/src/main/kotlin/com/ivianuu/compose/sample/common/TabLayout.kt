@@ -84,7 +84,7 @@ fun ComponentComposition.TabLayout(
 }
 
 fun ComponentComposition.TabItem(text: String) {
-    ViewByLayoutRes<TextView>(key = text, layoutRes = R.layout.tab_item) {
+    ViewByLayoutRes<TextView>(layoutRes = R.layout.tab_item) {
         onBindView { it.text = text }
     }
 }

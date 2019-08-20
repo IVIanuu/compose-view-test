@@ -36,7 +36,9 @@ class Component<T : View>(
 
     private val _children = mutableListOf<Component<*>>()
     val children: List<Component<*>> get() = _children
-    val visibleChildren: List<Component<*>> get() = children.filterNot { it.hidden }
+
+    private val _visibleChildren = mutableListOf<Component<*>>()
+    val visibleChildren: List<Component<*>> get() = _visibleChildren
 
     val boundViews: Set<T> get() = _boundViews
     private val _boundViews = mutableSetOf<T>()
@@ -60,6 +62,10 @@ class Component<T : View>(
     internal var generation = 0
 
     fun updateChildren(newChildren: List<Component<*>>) {
+        val newVisibleChildren = newChildren.filter { !it.hidden }
+
+        if (_children == newChildren && _visibleChildren == newVisibleChildren) return
+
         log { "lifecycle: $key -> update children new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
 
         _children
@@ -72,6 +78,9 @@ class Component<T : View>(
 
         _children.clear()
         _children += newChildren
+
+        _visibleChildren.clear()
+        _visibleChildren += newVisibleChildren
 
         _boundViews.forEach {
             layoutChildViews(it)

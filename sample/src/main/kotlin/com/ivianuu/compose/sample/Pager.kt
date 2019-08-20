@@ -85,7 +85,9 @@ fun PagerRoute() = Route {
                         onTabChanged = { selectedPage = it },
                         children = {
                             (1..5).forEach { i ->
-                                TabItem("Tab $i")
+                                key(i) {
+                                    TabItem("Tab $i")
+                                }
                             }
                         }
                     )

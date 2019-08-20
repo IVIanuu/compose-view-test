@@ -37,12 +37,12 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         checkIsComposing()
 
         val environment = ambient(ComponentEnvironmentAmbient)
-
         val finalKey = environment.joinKey(key)
+
+        log { "composer: emit $finalKey" }
 
         startNode(finalKey)
 
-        log { "composer: emit $finalKey inserting ? $inserting" }
         val node = if (inserting) {
             Component(
                 key = finalKey,
