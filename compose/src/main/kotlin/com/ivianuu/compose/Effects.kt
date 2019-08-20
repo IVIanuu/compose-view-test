@@ -129,7 +129,7 @@ inline fun <T> ComponentComposition.ambient(key: Ambient<T>) =
         sourceLocation()
     )
 
-fun <T> ComponentComposition.key(
+inline fun <T> ComponentComposition.key(
     key: Any,
     block: ComponentComposition.() -> T
 ): T = with(composer) {
@@ -148,7 +148,7 @@ inline fun <T> ComponentComposition.key(
     noinline block: ComponentComposition.() -> T
 ) = key(key = sourceLocation(), inputs = *inputs, block = block)
 
-fun <T> ComponentComposition.key(
+inline fun <T> ComponentComposition.key(
     key: Any,
     vararg inputs: Any?,
     block: ComponentComposition.() -> T

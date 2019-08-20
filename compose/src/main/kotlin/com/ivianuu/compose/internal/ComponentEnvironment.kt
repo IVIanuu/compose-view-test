@@ -26,6 +26,7 @@ import java.util.*
 
 // todo remove once we found a better solution to pass data around
 
+@PublishedApi
 internal class ComponentEnvironment(
     var inChangeHandler: ComponentChangeHandler? = null,
     var outChangeHandler: ComponentChangeHandler? = null,
@@ -62,7 +63,9 @@ internal class ComponentEnvironment(
         groupKey = groupKeyStack.pop()
     }
 
-    fun joinKey(key: Any): Any = if (groupKey != null) JoinedKey(key, groupKey) else key
+    fun joinKey(key: Any): Any {
+        return if (groupKey != null) JoinedKey(key, groupKey) else key
+    }
 
     fun reset() {
         inChangeHandler = null
@@ -83,4 +86,5 @@ internal class ComponentEnvironment(
 internal fun <T : View> ComponentComposition.currentViewUpdater(): ViewUpdater<T> =
     ambient(ComponentEnvironmentAmbient).viewUpdater as ViewUpdater<T>
 
+@PublishedApi
 internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")

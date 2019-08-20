@@ -29,39 +29,37 @@ import java.lang.reflect.Constructor
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-fun <T : View> ComponentComposition.View(
-    key: Any,
+inline fun <T : View> ComponentComposition.View(
     viewType: Any,
-    createView: (ViewGroup) -> T,
-    block: (ComponentBuilder<T>.() -> Unit)? = null
+    noinline createView: (ViewGroup) -> T,
+    noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    emit(key = key, viewType = viewType, createView = createView, block = block)
+    emit(key = sourceLocation(), viewType = viewType, createView = createView, block = block)
+}
+
+private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
+
+@PublishedApi
+internal fun <T : View> createViewByType(type: KClass<T>): (ViewGroup) -> T = { container ->
+    constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
+        .newInstance(container.context) as T
 }
 
 inline fun <reified T : View> ComponentComposition.View(
     viewType: Any = T::class,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    View(key = sourceLocation(), type = T::class, viewType = viewType, block = block)
-}
-
-private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
-
-fun <T : View> ComponentComposition.View(
-    key: Any,
-    type: KClass<T>,
-    viewType: Any = type,
-    block: (ComponentBuilder<T>.() -> Unit)? = null
-) {
     View(
-        key = key,
         viewType = viewType,
-        createView = { container ->
-            constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
-                .newInstance(container.context) as T
-        },
+        createView = createViewByType(T::class),
         block = block
     )
+}
+
+@PublishedApi
+internal fun <T : View> createViewByLayoutRes(layoutRes: Int): (ViewGroup) -> T = { container ->
+    LayoutInflater.from(container.context)
+        .inflate(layoutRes, container, false) as T
 }
 
 inline fun <T : View> ComponentComposition.ViewByLayoutRes(
@@ -69,27 +67,9 @@ inline fun <T : View> ComponentComposition.ViewByLayoutRes(
     viewType: Any = layoutRes,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    ViewByLayoutRes(
-        key = sourceLocation(),
-        layoutRes = layoutRes,
-        viewType = viewType,
-        block = block
-    )
-}
-
-fun <T : View> ComponentComposition.ViewByLayoutRes(
-    key: Any,
-    layoutRes: Int,
-    viewType: Any = layoutRes,
-    block: (ComponentBuilder<T>.() -> Unit)? = null
-) {
     View(
-        key = key,
         viewType = viewType,
-        createView = { container ->
-            LayoutInflater.from(container.context)
-                .inflate(layoutRes, container, false) as T
-        },
+        createView = createViewByLayoutRes(layoutRes),
         block = block
     )
 }
@@ -99,23 +79,8 @@ inline fun <T : View> ComponentComposition.ViewById(
     viewType: Any = id,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    ViewById(
-        key = sourceLocation(),
-        id = id,
-        viewType = viewType,
-        block = block
-    )
-}
-
-fun <T : View> ComponentComposition.ViewById(
-    key: Any,
-    id: Int,
-    viewType: Any = id,
-    block: (ComponentBuilder<T>.() -> Unit)? = null
-) {
     ById(value = true) {
         View(
-            key = key,
             viewType = viewType,
             createView = { it.findViewById(id) },
             block = block
