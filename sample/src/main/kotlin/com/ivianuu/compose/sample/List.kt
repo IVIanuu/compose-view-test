@@ -29,6 +29,7 @@ import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
+import com.ivianuu.compose.distinct
 import com.ivianuu.compose.key
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
@@ -45,14 +46,13 @@ fun ListRoute() = Route {
                     (0..100).forEach {
                         key(it) {
                             val (checked, setChecked) = state { false }
-
-                            ChangeHandlers(handler = null) {
+                            distinct(checked) {
                                 ListItem(
                                     title = "Title $it",
                                     text = "Text: $it",
                                     onClick = { setChecked(!checked) },
                                     leadingAction = {
-                                        ColorAvatar(color = Color.RED, index = it)
+                                        ColorAvatar(color = Color.RED)
                                     },
                                     trailingAction = {
                                         Checkbox(checked = checked, onCheckedChanged = setChecked)
@@ -67,7 +67,7 @@ fun ListRoute() = Route {
     }
 }
 
-private fun ComponentComposition.ColorAvatar(color: Int, index: Int) {
+private fun ComponentComposition.ColorAvatar(color: Int) {
     ViewByLayoutRes<ImageView>(layoutRes = R.layout.avatar) {
         set(color) { setBackgroundColor(it) }
     }
