@@ -125,9 +125,12 @@ class Component<T : View>(
             viewUpdater?.getBlocks(ViewUpdater.Type.Update)
                 ?.forEach { it(view) }
         }
+
+        bindChildViews(view)
     }
 
     fun unbindView(view: T) {
+        unbindChildViews(view)
         log { "lifecycle: $key -> unbind view $view" }
         unbindViewBlocks?.forEach { it(view) }
         view.generation = null
@@ -173,9 +176,13 @@ class Component<T : View>(
                     // todo child.bindChildViews(childView)
                 }*/
 
-            view.getViewManager().viewsByChild.forEach { (component, view) ->
+            /*view.getViewManager().viewsByChild.forEach { (component, view) ->
                 (component as Component<View>).bindView(view)
-            }
+            }*/
+            view.getViewManager().update(
+                visibleChildren,
+                visibleChildren.lastOrNull()?.isPush ?: true
+            )
         }
     }
 
@@ -203,9 +210,10 @@ class Component<T : View>(
                 }*/
 
 
-            view.getViewManager().viewsByChild.forEach { (component, view) ->
+            /*view.getViewManager().viewsByChild.forEach { (component, view) ->
                 (component as Component<View>).unbindView(view)
-            }
+            }*/
+            view.getViewManager().update(emptyList(), false)
         }
     }
 
