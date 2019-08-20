@@ -127,36 +127,6 @@ private class ComposeRecyclerViewAdapter :
 
     private var lastItemViewTypeRequest: Component<*>? = null
 
-    init {
-        setHasStableIds(true)
-        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                super.onItemRangeInserted(positionStart, itemCount)
-                println("adapter: inserted $positionStart $itemCount")
-            }
-
-            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-                super.onItemRangeChanged(positionStart, itemCount)
-                println("adapter: changed $positionStart $itemCount")
-            }
-
-            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
-                println("adapter: removed $fromPosition $toPosition $itemCount")
-            }
-
-            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-                super.onItemRangeRemoved(positionStart, itemCount)
-                println("adapter: removed $positionStart $itemCount")
-            }
-        })
-    }
-
-    override fun submitList(list: List<Component<*>>?) {
-        println("adapter: submit list ${list?.map { it.key }}")
-        super.submitList(list)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component =
             lastItemViewTypeRequest ?: currentList.first { it.getViewType() == viewType }
