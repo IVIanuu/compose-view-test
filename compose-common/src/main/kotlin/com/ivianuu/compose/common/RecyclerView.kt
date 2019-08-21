@@ -30,6 +30,7 @@ import com.ivianuu.compose.View
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
 import com.ivianuu.compose.memo
+import com.ivianuu.compose.onDestroyView
 import com.ivianuu.compose.onUpdateChildViews
 import com.ivianuu.compose.set
 import kotlinx.coroutines.flow.Flow
@@ -94,11 +95,9 @@ fun ComponentComposition.RecyclerView(
 
         init { adapter = ComposeRecyclerViewAdapter() }
 
-        // todo
-        /*onUnbindView {
+        onDestroyView {
             layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
-            it.adapter = null
-        }*/ // calls unbindView on all children
+        } // calls unbindView on all children
 
         val component = currentComponent()
         onUpdateChildViews {
@@ -139,12 +138,6 @@ class ComposeRecyclerViewAdapter :
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(getItem(position) as Component<View>)
-    }
-
-    override fun onViewRecycled(holder: Holder) {
-        super.onViewRecycled(holder)
-        holder.unbind()
     }
 
     override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
@@ -155,21 +148,7 @@ class ComposeRecyclerViewAdapter :
         return component.key.hashCode()
     }
 
-    inner class Holder(val view: View) : RecyclerView.ViewHolder(view) {
-
-        private var boundComponent: Component<View>? = null
-
-        fun bind(component: Component<View>) {
-            boundComponent = component
-            //component.bindView()
-        }
-
-        fun unbind() {
-            if (!adapterAttached) {
-                //boundComponent?.unbindView()
-            }
-        }
-    }
+    class Holder(val view: View) : RecyclerView.ViewHolder(view)
 
     private companion object {
         val ITEM_CALLBACK = object : DiffUtil.ItemCallback<Component<*>>() {

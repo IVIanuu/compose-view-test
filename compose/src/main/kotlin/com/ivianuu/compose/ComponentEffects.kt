@@ -46,6 +46,31 @@ inline fun <T : View> ComponentBuilder<T>.onUpdateView(
     }
 }
 
+inline fun <T : View> ComponentBuilder<T>.onDestroyView(
+    noinline callback: (T) -> Unit
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = null,
+        callback = callback
+    ) { component, _callback ->
+        component.onDestroyView(_callback)
+    }
+}
+
+inline fun <T : View> ComponentBuilder<T>.onDestroyView(
+    vararg inputs: Any?,
+    noinline callback: (T) -> Unit
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = inputs,
+        callback = callback
+    ) { component, _callback ->
+        component.onDestroyView(_callback)
+    }
+}
+
 inline fun <T : View> ComponentBuilder<T>.onUpdateChildViews(
     noinline callback: (T) -> Unit
 ) {

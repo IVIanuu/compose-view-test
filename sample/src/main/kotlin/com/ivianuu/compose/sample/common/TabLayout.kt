@@ -53,7 +53,7 @@ fun ComponentComposition.TabLayout(
                         child to tab
                     }
                     .forEach { (child, tab) ->
-                        (tab.customView as ViewGroup).getViewManager()
+                        (tab.customView as ViewGroup).getViewManager(component)
                             .update(listOf(child), true)
                     }
 

@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ComposeAccessor
 import androidx.compose.Composer
-import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 
 var loggingEnabled = true
@@ -49,13 +48,6 @@ fun ViewGroup.children(): List<View> {
 }
 
 internal fun tagKey(key: String): Int = (3 shl 24) or key.hashCode()
-
-private val componentKey = tagKey("component")
-var View.component: Component<*>?
-    get() = getTag(componentKey) as? Component<*>
-    set(value) {
-        setTag(componentKey, value)
-    }
 
 private val genDefaultLayoutParams by lazy {
     val method = ViewGroup::class.java.getDeclaredMethod("generateDefaultLayoutParams")
