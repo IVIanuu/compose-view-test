@@ -32,6 +32,7 @@ internal class ComponentEnvironment(
     var outChangeHandler: ComponentChangeHandler? = null,
     var isPush: Boolean = true,
     var hidden: Boolean = false,
+    var shareViews: Boolean = true,
     var byId: Boolean = false,
     var viewUpdater: ViewUpdater<*>? = null
 ) {
@@ -72,6 +73,7 @@ internal class ComponentEnvironment(
         outChangeHandler = null
         isPush = true
         hidden = false
+        shareViews = true
         byId = false
         currentComponent = null
         currentComponentStack.clear()

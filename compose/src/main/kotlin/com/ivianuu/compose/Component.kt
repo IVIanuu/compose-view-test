@@ -21,9 +21,11 @@ import android.view.ViewGroup
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.ensureLayoutParams
 import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.internal.tagKey
 
 class Component<T : View>(
     val key: Any,
+    val viewKey: Any,
     val createView: (ViewGroup) -> T
 ) {
 
@@ -36,13 +38,13 @@ class Component<T : View>(
     private val _visibleChildren = mutableListOf<Component<*>>()
     val visibleChildren: List<Component<*>> get() = _visibleChildren
 
-    var view: T? = null
-        private set
+    private val boundViews = mutableSetOf<T>()
 
-    private var updateViewCallbacks: MutableList<(T) -> Unit>? = null
-    private var destroyViewCallbacks: MutableList<(T) -> Unit>? = null
+    private var bindViewCallbacks: MutableList<(T) -> Unit>? = null
+    private var unbindViewCallbacks: MutableList<(T) -> Unit>? = null
 
-    private var updateChildViewCallback: ((T, Boolean) -> Unit)? = null
+    private var updateChildViewsCallback: ((T, Boolean) -> Unit)? = null
+    private var clearChildViewsCallback: ((T) -> Unit)? = null
 
     internal var viewUpdater: ViewUpdater<T>? = null
 
@@ -51,16 +53,15 @@ class Component<T : View>(
     internal var isPush = true
     internal var hidden = false
         internal set
+    internal var shareViews = true
+        internal set
     internal var byId = false
         internal set
     internal var generation = 1
 
-    private var viewGeneration: Int? = null
-
     fun update() {
-        if (generation == viewGeneration) return
         log { "lifecycle: $key -> update" }
-        updateView()
+        boundViews.forEach { bindView(it) }
     }
 
     fun updateChildren(newChildren: List<Component<*>>) {
@@ -84,52 +85,37 @@ class Component<T : View>(
         _visibleChildren.clear()
         _visibleChildren += newVisibleChildren
 
-        updateChildViews(false)
+        boundViews.forEach { updateChildViews(it, false) }
     }
 
     fun createView(container: ViewGroup): T {
-        var view = this.view
-        log { "lifecycle: $key -> create view $container is creating new ? ${view == null}" }
-        if (view == null) {
-            view = createView.invoke(container)
-            view.ensureLayoutParams(container)
-            this.view = view
-            updateView()
-            if (_children.isNotEmpty()) updateChildViews(true)
-        }
+        log { "lifecycle: $key -> create view $container" }
+        val view = createView.invoke(container)
+        view.ensureLayoutParams(container)
+        bindView(view)
         return view
     }
 
-    fun destroyView() {
-        val view = this.view ?: return
-        children.reversed().forEach { it.destroyView() }
+    fun bindView(view: T) {
+        log { "lifecycle: $key -> bind view $view is new? ${view.generation == null}" }
 
-        log { "lifecycle: $key -> destroy view $view" }
+        boundViews += view
 
-        destroyViewCallbacks?.forEach { it(view) }
-        this.view = null
-        viewGeneration = null
-    }
+        bindViewCallbacks?.forEach { it(view) }
 
-    private fun updateView() {
-        val view = this.view ?: return
-        log { "lifecycle: $key -> update view $view" }
-
-        updateViewCallbacks?.forEach { it(view) }
-
-        val newView = viewGeneration == null
+        val newView = view.generation == null
 
         if (newView) {
-            log { "updater: $key -> update new view $viewGeneration to $generation" }
-            viewGeneration = generation
+            log { "updater: $key -> update new view ${view.generation} to $generation" }
+            view.generation = generation
             viewUpdater?.getBlocks(
                 ViewUpdater.Type.Init,
                 ViewUpdater.Type.Update,
                 ViewUpdater.Type.Value
             )?.forEach { it(view) }
-        } else if (viewGeneration != generation) {
-            log { "updater: $key -> update view $viewGeneration to $generation" }
-            viewGeneration = generation
+        } else if (view.generation != generation) {
+            log { "updater: $key -> update view ${view.generation} to $generation" }
+            view.generation = generation
             viewUpdater?.getBlocks(ViewUpdater.Type.Update, ViewUpdater.Type.Value)
                 ?.forEach { it(view) }
         } else {
@@ -137,48 +123,85 @@ class Component<T : View>(
             viewUpdater?.getBlocks(ViewUpdater.Type.Update)
                 ?.forEach { it(view) }
         }
+
+        updateChildViews(view, false) // todo init
     }
 
-    private fun updateChildViews(init: Boolean) {
-        val view = this.view ?: return
+    fun unbindView(view: T, clearChildViews: Boolean) {
+        if (clearChildViews) {
+            clearChildViews(view)
+        }
 
-        log { "lifecycle: $key -> update child views $view is init ? $init block ? $updateChildViewCallback" }
+        log { "lifecycle: $key -> unbind view $view" }
+        unbindViewCallbacks?.forEach { it(view) }
+        view.generation = null
+        boundViews -= view
+    }
 
-        if (updateChildViewCallback != null) {
-            updateChildViewCallback!!.invoke(view, init)
+    private fun updateChildViews(view: T, init: Boolean) {
+        log { "lifecycle: $key -> update child views $view is init ? $init block ? $updateChildViewsCallback" }
+
+        if (updateChildViewsCallback != null) {
+            updateChildViewsCallback!!.invoke(view, init)
         } else {
             if (view !is ViewGroup) return
             with(view.getViewManager(this)) {
-                if (init) {
-                    rebind(visibleChildren)
-                } else {
-                    update(
-                        visibleChildren,
-                        visibleChildren.lastOrNull()?.isPush ?: true
-                    )
-                }
+                update(
+                    visibleChildren,
+                    visibleChildren.lastOrNull()?.isPush ?: true,
+                    !init
+                )
             }
         }
     }
 
+    private fun clearChildViews(view: T) {
+        log { "lifecycle: $key -> clear child views $view ? $clearChildViewsCallback" }
+
+        if (clearChildViewsCallback != null) {
+            clearChildViewsCallback!!.invoke(view)
+        } else {
+            if (view !is ViewGroup) return
+            view.getViewManager(this).update(
+                newChildren = emptyList(),
+                isPush = false,
+                animate = false
+            )
+        }
+    }
+
+
     @PublishedApi
-    internal fun onUpdateView(callback: (T) -> Unit): () -> Unit {
-        if (updateViewCallbacks == null) updateViewCallbacks = mutableListOf()
-        updateViewCallbacks!! += callback
-        return { updateViewCallbacks!! -= callback }
+    internal fun onBindView(callback: (T) -> Unit): () -> Unit {
+        if (bindViewCallbacks == null) bindViewCallbacks = mutableListOf()
+        bindViewCallbacks!! += callback
+        return { bindViewCallbacks!! -= callback }
     }
 
     @PublishedApi
-    internal fun onDestroyView(callback: (T) -> Unit): () -> Unit {
-        if (destroyViewCallbacks == null) destroyViewCallbacks = mutableListOf()
-        destroyViewCallbacks!! += callback
-        return { destroyViewCallbacks!! -= callback }
+    internal fun onUnbindView(callback: (T) -> Unit): () -> Unit {
+        if (unbindViewCallbacks == null) unbindViewCallbacks = mutableListOf()
+        unbindViewCallbacks!! += callback
+        return { }
     }
 
     @PublishedApi
     internal fun onUpdateChildViews(callback: (T, Boolean) -> Unit): () -> Unit {
-        updateChildViewCallback = callback
-        return { updateChildViewCallback = null }
+        updateChildViewsCallback = callback
+        return { updateChildViewsCallback = null }
+    }
+
+    @PublishedApi
+    internal fun onClearChildViews(callback: (T) -> Unit): () -> Unit {
+        clearChildViewsCallback = callback
+        return { }
     }
 
 }
+
+private val viewGenerationKey = tagKey("viewGeneration")
+private var View.generation: Int?
+    get() = getTag(viewGenerationKey) as? Int
+    set(value) {
+        setTag(viewGenerationKey, value)
+    }

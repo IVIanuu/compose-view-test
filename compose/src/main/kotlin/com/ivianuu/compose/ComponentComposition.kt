@@ -29,6 +29,7 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
 
     fun <T : View> emit(
         key: Any,
+        viewKey: Any,
         createView: (ViewGroup) -> T,
         block: (ComponentBuilder<T>.() -> Unit)? = null
     ) = with(composer) {
@@ -44,6 +45,7 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
         val node = if (inserting) {
             Component(
                 key = finalKey,
+                viewKey = viewKey,
                 createView = createView
             ).also { emitNode(it) }
         } else {
@@ -58,6 +60,8 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
         environment.isPush = true
         node.hidden = environment.hidden
         environment.hidden = false
+        node.shareViews = environment.shareViews
+        environment.shareViews = true
         node.byId = environment.byId
         environment.byId = false
 

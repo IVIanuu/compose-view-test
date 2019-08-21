@@ -28,6 +28,7 @@ class CompositionContext {
 
     private val root = Component(
         key = "Root",
+        viewKey = "Root",
         createView = { it }
     )
 
@@ -75,8 +76,10 @@ class CompositionContext {
 
     fun removeContainer() {
         log { "context: remove container" }
-        root.destroyView()
-        this.container = null
+        if (container != null) {
+            root.unbindView(container!!, true)
+            this.container = null
+        }
     }
 
     fun setComposable(composable: ComponentComposition.() -> Unit) {
