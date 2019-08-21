@@ -25,7 +25,7 @@ import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.log
 
 //@EffectsDsl
-inline class ComponentComposition(val composer: Composer<Component<*>>) {
+class ComponentComposition(val composer: Composer<Component<*>>) {
 
     fun <T : View> emit(
         key: Any,
