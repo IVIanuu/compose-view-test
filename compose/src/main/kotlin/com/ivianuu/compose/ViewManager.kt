@@ -115,6 +115,8 @@ class ViewManager(val key: Any, val container: ViewGroup) {
         childrenToReplace.forEach { (newChild, oldChild) ->
             log { "view manager: $key -> rebind new ${newChild.key} old ${oldChild.key}" }
 
+            cancelTransition(oldChild)
+
             val view = viewsByViewKey.getValue(newChild.viewKey)
             oldChild as Component<View>
             oldChild.unbindView(view, false)
