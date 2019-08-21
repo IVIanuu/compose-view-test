@@ -38,8 +38,8 @@ class Component<T : View>(
     private val _visibleChildren = mutableListOf<Component<*>>()
     val visibleChildren: List<Component<*>> get() = _visibleChildren
 
-    val boundViews: Set<T> get() = _boundViews
-    private val _boundViews = mutableSetOf<T>()
+    var view: T? = null
+        private set
 
     private var bindViewBlocks: MutableList<(T) -> Unit>? = null
     private var unbindViewBlocks: MutableList<(T) -> Unit>? = null
@@ -80,25 +80,29 @@ class Component<T : View>(
         _visibleChildren.clear()
         _visibleChildren += newVisibleChildren
 
-        _boundViews.forEach {
-            layoutChildViews(it)
-            bindChildViews(it)
-        }
+        layoutChildViews()
     }
 
     fun createView(container: ViewGroup): T {
+        var view = this.view
         log { "lifecycle: $key -> create view $container" }
-        val view = createView.invoke(container)
-        view.ensureLayoutParams(container)
+        if (view == null) {
+            view = createView.invoke(container)
+            view.ensureLayoutParams(container)
+            this.view = view
+            bindView()
+            layoutChildViews()
+        }
         return view
     }
 
-    fun bindView(view: T) {
+    fun bindView() {
+        val view = this.view ?: return
         log { "lifecycle: $key -> bind view $view" }
 
+        // todo remove
+        // todo add a viewGeneration field or something
         val newView = view.component != this
-
-        _boundViews += view
         view.component = this
 
         bindViewBlocks?.forEach { it(view) }
@@ -123,19 +127,21 @@ class Component<T : View>(
                 ?.forEach { it(view) }
         }
 
-        bindChildViews(view)
+        bindChildViews()
     }
 
-    fun unbindView(view: T) {
-        unbindChildViews(view)
+    fun unbindView() {
+        val view = this.view ?: return
+        unbindChildViews()
         log { "lifecycle: $key -> unbind view $view" }
         unbindViewBlocks?.forEach { it(view) }
         view.generation = null
         view.component = null
-        _boundViews -= view
     }
 
-    fun layoutChildViews(view: T) {
+    private fun layoutChildViews() {
+        val view = this.view ?: return
+
         log { "lifecycle: $key -> layout child views $view block ? $layoutChildViewsBlock" }
 
         if (layoutChildViewsBlock != null) {
@@ -149,7 +155,9 @@ class Component<T : View>(
         }
     }
 
-    fun bindChildViews(view: T) {
+    private fun bindChildViews() {
+        val view = this.view ?: return
+
         log { "lifecycle: $key -> bind child views $view block ? $layoutChildViewsBlock" }
 
         if (bindChildViewsBlock != null) {
@@ -163,7 +171,9 @@ class Component<T : View>(
         }
     }
 
-    fun unbindChildViews(view: T) {
+    private fun unbindChildViews() {
+        val view = this.view ?: return
+
         log { "lifecycle: $key -> unbind child views $view block ? $layoutChildViewsBlock" }
 
         if (unbindChildViewsBlock != null) {

@@ -122,16 +122,26 @@ fun ComponentComposition.RecyclerView(
 
 private data class LayoutManagerStateHolder(var state: Parcelable? = null)
 
-private class ComposeRecyclerViewAdapter :
+class ComposeRecyclerViewAdapter :
     ListAdapter<Component<*>, ComposeRecyclerViewAdapter.Holder>(ITEM_CALLBACK) {
 
     private var lastItemViewTypeRequest: Component<*>? = null
+    private var adapterAttached = false
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        adapterAttached = true
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        adapterAttached = false
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component =
             lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
         val view = component.createView(parent)
-        (component as Component<View>).layoutChildViews(view)
         return Holder(view)
     }
 
@@ -152,17 +162,19 @@ private class ComposeRecyclerViewAdapter :
         return component.key.hashCode()
     }
 
-    class Holder(val view: View) : RecyclerView.ViewHolder(view) {
+    inner class Holder(val view: View) : RecyclerView.ViewHolder(view) {
 
         private var boundComponent: Component<View>? = null
 
         fun bind(component: Component<View>) {
             boundComponent = component
-            component.bindView(view)
+            component.bindView()
         }
 
         fun unbind() {
-            boundComponent?.unbindView(view)
+            if (!adapterAttached) {
+                boundComponent?.unbindView()
+            }
         }
     }
 

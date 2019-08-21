@@ -27,9 +27,6 @@ class ViewManager(val container: ViewGroup) {
     val children = mutableListOf<Component<*>>()
     private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
 
-    val viewsByChild: Map<Component<*>, View> get() = _viewsByChild
-    private val _viewsByChild = mutableMapOf<Component<*>, View>()
-
     fun update(newChildren: List<Component<*>>, isPush: Boolean) {
         log { "view manager: ${container.component?.key} -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 
@@ -118,20 +115,9 @@ class ViewManager(val container: ViewGroup) {
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val fromView = _viewsByChild[from]
+        val fromView = from?.view
 
-        val toView = if (to != null) {
-            _viewsByChild.getOrPut(to) {
-                to as Component<View>
-                val view = to.createView(container)
-                to.bindView(view)
-                to.layoutChildViews(view)
-                to.bindChildViews(view)
-                return@getOrPut view
-            }
-        } else {
-            null
-        }
+        val toView = to?.createView(container)
 
         val changeData = ComponentChangeHandler.ChangeData(
             container = container,
@@ -141,7 +127,7 @@ class ViewManager(val container: ViewGroup) {
             callback = object : ComponentChangeHandler.Callback {
                 override fun addToView() {
                     if (toView != null) {
-                        if (!to!!.byId && toView.parent == null) {
+                        if (!to.byId && toView.parent == null) {
                             if (isPush || from == null) {
                                 container.addView(toView)
                             } else {
@@ -153,11 +139,9 @@ class ViewManager(val container: ViewGroup) {
 
                 override fun removeFromView() {
                     if (fromView != null) {
-                        if (!from!!.byId) container.removeView(fromView)
+                        if (!from.byId) container.removeView(fromView)
                         from as Component<View>
-                        from.unbindChildViews(fromView)
-                        from.unbindView(fromView)
-                        _viewsByChild.remove(from)
+                        from.unbindView()
                     }
                 }
 

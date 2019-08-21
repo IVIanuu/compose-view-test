@@ -75,11 +75,7 @@ inline class ComponentComposition(val composer: Composer<Component<*>>) {
             environment.popComponent()
         }
 
-        onCommit {
-            node.boundViews.forEach {
-                node.bindView(it)
-            }
-        }
+        onCommit { node.bindView() }
 
         endNode()
     }

@@ -69,13 +69,12 @@ class CompositionContext {
         log { "context: set container $container" }
         this.container = container
         root.createView(container)
-        root.bindView(container)
-        root.layoutChildViews(container)
+        root.bindView()
     }
 
     fun removeContainer() {
         log { "context: remove container" }
-        root.unbindView(container!!)
+        root.unbindView()
         this.container = null
     }
 
