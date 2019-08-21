@@ -154,11 +154,14 @@ class ComposeRecyclerViewAdapter :
 
         private var boundComponent: Component<*>? = null
 
+        private var init = true
+
         fun bind(component: Component<*>) {
             unbind()
             boundComponent = component
             component as Component<View>
-            component.bindView(view)
+            component.bindView(view, init)
+            init = false
         }
 
         fun unbind() {

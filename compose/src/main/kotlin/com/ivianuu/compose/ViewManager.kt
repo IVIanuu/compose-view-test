@@ -119,7 +119,7 @@ class ViewManager(val key: Any, val container: ViewGroup) {
             oldChild as Component<View>
             oldChild.unbindView(view, false)
             newChild as Component<View>
-            newChild.bindView(view)
+            newChild.bindView(view, false)
         }
     }
 
@@ -149,9 +149,16 @@ class ViewManager(val key: Any, val container: ViewGroup) {
 
         val toView = if (to != null) {
             if (from?.viewKey != to.viewKey) {
-                viewsByViewKey.getOrPut(to.viewKey) { to.createView(container) }
+                viewsByViewKey.getOrPut(to.viewKey) {
+                    val view = to.createView(container)
+                    to as Component<View>
+                    to.bindView(view, true)
+                    view
+                }
             } else {
                 val view = to.createView(container)
+                to as Component<View>
+                to.bindView(view, true)
                 viewsByViewKey[to.viewKey] = view
                 view
             }

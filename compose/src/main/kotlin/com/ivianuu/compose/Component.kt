@@ -61,7 +61,7 @@ class Component<T : View>(
 
     fun update() {
         log { "lifecycle: $key -> update" }
-        boundViews.forEach { bindView(it) }
+        boundViews.forEach { bindView(it, false) }
     }
 
     fun updateChildren(newChildren: List<Component<*>>) {
@@ -92,11 +92,10 @@ class Component<T : View>(
         log { "lifecycle: $key -> create view $container" }
         val view = createView.invoke(container)
         view.ensureLayoutParams(container)
-        bindView(view)
         return view
     }
 
-    fun bindView(view: T) {
+    fun bindView(view: T, init: Boolean) {
         log { "lifecycle: $key -> bind view $view is new? ${view.generation == null}" }
 
         boundViews += view
@@ -124,7 +123,7 @@ class Component<T : View>(
                 ?.forEach { it(view) }
         }
 
-        updateChildViews(view, false) // todo init
+        updateChildViews(view, init)
     }
 
     fun unbindView(view: T, clearChildViews: Boolean) {
