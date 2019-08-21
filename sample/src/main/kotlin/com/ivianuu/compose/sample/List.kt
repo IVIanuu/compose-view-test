@@ -170,11 +170,11 @@ private fun ComponentComposition.ListItem(
         }
 
         ViewById<View>(id = R.id.list_leading_action) {
-            leadingAction?.invoke(this)
+            leadingAction?.invoke(composition)
         }
 
         ViewById<View>(id = R.id.list_trailing_action) {
-            trailingAction?.invoke(this)
+            trailingAction?.invoke(composition)
         }
 
     }

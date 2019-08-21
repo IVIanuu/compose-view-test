@@ -152,7 +152,7 @@ private class ComposeRecyclerViewAdapter :
         return component.getViewType().hashCode()
     }
 
-    private fun Component<*>.getViewType(): Any = key//viewType to children.map { it.getViewType() }
+    private fun Component<*>.getViewType(): Any = viewType to children.map { it.getViewType() }
 
     class Holder(val view: View) : RecyclerView.ViewHolder(view) {
 

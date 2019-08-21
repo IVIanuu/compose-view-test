@@ -24,9 +24,10 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.ViewById
 import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.ambient
+import com.ivianuu.compose.common.NavigatorAmbient
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
-import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.key
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
@@ -107,7 +108,7 @@ private enum class HomeItem(
 
 private fun ComponentComposition.HomeItem(item: HomeItem) {
     key(item) {
-        val navigator = navigator
+        val navigator = ambient(NavigatorAmbient)
         val route = item.route()
 
         ViewByLayoutRes<View>(layoutRes = R.layout.home_item) {

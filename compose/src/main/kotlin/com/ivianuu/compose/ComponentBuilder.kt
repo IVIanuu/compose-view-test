@@ -20,8 +20,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composer
-import androidx.compose.EffectsDsl
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.currentViewUpdater
 import com.ivianuu.compose.internal.sourceLocation
@@ -88,31 +86,39 @@ inline fun <T : View> ComponentComposition.ViewById(
     }
 }
 
-@EffectsDsl
+//@EffectsDsl
 class ComponentBuilder<T : View>(
-    composer: Composer<Component<*>>,
+    val composition: ComponentComposition,
     val component: Component<T>
-) : ComponentComposition(composer)
+)
 
 fun <T : View, V> ComponentBuilder<T>.set(value: V, block: T.(V) -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().set(value) { block(it) }
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().set(value) { block(it) }
+    }
 }
 
 fun <T : View> ComponentBuilder<T>.setBy(vararg values: Any?, block: T.() -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().setBy(*values) { block() }
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().setBy(*values) { block() }
+    }
 }
 
 fun <T : View> ComponentBuilder<T>.init(block: T.() -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().init(block)
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().init(block)
+    }
 }
 
 fun <T : View> ComponentBuilder<T>.update(block: T.() -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().update(block)
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().update(block)
+    }
 }
 
 inline fun <T : View> ComponentBuilder<T>.currentComponent() =
-    (this as ComponentComposition).currentComponent<T>()
+    composition.currentComponent<T>()

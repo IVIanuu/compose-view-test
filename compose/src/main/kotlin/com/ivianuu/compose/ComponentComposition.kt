@@ -19,14 +19,13 @@ package com.ivianuu.compose
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Composer
-import androidx.compose.EffectsDsl
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.log
 
-@EffectsDsl
-open class ComponentComposition internal constructor(val composer: Composer<Component<*>>) {
+//@EffectsDsl
+inline class ComponentComposition(val composer: Composer<Component<*>>) {
 
     fun <T : View> emit(
         key: Any,
@@ -68,7 +67,7 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
             val updater = ViewUpdater<T>(composer)
             environment.pushComponent(node)
             environment.viewUpdater = updater
-            ComponentBuilder(composer, node).block()
+            ComponentBuilder(this@ComponentComposition, node).block()
             node.viewUpdater = updater
             if (updater.hasChanges) {
                 node.generation++

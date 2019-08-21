@@ -20,11 +20,12 @@ import android.view.View
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ViewById
 import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.ambient
 import com.ivianuu.compose.common.Navigator
+import com.ivianuu.compose.common.NavigatorAmbient
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
-import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.key
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
@@ -57,7 +58,7 @@ fun MultipleChildrenRoute() = Route {
 private fun ChildRoute(index: Int): Route = Route(key = index) {
     ChangeHandlers(handler = HorizontalChangeHandler()) {
         ViewByLayoutRes<View>(layoutRes = R.layout.navigation) {
-            val navigator = navigator
+            val navigator = ambient(NavigatorAmbient)
             set(index) {
                 title.text = "#$index"
                 next_button.setOnClickListener { navigator.push(ChildRoute(index = index + 1)) }

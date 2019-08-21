@@ -153,21 +153,23 @@ internal fun <T : View, C> ComponentBuilder<T>.callbackEffect(
     callback: C,
     addCallback: (Component<T>, C) -> () -> Unit
 ) {
-    checkIsComposing()
-    key(key) {
-        val component = currentComponent<T>()
-        val callbackHolder = memo { CallbackHolder(null) }
-        if (inputs != null) {
-            composer.remember(*inputs) {
+    with(composition) {
+        checkIsComposing()
+        key(key) {
+            val component = currentComponent<T>()
+            val callbackHolder = memo { CallbackHolder(null) }
+            if (inputs != null) {
+                composer.remember(*inputs) {
+                    callbackHolder.callback?.invoke()
+                    callbackHolder.callback = addCallback(component, callback)
+                }
+            } else {
+                composer.changed(callback)
                 callbackHolder.callback?.invoke()
                 callbackHolder.callback = addCallback(component, callback)
             }
-        } else {
-            composer.changed(callback)
-            callbackHolder.callback?.invoke()
-            callbackHolder.callback = addCallback(component, callback)
+            onDispose { callbackHolder.callback?.invoke() }
         }
-        onDispose { callbackHolder.callback?.invoke() }
     }
 }
 

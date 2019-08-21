@@ -22,14 +22,15 @@ import androidx.ui.graphics.Color
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.ambient
 import com.ivianuu.compose.common.Navigator
+import com.ivianuu.compose.common.NavigatorAmbient
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.CircularRevealChangeHandler
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.common.launchOnActive
-import com.ivianuu.compose.common.navigator
 import com.ivianuu.compose.key
 import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.sample.common.Scaffold
@@ -58,7 +59,7 @@ fun TransitionDemos() = Route {
                     }
                 } else {
                     key("transitions") {
-                        val parentNavigator = navigator
+                        val parentNavigator = ambient(NavigatorAmbient)
                         Navigator {
                             TransitionDemo(TransitionDemo.values().first(), parentNavigator)
                         }
@@ -74,7 +75,7 @@ private fun TransitionDemo(
     parentNavigator: Navigator
 ): Route = Route(key = transitionDemo) {
     ChangeHandlers(handler = transitionDemo.getTransition()) {
-        val navigator = navigator
+        val navigator = ambient(NavigatorAmbient)
 
         key(transitionDemo) {
             ViewByLayoutRes<View>(layoutRes = transitionDemo.layoutRes) {
