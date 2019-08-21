@@ -32,7 +32,7 @@ import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.common.launchOnActive
 import com.ivianuu.compose.key
-import com.ivianuu.compose.onBindView
+import com.ivianuu.compose.onUpdateView
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
 import com.ivianuu.compose.sample.handler.FlipChangeHandler
@@ -79,7 +79,7 @@ private fun TransitionDemo(
 
         key(transitionDemo) {
             ViewByLayoutRes<View>(layoutRes = transitionDemo.layoutRes) {
-                onBindView {
+                onUpdateView {
                     with(it) {
                         if (transitionDemo.color != Color.Transparent && transition_bg != null) {
                             transition_bg.setBackgroundColor(transitionDemo.color.toArgb())

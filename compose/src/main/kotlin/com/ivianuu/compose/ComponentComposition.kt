@@ -61,6 +61,8 @@ inline class ComponentComposition(val composer: Composer<Component<*>>) {
         node.byId = environment.byId
         environment.byId = false
 
+        var changed = false
+
         if (block != null) {
             val updater = ViewUpdater<T>(composer)
             environment.pushComponent(node)
@@ -69,13 +71,18 @@ inline class ComponentComposition(val composer: Composer<Component<*>>) {
             node.viewUpdater = updater
             if (updater.hasChanges) {
                 node.generation++
+                changed = true
             }
 
             environment.viewUpdater = null
             environment.popComponent()
         }
 
-        onCommit { node.bindView() }
+        onCommit {
+            if (changed) {
+                node.update()
+            }
+        }
 
         endNode()
     }

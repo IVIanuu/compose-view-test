@@ -21,8 +21,7 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.common.ComposeRecyclerViewAdapter
 import com.ivianuu.compose.init
-import com.ivianuu.compose.onLayoutChildViews
-import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.onUpdateChildViews
 import com.ivianuu.compose.set
 
 fun ComponentComposition.ViewPager(
@@ -34,7 +33,7 @@ fun ComponentComposition.ViewPager(
         init { adapter = ComposeRecyclerViewAdapter() }
 
         val component = component
-        onLayoutChildViews { (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren) }
+        onUpdateChildViews { (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren) }
 
         set(selectedPage) { currentItem = selectedPage }
 
@@ -47,7 +46,7 @@ fun ComponentComposition.ViewPager(
             })
         }
 
-        onUnbindView { it.adapter = null }
+        // todo onUnbindView { it.adapter = null }
 
         children()
     }

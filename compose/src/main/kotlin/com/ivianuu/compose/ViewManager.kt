@@ -141,7 +141,7 @@ class ViewManager(val container: ViewGroup) {
                     if (fromView != null) {
                         if (!from.byId) container.removeView(fromView)
                         from as Component<View>
-                        from.unbindView()
+                        from.destroyView()
                     }
                 }
 

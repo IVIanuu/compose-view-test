@@ -30,10 +30,7 @@ import com.ivianuu.compose.View
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
 import com.ivianuu.compose.memo
-import com.ivianuu.compose.onBindChildViews
-import com.ivianuu.compose.onLayoutChildViews
-import com.ivianuu.compose.onUnbindChildViews
-import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.onUpdateChildViews
 import com.ivianuu.compose.set
 import kotlinx.coroutines.flow.Flow
 
@@ -97,23 +94,19 @@ fun ComponentComposition.RecyclerView(
 
         init { adapter = ComposeRecyclerViewAdapter() }
 
-        onUnbindView {
+        // todo
+        /*onUnbindView {
             layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
             it.adapter = null
-        } // calls unbindView on all children
+        }*/ // calls unbindView on all children
 
         val component = currentComponent()
-        onLayoutChildViews {
+        onUpdateChildViews {
             (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList())
             if (layoutManagerStateHolder.state != null) {
                 it.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
                 layoutManagerStateHolder.state = null
             }
-        }
-
-        onBindChildViews {
-        }
-        onUnbindChildViews {
         }
 
         children()
@@ -168,12 +161,12 @@ class ComposeRecyclerViewAdapter :
 
         fun bind(component: Component<View>) {
             boundComponent = component
-            component.bindView()
+            //component.bindView()
         }
 
         fun unbind() {
             if (!adapterAttached) {
-                boundComponent?.unbindView()
+                //boundComponent?.unbindView()
             }
         }
     }
