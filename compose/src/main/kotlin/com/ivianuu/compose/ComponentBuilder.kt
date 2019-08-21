@@ -28,11 +28,10 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 inline fun <T : View> ComponentComposition.View(
-    viewType: Any,
     noinline createView: (ViewGroup) -> T,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    emit(key = sourceLocation(), viewType = viewType, createView = createView, block = block)
+    emit(key = sourceLocation(), createView = createView, block = block)
 }
 
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
@@ -44,11 +43,9 @@ internal fun <T : View> createViewByType(type: KClass<T>): (ViewGroup) -> T = { 
 }
 
 inline fun <reified T : View> ComponentComposition.View(
-    viewType: Any = T::class,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     View(
-        viewType = viewType,
         createView = createViewByType(T::class),
         block = block
     )
@@ -62,11 +59,9 @@ internal fun <T : View> createViewByLayoutRes(layoutRes: Int): (ViewGroup) -> T 
 
 inline fun <T : View> ComponentComposition.ViewByLayoutRes(
     layoutRes: Int,
-    viewType: Any = layoutRes,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     View(
-        viewType = viewType,
         createView = createViewByLayoutRes(layoutRes),
         block = block
     )
@@ -74,12 +69,10 @@ inline fun <T : View> ComponentComposition.ViewByLayoutRes(
 
 inline fun <T : View> ComponentComposition.ViewById(
     id: Int,
-    viewType: Any = id,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     ById(value = true) {
         View(
-            viewType = viewType,
             createView = { it.findViewById(id) },
             block = block
         )

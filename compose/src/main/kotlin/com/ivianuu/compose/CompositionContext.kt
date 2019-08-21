@@ -28,7 +28,6 @@ class CompositionContext {
 
     private val root = Component(
         key = "Root",
-        viewType = "Root",
         createView = { it }
     )
 

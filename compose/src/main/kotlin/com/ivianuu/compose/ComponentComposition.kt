@@ -29,7 +29,6 @@ inline class ComponentComposition(val composer: Composer<Component<*>>) {
 
     fun <T : View> emit(
         key: Any,
-        viewType: Any,
         createView: (ViewGroup) -> T,
         block: (ComponentBuilder<T>.() -> Unit)? = null
     ) = with(composer) {
@@ -45,7 +44,6 @@ inline class ComponentComposition(val composer: Composer<Component<*>>) {
         val node = if (inserting) {
             Component(
                 key = finalKey,
-                viewType = viewType,
                 createView = createView
             ).also { emitNode(it) }
         } else {

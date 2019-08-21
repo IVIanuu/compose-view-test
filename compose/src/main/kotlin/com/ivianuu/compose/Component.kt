@@ -23,11 +23,9 @@ import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.ensureLayoutParams
 import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.tagKey
-import com.ivianuu.compose.internal.viewType
 
 class Component<T : View>(
     val key: Any,
-    val viewType: Any,
     val createView: (ViewGroup) -> T
 ) {
 
@@ -91,7 +89,6 @@ class Component<T : View>(
     fun createView(container: ViewGroup): T {
         log { "lifecycle: $key -> create view $container" }
         val view = createView.invoke(container)
-        view.viewType = viewType
         view.ensureLayoutParams(container)
         return view
     }
@@ -159,26 +156,6 @@ class Component<T : View>(
             bindChildViewsBlock!!.invoke(view)
         } else {
             if (view !is ViewGroup) return
-
-            /*val allViews = view.getViewManager().viewsByChild.values
-            children
-                .mapNotNull { child ->
-                    val childView = allViews.firstOrNull { childView ->
-                        childView.viewType == child.viewType
-                    }
-
-                    childView?.let { child to it }
-                }
-                .forEach { (child, childView) ->
-                    child as Component<View>
-                    log { "bind child views found $childView for ${child.key} bound to view was ? ${childView.component?.key}" }
-                    child.bindView(childView)
-                    // todo child.bindChildViews(childView)
-                }*/
-
-            /*view.getViewManager().viewsByChild.forEach { (component, view) ->
-                (component as Component<View>).bindView(view)
-            }*/
             view.getViewManager().update(
                 visibleChildren,
                 visibleChildren.lastOrNull()?.isPush ?: true
@@ -193,26 +170,6 @@ class Component<T : View>(
             unbindChildViewsBlock!!.invoke(view)
         } else {
             if (view !is ViewGroup) return
-
-            /*val allViews = view.getViewManager().viewsByChild.values
-            children
-                .mapNotNull { child ->
-                    val childView = allViews.firstOrNull { childView ->
-                        childView.viewType == child.viewType
-                    }
-
-                    childView?.let { child to it }
-                }
-                .forEach { (child, childView) ->
-                    child as Component<View>
-                    // todo child.unbindChildViews(childView)
-                    child.unbindView(childView)
-                }*/
-
-
-            /*view.getViewManager().viewsByChild.forEach { (component, view) ->
-                (component as Component<View>).unbindView(view)
-            }*/
             view.getViewManager().update(emptyList(), false)
         }
     }

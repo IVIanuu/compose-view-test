@@ -57,13 +57,6 @@ var View.component: Component<*>?
         setTag(componentKey, value)
     }
 
-private val viewTypeKey = tagKey("viewType")
-var View.viewType: Any?
-    get() = getTag(viewTypeKey)
-    set(value) {
-        setTag(viewTypeKey, value)
-    }
-
 private val genDefaultLayoutParams by lazy {
     val method = ViewGroup::class.java.getDeclaredMethod("generateDefaultLayoutParams")
     method.isAccessible = true
