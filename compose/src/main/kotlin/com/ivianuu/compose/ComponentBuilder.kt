@@ -20,8 +20,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.Composer
-import androidx.compose.EffectsDsl
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.currentViewUpdater
 import com.ivianuu.compose.internal.sourceLocation
@@ -30,11 +28,10 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 inline fun <T : View> ComponentComposition.View(
-    viewType: Any,
     noinline createView: (ViewGroup) -> T,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    emit(key = sourceLocation(), viewType = viewType, createView = createView, block = block)
+    emit(key = sourceLocation(), createView = createView, block = block)
 }
 
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
@@ -46,11 +43,9 @@ internal fun <T : View> createViewByType(type: KClass<T>): (ViewGroup) -> T = { 
 }
 
 inline fun <reified T : View> ComponentComposition.View(
-    viewType: Any = T::class,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     View(
-        viewType = viewType,
         createView = createViewByType(T::class),
         block = block
     )
@@ -64,11 +59,9 @@ internal fun <T : View> createViewByLayoutRes(layoutRes: Int): (ViewGroup) -> T 
 
 inline fun <T : View> ComponentComposition.ViewByLayoutRes(
     layoutRes: Int,
-    viewType: Any = layoutRes,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     View(
-        viewType = viewType,
         createView = createViewByLayoutRes(layoutRes),
         block = block
     )
@@ -76,43 +69,49 @@ inline fun <T : View> ComponentComposition.ViewByLayoutRes(
 
 inline fun <T : View> ComponentComposition.ViewById(
     id: Int,
-    viewType: Any = id,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     ById(value = true) {
         View(
-            viewType = viewType,
             createView = { it.findViewById(id) },
             block = block
         )
     }
 }
 
-@EffectsDsl
+//@EffectsDsl
 class ComponentBuilder<T : View>(
-    composer: Composer<Component<*>>,
+    val composition: ComponentComposition,
     val component: Component<T>
-) : ComponentComposition(composer)
+)
 
 fun <T : View, V> ComponentBuilder<T>.set(value: V, block: T.(V) -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().set(value) { block(it) }
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().set(value) { block(it) }
+    }
 }
 
 fun <T : View> ComponentBuilder<T>.setBy(vararg values: Any?, block: T.() -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().setBy(*values) { block() }
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().setBy(*values) { block() }
+    }
 }
 
 fun <T : View> ComponentBuilder<T>.init(block: T.() -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().init(block)
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().init(block)
+    }
 }
 
 fun <T : View> ComponentBuilder<T>.update(block: T.() -> Unit) {
-    checkIsComposing()
-    currentViewUpdater<T>().update(block)
+    with(composition) {
+        checkIsComposing()
+        currentViewUpdater<T>().update(block)
+    }
 }
 
 inline fun <T : View> ComponentBuilder<T>.currentComponent() =
-    (this as ComponentComposition).currentComponent<T>()
+    composition.currentComponent<T>()

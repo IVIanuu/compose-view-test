@@ -30,10 +30,8 @@ import com.ivianuu.compose.View
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.init
 import com.ivianuu.compose.memo
-import com.ivianuu.compose.onBindChildViews
-import com.ivianuu.compose.onLayoutChildViews
-import com.ivianuu.compose.onUnbindChildViews
-import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.onDestroyView
+import com.ivianuu.compose.onUpdateChildViews
 import com.ivianuu.compose.set
 import kotlinx.coroutines.flow.Flow
 
@@ -97,23 +95,17 @@ fun ComponentComposition.RecyclerView(
 
         init { adapter = ComposeRecyclerViewAdapter() }
 
-        onUnbindView {
+        onDestroyView {
             layoutManagerStateHolder.state = it.layoutManager?.onSaveInstanceState()
-            it.adapter = null
         } // calls unbindView on all children
 
         val component = currentComponent()
-        onLayoutChildViews {
-            (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList())
+        onUpdateChildViews { view, _ ->
+            (view.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList())
             if (layoutManagerStateHolder.state != null) {
-                it.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                view.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
                 layoutManagerStateHolder.state = null
             }
-        }
-
-        onBindChildViews {
-        }
-        onUnbindChildViews {
         }
 
         children()
@@ -122,26 +114,19 @@ fun ComponentComposition.RecyclerView(
 
 private data class LayoutManagerStateHolder(var state: Parcelable? = null)
 
-private class ComposeRecyclerViewAdapter :
+class ComposeRecyclerViewAdapter :
     ListAdapter<Component<*>, ComposeRecyclerViewAdapter.Holder>(ITEM_CALLBACK) {
 
     private var lastItemViewTypeRequest: Component<*>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component =
-            lastItemViewTypeRequest ?: currentList.first { it.getViewType() == viewType }
+            lastItemViewTypeRequest ?: currentList.first { it.key.hashCode() == viewType }
         val view = component.createView(parent)
-        (component as Component<View>).layoutChildViews(view)
         return Holder(view)
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(getItem(position) as Component<View>)
-    }
-
-    override fun onViewRecycled(holder: Holder) {
-        super.onViewRecycled(holder)
-        holder.unbind()
     }
 
     override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
@@ -149,26 +134,10 @@ private class ComposeRecyclerViewAdapter :
     override fun getItemViewType(position: Int): Int {
         val component = getItem(position)
         lastItemViewTypeRequest = component
-        return component.getViewType().hashCode()
+        return component.key.hashCode()
     }
 
-    private fun Component<*>.getViewType(): Any = viewType to children.map { it.getViewType() }
-
-    class Holder(val view: View) : RecyclerView.ViewHolder(view) {
-
-        private var boundComponent: Component<View>? = null
-
-        fun bind(component: Component<View>) {
-            boundComponent = component
-            component.bindView(view)
-            component.bindChildViews(view)
-        }
-
-        fun unbind() {
-            boundComponent?.unbindChildViews(view)
-            boundComponent?.unbindView(view)
-        }
-    }
+    class Holder(val view: View) : RecyclerView.ViewHolder(view)
 
     private companion object {
         val ITEM_CALLBACK = object : DiffUtil.ItemCallback<Component<*>>() {

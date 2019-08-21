@@ -21,7 +21,6 @@ import androidx.compose.Recompose
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.TransitionHints
-import com.ivianuu.compose.ambient
 import com.ivianuu.compose.internal.sourceLocation
 import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
@@ -91,11 +90,17 @@ class Navigator internal constructor(private val startRoute: Route) {
     fun compose(componentComposition: ComponentComposition) {
         backStack
             .filter { it.keepState || it.isVisible() }
-            .forEach {
-                componentComposition.key(it.key) {
-                    TransitionHints(wasPush) {
-                        Hidden(!it.isVisible()) {
-                            it._compose(componentComposition)
+            .forEach { route ->
+                componentComposition.key(key = route.key) {
+                    TransitionHints(isPush = wasPush) {
+                        Hidden(value = !route.isVisible()) {
+                            RouteAmbient.Provider(value = route) {
+                                with(route) {
+                                    with(componentComposition) {
+                                        compose()
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -115,8 +120,7 @@ class Navigator internal constructor(private val startRoute: Route) {
     }
 }
 
-private val NavigatorAmbient = Ambient.of<Navigator>()
-val ComponentComposition.navigator: Navigator get() = ambient(NavigatorAmbient)
+val NavigatorAmbient = Ambient.of<Navigator>()
 
 interface Route {
 
@@ -126,12 +130,6 @@ interface Route {
     val keepState: Boolean
 
     fun ComponentComposition.compose()
-
-    fun _compose(componentComposition: ComponentComposition) {
-        with(componentComposition) {
-            compose()
-        }
-    }
 
 }
 
@@ -157,6 +155,8 @@ fun Route(
         get() = keepState
 
     override fun ComponentComposition.compose() {
-        content.invoke(this)
+        content()
     }
 }
+
+val RouteAmbient = Ambient.of<Route?>("CurrentRoute") { null }

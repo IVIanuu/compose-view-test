@@ -16,22 +16,31 @@
 
 package com.ivianuu.compose
 
-import android.view.View
 import android.view.ViewGroup
-import com.ivianuu.compose.internal.component
 import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.tagKey
 
-class ViewManager(val container: ViewGroup) {
+class ViewManager(val key: Any, val container: ViewGroup) {
 
     val children = mutableListOf<Component<*>>()
     private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
 
-    val viewsByChild: Map<Component<*>, View> get() = _viewsByChild
-    private val _viewsByChild = mutableMapOf<Component<*>, View>()
+    fun rebind(newChildren: List<Component<*>>) {
+        children.clear()
+        children += newChildren
+
+        newChildren.forEach {
+            performChange(
+                from = null,
+                to = it,
+                changeHandler = DefaultChangeHandler(),
+                isPush = true
+            )
+        }
+    }
 
     fun update(newChildren: List<Component<*>>, isPush: Boolean) {
-        log { "view manager: ${container.component?.key} -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
+        log { "view manager: $key -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 
         if (children == newChildren) return
 
@@ -56,7 +65,7 @@ class ViewManager(val container: ViewGroup) {
             .dropLast(if (replacingTopChildren) 1 else 0)
             .reversed()
             .forEach { child ->
-                log { "view manager: ${container.component?.key} -> remove old ${child.key}" }
+                log { "view manager: $key -> remove old ${child.key}" }
 
                 cancelTransition(child)
                 performChange(
@@ -71,7 +80,7 @@ class ViewManager(val container: ViewGroup) {
         addedChildren
             .dropLast(if (replacingTopChildren) 1 else 0)
             .forEach { child ->
-                log { "view manager: ${container.component?.key} -> add new ${child.key}" }
+                log { "view manager: $key -> add new ${child.key}" }
 
                 performChange(
                     from = null,
@@ -83,7 +92,7 @@ class ViewManager(val container: ViewGroup) {
 
         // Replace the old visible top with the new one
         if (replacingTopChildren) {
-            log { "view manager: ${container.component?.key} -> replace top new ${newTopChild?.key} old ${oldTopChild?.key}" }
+            log { "view manager: $key -> replace top new ${newTopChild?.key} old ${oldTopChild?.key}" }
             val transition = if (isPush) newTopChild?.inChangeHandler
             else oldTopChild?.outChangeHandler
 
@@ -113,25 +122,14 @@ class ViewManager(val container: ViewGroup) {
         }
         handlerToUse.hasBeenUsed = true
 
-        log { "view manager: ${container.component?.key} -> perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
+        log { "view manager: $key -> perform change from ${from?.key} to ${to?.key} is push $isPush changeHandler $handlerToUse" }
 
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val fromView = _viewsByChild[from]
+        val fromView = from?.view
 
-        val toView = if (to != null) {
-            _viewsByChild.getOrPut(to) {
-                to as Component<View>
-                val view = to.createView(container)
-                to.bindView(view)
-                to.layoutChildViews(view)
-                to.bindChildViews(view)
-                return@getOrPut view
-            }
-        } else {
-            null
-        }
+        val toView = to?.createView(container)
 
         val changeData = ComponentChangeHandler.ChangeData(
             container = container,
@@ -141,7 +139,7 @@ class ViewManager(val container: ViewGroup) {
             callback = object : ComponentChangeHandler.Callback {
                 override fun addToView() {
                     if (toView != null) {
-                        if (!to!!.byId && toView.parent == null) {
+                        if (!to.byId && toView.parent == null) {
                             if (isPush || from == null) {
                                 container.addView(toView)
                             } else {
@@ -153,11 +151,8 @@ class ViewManager(val container: ViewGroup) {
 
                 override fun removeFromView() {
                     if (fromView != null) {
-                        if (!from!!.byId) container.removeView(fromView)
-                        from as Component<View>
-                        from.unbindChildViews(fromView)
-                        from.unbindView(fromView)
-                        _viewsByChild.remove(from)
+                        if (!from.byId) container.removeView(fromView)
+                        from.destroyView()
                     }
                 }
 
@@ -174,10 +169,10 @@ class ViewManager(val container: ViewGroup) {
 
 private val viewManagerKey = tagKey("viewManager")
 
-fun ViewGroup.getViewManager(): ViewManager {
+fun ViewGroup.getViewManager(component: Component<*>): ViewManager {
     var viewManager = getTag(viewManagerKey) as? ViewManager
     if (viewManager == null) {
-        viewManager = ViewManager(this)
+        viewManager = ViewManager(component, this)
         setTag(viewManagerKey, viewManager)
     }
 

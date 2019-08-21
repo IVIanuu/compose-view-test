@@ -19,15 +19,19 @@ package com.ivianuu.compose.sample
 import com.google.android.material.appbar.MaterialToolbar
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.common.navigator
+import com.ivianuu.compose.ambient
+import com.ivianuu.compose.common.NavigatorAmbient
+import com.ivianuu.compose.common.RouteAmbient
 import com.ivianuu.compose.set
 
 fun ComponentComposition.AppBar(title: String) {
     ViewByLayoutRes<MaterialToolbar>(layoutRes = R.layout.app_bar) {
-        val navigator = navigator
-
         set(title) { this.title = it }
-        set(navigator.backStack.size > 1) {
+
+        val route = ambient(RouteAmbient) ?: return@ViewByLayoutRes
+        val navigator = ambient(NavigatorAmbient)
+
+        set(navigator.backStack.indexOf(route) > 0) {
             if (it) {
                 this.setNavigationIcon(R.drawable.abc_ic_ab_back_material)
                 setNavigationOnClickListener { navigator.pop() }

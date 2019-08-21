@@ -28,7 +28,6 @@ class CompositionContext {
 
     private val root = Component(
         key = "Root",
-        viewType = "Root",
         createView = { it }
     )
 
@@ -67,16 +66,16 @@ class CompositionContext {
     }
 
     fun setContainer(container: ViewGroup) {
+        removeContainer()
+
         log { "context: set container $container" }
         this.container = container
         root.createView(container)
-        root.bindView(container)
-        root.layoutChildViews(container)
     }
 
     fun removeContainer() {
         log { "context: remove container" }
-        root.unbindView(container!!)
+        root.destroyView()
         this.container = null
     }
 

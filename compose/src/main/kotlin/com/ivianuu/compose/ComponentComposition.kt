@@ -19,18 +19,16 @@ package com.ivianuu.compose
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Composer
-import androidx.compose.EffectsDsl
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.log
 
-@EffectsDsl
-open class ComponentComposition internal constructor(val composer: Composer<Component<*>>) {
+//@EffectsDsl
+class ComponentComposition(val composer: Composer<Component<*>>) {
 
     fun <T : View> emit(
         key: Any,
-        viewType: Any,
         createView: (ViewGroup) -> T,
         block: (ComponentBuilder<T>.() -> Unit)? = null
     ) = with(composer) {
@@ -46,7 +44,6 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         val node = if (inserting) {
             Component(
                 key = finalKey,
-                viewType = viewType,
                 createView = createView
             ).also { emitNode(it) }
         } else {
@@ -64,14 +61,17 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         node.byId = environment.byId
         environment.byId = false
 
+        var changed = false
+
         if (block != null) {
             val updater = ViewUpdater<T>(composer)
             environment.pushComponent(node)
             environment.viewUpdater = updater
-            ComponentBuilder(composer, node).block()
+            ComponentBuilder(this@ComponentComposition, node).block()
             node.viewUpdater = updater
             if (updater.hasChanges) {
                 node.generation++
+                changed = true
             }
 
             environment.viewUpdater = null
@@ -79,8 +79,8 @@ open class ComponentComposition internal constructor(val composer: Composer<Comp
         }
 
         onCommit {
-            node.boundViews.forEach {
-                node.bindView(it)
+            if (changed) {
+                node.update()
             }
         }
 

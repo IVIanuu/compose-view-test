@@ -16,19 +16,12 @@
 
 package com.ivianuu.compose.sample.common
 
-import android.annotation.SuppressLint
-import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.ivianuu.compose.Component
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
+import com.ivianuu.compose.common.ComposeRecyclerViewAdapter
 import com.ivianuu.compose.init
-import com.ivianuu.compose.onLayoutChildViews
-import com.ivianuu.compose.onUnbindView
+import com.ivianuu.compose.onUpdateChildViews
 import com.ivianuu.compose.set
 
 fun ComponentComposition.ViewPager(
@@ -37,10 +30,13 @@ fun ComponentComposition.ViewPager(
     children: ComponentComposition.() -> Unit
 ) {
     View<ViewPager2> {
-        init { adapter = ComposePagerAdapter() }
+        init { adapter = ComposeRecyclerViewAdapter() }
 
         val component = component
-        onLayoutChildViews { (it.adapter as ComposePagerAdapter).submitList(component.visibleChildren) }
+        onUpdateChildViews { view, _ ->
+            (view.adapter as ComposeRecyclerViewAdapter)
+                .submitList(component.visibleChildren)
+        }
 
         set(selectedPage) { currentItem = selectedPage }
 
@@ -53,65 +49,8 @@ fun ComponentComposition.ViewPager(
             })
         }
 
-        onUnbindView { it.adapter = null }
+        // todo onUnbindView { it.adapter = null }
 
         children()
     }
-}
-
-private class ComposePagerAdapter :
-    ListAdapter<Component<*>, ComposePagerAdapter.Holder>(ITEM_CALLBACK) {
-
-    init {
-        setHasStableIds(true)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val component = currentList[viewType]
-        val view = component.createView(parent)
-        return Holder(view)
-    }
-
-    override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(getItem(position) as Component<View>)
-    }
-
-    override fun onViewRecycled(holder: Holder) {
-        super.onViewRecycled(holder)
-        holder.unbind()
-    }
-
-    override fun getItemId(position: Int): Long = getItem(position).key.hashCode().toLong()
-
-    override fun getItemViewType(position: Int): Int = position
-
-    class Holder(val view: View) : RecyclerView.ViewHolder(view) {
-
-        private var boundComponent: Component<View>? = null
-
-        fun bind(component: Component<View>) {
-            if (boundComponent != null && boundComponent != component) {
-                unbind()
-            }
-
-            boundComponent = component
-            component.bindView(view)
-        }
-
-        fun unbind() {
-            boundComponent?.unbindView(view)
-        }
-    }
-
-    private companion object {
-        val ITEM_CALLBACK = object : DiffUtil.ItemCallback<Component<*>>() {
-            override fun areItemsTheSame(oldItem: Component<*>, newItem: Component<*>): Boolean =
-                oldItem.key == newItem.key
-
-            @SuppressLint("DiffUtilEquals")
-            override fun areContentsTheSame(oldItem: Component<*>, newItem: Component<*>): Boolean =
-                oldItem == newItem
-        }
-    }
-
 }
