@@ -40,8 +40,9 @@ class Component<T : View>(
         private set
 
     private var updateViewCallbacks: MutableList<(T) -> Unit>? = null
-    private var updateChildViewCallback: ((T) -> Unit)? = null
     private var destroyViewCallbacks: MutableList<(T) -> Unit>? = null
+
+    private var updateChildViewCallback: ((T, Boolean) -> Unit)? = null
 
     internal var viewUpdater: ViewUpdater<T>? = null
 
@@ -52,7 +53,7 @@ class Component<T : View>(
         internal set
     internal var byId = false
         internal set
-    internal var generation = 0
+    internal var generation = 1
 
     private var viewGeneration: Int? = null
 
@@ -83,7 +84,7 @@ class Component<T : View>(
         _visibleChildren.clear()
         _visibleChildren += newVisibleChildren
 
-        updateChildViews()
+        updateChildViews(false)
     }
 
     fun createView(container: ViewGroup): T {
@@ -94,7 +95,7 @@ class Component<T : View>(
             view.ensureLayoutParams(container)
             this.view = view
             updateView()
-            updateChildViews()
+            if (_children.isNotEmpty()) updateChildViews(true)
         }
         return view
     }
@@ -104,13 +105,15 @@ class Component<T : View>(
         children.reversed().forEach { it.destroyView() }
 
         log { "lifecycle: $key -> destroy view $view" }
+
         destroyViewCallbacks?.forEach { it(view) }
+        this.view = null
         viewGeneration = null
     }
 
     private fun updateView() {
         val view = this.view ?: return
-        log { "lifecycle: $key -> bind view $view" }
+        log { "lifecycle: $key -> update view $view" }
 
         updateViewCallbacks?.forEach { it(view) }
 
@@ -136,19 +139,25 @@ class Component<T : View>(
         }
     }
 
-    private fun updateChildViews() {
+    private fun updateChildViews(init: Boolean) {
         val view = this.view ?: return
 
-        log { "lifecycle: $key -> layout child views $view block ? $updateChildViewCallback" }
+        log { "lifecycle: $key -> update child views $view is init ? $init block ? $updateChildViewCallback" }
 
         if (updateChildViewCallback != null) {
-            updateChildViewCallback!!.invoke(view)
+            updateChildViewCallback!!.invoke(view, init)
         } else {
             if (view !is ViewGroup) return
-            view.getViewManager(this).update(
-                visibleChildren,
-                visibleChildren.lastOrNull()?.isPush ?: true
-            )
+            with(view.getViewManager(this)) {
+                if (init) {
+                    rebind(visibleChildren)
+                } else {
+                    update(
+                        visibleChildren,
+                        visibleChildren.lastOrNull()?.isPush ?: true
+                    )
+                }
+            }
         }
     }
 
@@ -167,7 +176,7 @@ class Component<T : View>(
     }
 
     @PublishedApi
-    internal fun onUpdateChildViews(callback: (T) -> Unit): () -> Unit {
+    internal fun onUpdateChildViews(callback: (T, Boolean) -> Unit): () -> Unit {
         updateChildViewCallback = callback
         return { updateChildViewCallback = null }
     }

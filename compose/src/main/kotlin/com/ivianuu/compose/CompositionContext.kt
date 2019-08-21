@@ -66,6 +66,8 @@ class CompositionContext {
     }
 
     fun setContainer(container: ViewGroup) {
+        removeContainer()
+
         log { "context: set container $container" }
         this.container = container
         root.createView(container)

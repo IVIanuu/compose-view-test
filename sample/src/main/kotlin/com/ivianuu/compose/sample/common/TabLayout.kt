@@ -77,7 +77,7 @@ fun ComponentComposition.TabLayout(
             }
         }
 
-        onUpdateChildViews { }
+        onUpdateChildViews { _, _ -> }
 
         children()
     }

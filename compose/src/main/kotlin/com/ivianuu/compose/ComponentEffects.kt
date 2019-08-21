@@ -72,7 +72,7 @@ inline fun <T : View> ComponentBuilder<T>.onDestroyView(
 }
 
 inline fun <T : View> ComponentBuilder<T>.onUpdateChildViews(
-    noinline callback: (T) -> Unit
+    noinline callback: (T, Boolean) -> Unit
 ) {
     callbackEffect(
         key = sourceLocation(),
@@ -85,7 +85,7 @@ inline fun <T : View> ComponentBuilder<T>.onUpdateChildViews(
 
 inline fun <T : View> ComponentBuilder<T>.onUpdateChildViews(
     vararg inputs: Any?,
-    noinline callback: (T) -> Unit
+    noinline callback: (T, Boolean) -> Unit
 ) {
     callbackEffect(
         key = sourceLocation(),

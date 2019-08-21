@@ -33,7 +33,10 @@ fun ComponentComposition.ViewPager(
         init { adapter = ComposeRecyclerViewAdapter() }
 
         val component = component
-        onUpdateChildViews { (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren) }
+        onUpdateChildViews { view, _ ->
+            (view.adapter as ComposeRecyclerViewAdapter)
+                .submitList(component.visibleChildren)
+        }
 
         set(selectedPage) { currentItem = selectedPage }
 

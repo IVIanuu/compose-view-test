@@ -25,6 +25,20 @@ class ViewManager(val key: Any, val container: ViewGroup) {
     val children = mutableListOf<Component<*>>()
     private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
 
+    fun rebind(newChildren: List<Component<*>>) {
+        children.clear()
+        children += newChildren
+
+        newChildren.forEach {
+            performChange(
+                from = null,
+                to = it,
+                changeHandler = DefaultChangeHandler(),
+                isPush = true
+            )
+        }
+    }
+
     fun update(newChildren: List<Component<*>>, isPush: Boolean) {
         log { "view manager: $key -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
 

@@ -100,10 +100,10 @@ fun ComponentComposition.RecyclerView(
         } // calls unbindView on all children
 
         val component = currentComponent()
-        onUpdateChildViews {
-            (it.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList())
+        onUpdateChildViews { view, _ ->
+            (view.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList())
             if (layoutManagerStateHolder.state != null) {
-                it.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                view.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
                 layoutManagerStateHolder.state = null
             }
         }
@@ -118,17 +118,6 @@ class ComposeRecyclerViewAdapter :
     ListAdapter<Component<*>, ComposeRecyclerViewAdapter.Holder>(ITEM_CALLBACK) {
 
     private var lastItemViewTypeRequest: Component<*>? = null
-    private var adapterAttached = false
-
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        adapterAttached = true
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        adapterAttached = false
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val component =
