@@ -18,6 +18,7 @@ package com.ivianuu.compose.common
 
 import androidx.compose.Ambient
 import androidx.compose.Recompose
+import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
 import com.ivianuu.compose.ShareViews
@@ -132,34 +133,56 @@ interface Route {
     val isFloating: Boolean
     val keepState: Boolean
 
+    val inHandler: ComponentChangeHandler?
+    val outHandler: ComponentChangeHandler?
+
     fun ComponentComposition.compose()
 
+    fun withHandlers(
+        inHandler: ComponentChangeHandler? = null,
+        outHandler: ComponentChangeHandler? = null
+    ): Route
+
 }
+
+fun Route.withHandlers(handler: ComponentChangeHandler): Route =
+    withHandlers(inHandler = handler, outHandler = handler)
 
 inline fun Route(
     isFloating: Boolean = false,
     keepState: Boolean = false,
+    inHandler: ComponentChangeHandler? = null,
+    outHandler: ComponentChangeHandler? = null,
     noinline compose: ComponentComposition.() -> Unit
-) = Route(sourceLocation(), isFloating, keepState, compose)
+) = Route(sourceLocation(), isFloating, keepState, inHandler, outHandler, compose)
 
 fun Route(
     key: Any,
     isFloating: Boolean = false,
     keepState: Boolean = false,
+    inHandler: ComponentChangeHandler? = null,
+    outHandler: ComponentChangeHandler? = null,
     content: ComponentComposition.() -> Unit
-) = object : Route {
+): Route = SimpleRoute(key, isFloating, keepState, inHandler, outHandler, content)
 
-    override val key: Any
-        get() = key
-
-    override val isFloating: Boolean
-        get() = isFloating
-    override val keepState: Boolean
-        get() = keepState
+class SimpleRoute(
+    override val key: Any,
+    override val isFloating: Boolean = false,
+    override val keepState: Boolean = false,
+    override val inHandler: ComponentChangeHandler? = null,
+    override val outHandler: ComponentChangeHandler? = null,
+    private val content: ComponentComposition.() -> Unit
+) : Route {
 
     override fun ComponentComposition.compose() {
         content()
     }
+
+    override fun withHandlers(
+        inHandler: ComponentChangeHandler?,
+        outHandler: ComponentChangeHandler?
+    ): Route = SimpleRoute(key, isFloating, keepState, inHandler, outHandler, content)
+
 }
 
 val RouteAmbient = Ambient.of<Route?>("CurrentRoute") { null }

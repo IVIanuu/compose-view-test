@@ -59,7 +59,9 @@ private fun ChildRoute(index: Int): Route = Route(key = index) {
             val navigator = ambient(NavigatorAmbient)
             set(index) {
                 title.text = "#$index"
-                next_button.setOnClickListener { navigator.push(ChildRoute(index = index + 1)) }
+                next_button.setOnClickListener {
+                    navigator.push(ChildRoute(index = index + 1))
+                }
                 pop_to_root_button.setOnClickListener {
                     while (navigator.backStack.size > 1) {
                         navigator.pop()
