@@ -42,8 +42,6 @@ fun ComponentComposition.coroutineScope(context: () -> CoroutineContext): Corout
     return coroutineScope
 }
 
-// todo launchOnBindView ?
-
 fun ComponentComposition.launchOnActive(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,

@@ -53,8 +53,6 @@ fun MultipleChildrenRoute() = Route {
     }
 }
 
-// todo fix will re use view???
-
 private fun ChildRoute(index: Int): Route = Route(key = index) {
     ChangeHandlers(handler = HorizontalChangeHandler()) {
         ViewByLayoutRes<View>(layoutRes = R.layout.navigation) {
