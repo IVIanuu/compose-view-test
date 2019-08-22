@@ -22,7 +22,6 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.CompoundButton
 import android.widget.ImageView
-import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewById
 import com.ivianuu.compose.ViewByLayoutRes
@@ -38,41 +37,39 @@ import com.ivianuu.compose.setBy
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.list_item.view.*
 
-fun SelectionControlsList() = Route {
-    ChangeHandlers(handler = VerticalChangeHandler()) {
-        Scaffold(
-            appBar = { AppBar("Selection Controls") },
-            content = {
-                RecyclerView {
-                    (0..100).forEach {
-                        key(it) {
-                            val (checked, setChecked) = state { false }
-                            distinct(checked) {
-                                ListItem(
-                                    title = "Title $it",
-                                    text = "Text: $it",
-                                    onClick = { setChecked(!checked) },
-                                    leadingAction = {
-                                        ColorAvatar(color = Color.RED)
-                                    },
-                                    trailingAction = {
-                                        val selectionControlType = memo {
-                                            SelectionControl.values()
-                                                .toList()
-                                                .shuffled()
-                                                .first()
-                                        }
-
-                                        selectionControlType.compose(this, checked, setChecked)
+fun SelectionControlsList() = Route(handler = VerticalChangeHandler()) {
+    Scaffold(
+        appBar = { AppBar("Selection Controls") },
+        content = {
+            RecyclerView {
+                (0..100).forEach {
+                    key(it) {
+                        val (checked, setChecked) = state { false }
+                        distinct(checked) {
+                            ListItem(
+                                title = "Title $it",
+                                text = "Text: $it",
+                                onClick = { setChecked(!checked) },
+                                leadingAction = {
+                                    ColorAvatar(color = Color.RED)
+                                },
+                                trailingAction = {
+                                    val selectionControlType = memo {
+                                        SelectionControl.values()
+                                            .toList()
+                                            .shuffled()
+                                            .first()
                                     }
-                                )
-                            }
+
+                                    selectionControlType.compose(this, checked, setChecked)
+                                }
+                            )
                         }
                     }
                 }
             }
-        )
-    }
+        }
+    )
 }
 
 private enum class SelectionControl(

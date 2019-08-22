@@ -17,7 +17,6 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
-import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ViewById
 import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.ambient
@@ -31,30 +30,28 @@ import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 import kotlinx.android.synthetic.main.navigation.view.*
 
-fun MultipleChildrenRoute() = Route {
-    ChangeHandlers(handler = FadeChangeHandler()) {
-        Scaffold(
-            appBar = { AppBar("Multiple children") },
-            content = {
-                ViewByLayoutRes<View>(layoutRes = R.layout.multiple_children) {
-                    listOf(R.id.container_0, R.id.container_1, R.id.container_2)
-                        .forEachIndexed { index, containerId ->
-                            key(containerId) {
-                                ViewById<View>(id = containerId) {
-                                    Navigator {
-                                        ChildRoute(index = 0)
-                                    }
+fun MultipleChildrenRoute() = Route(handler = FadeChangeHandler()) {
+    Scaffold(
+        appBar = { AppBar("Multiple children") },
+        content = {
+            ViewByLayoutRes<View>(layoutRes = R.layout.multiple_children) {
+                listOf(R.id.container_0, R.id.container_1, R.id.container_2)
+                    .forEachIndexed { index, containerId ->
+                        key(containerId) {
+                            ViewById<View>(id = containerId) {
+                                Navigator {
+                                    ChildRoute(index = 0)
                                 }
                             }
                         }
-                }
+                    }
             }
-        )
-    }
+        }
+    )
 }
 
-private fun ChildRoute(index: Int): Route = Route(key = index) {
-    ChangeHandlers(handler = HorizontalChangeHandler()) {
+private fun ChildRoute(index: Int): Route =
+    Route(key = index, handler = HorizontalChangeHandler()) {
         ViewByLayoutRes<View>(layoutRes = R.layout.navigation) {
             val navigator = ambient(NavigatorAmbient)
             set(index) {
@@ -65,7 +62,6 @@ private fun ChildRoute(index: Int): Route = Route(key = index) {
                 pop_to_root_button.setOnClickListener {
                     while (navigator.backStack.size > 1) {
                         navigator.pop()
-                    }
                 }
             }
         }

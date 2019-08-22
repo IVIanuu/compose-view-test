@@ -18,7 +18,6 @@ package com.ivianuu.compose.sample
 
 import android.animation.ValueAnimator
 import android.view.View
-import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
@@ -29,37 +28,35 @@ import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.animation.view.*
 
-fun AnimationRoute() = Route {
-    ChangeHandlers(handler = FadeChangeHandler()) {
-        Scaffold(
-            appBar = { AppBar("Animation") },
-            content = {
-                scope {
-                    val (value, setValue) = state { 0f }
+fun AnimationRoute() = Route(handler = FadeChangeHandler()) {
+    Scaffold(
+        appBar = { AppBar("Animation") },
+        content = {
+            scope {
+                val (value, setValue) = state { 0f }
 
-                    onActive {
-                        val animation = ValueAnimator()
-                        animation.setFloatValues(0f, 1f)
-                        animation.repeatMode = ValueAnimator.REVERSE
-                        animation.repeatCount = ValueAnimator.INFINITE
+                onActive {
+                    val animation = ValueAnimator()
+                    animation.setFloatValues(0f, 1f)
+                    animation.repeatMode = ValueAnimator.REVERSE
+                    animation.repeatCount = ValueAnimator.INFINITE
 
-                        animation.addUpdateListener {
-                            setValue(it.animatedFraction)
-                        }
-
-                        animation.start()
-
-                        onDispose { animation.cancel() }
+                    animation.addUpdateListener {
+                        setValue(it.animatedFraction)
                     }
 
-                    ViewByLayoutRes<View>(layoutRes = R.layout.animation) {
-                        set(value) {
-                            animation_view.scaleX = it
-                            animation_view.scaleY = it
-                        }
+                    animation.start()
+
+                    onDispose { animation.cancel() }
+                }
+
+                ViewByLayoutRes<View>(layoutRes = R.layout.animation) {
+                    set(value) {
+                        animation_view.scaleX = it
+                        animation_view.scaleY = it
                     }
                 }
             }
-        )
-    }
+        }
+    )
 }

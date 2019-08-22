@@ -22,7 +22,6 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
 import com.ivianuu.compose.ViewByLayoutRes
@@ -63,52 +62,50 @@ val AllColors = arrayOf(
     Color.Teal
 )
 
-fun PagerRoute() = Route {
-    ChangeHandlers(handler = FadeChangeHandler()) {
-        var selectedPage by state { 0 }
+fun PagerRoute() = Route(handler = FadeChangeHandler()) {
+    var selectedPage by state { 0 }
 
-        Scaffold(
-            appBar = {
-                View<LinearLayout> {
-                    init {
-                        layoutParams = layoutParams.apply {
-                            width = MATCH_PARENT
-                            height = WRAP_CONTENT
-                        }
-                        orientation = VERTICAL
+    Scaffold(
+        appBar = {
+            View<LinearLayout> {
+                init {
+                    layoutParams = layoutParams.apply {
+                        width = MATCH_PARENT
+                        height = WRAP_CONTENT
                     }
-
-                    AppBar(title = "Pager")
-
-                    TabLayout(
-                        selectedIndex = selectedPage,
-                        onTabChanged = { selectedPage = it },
-                        children = {
-                            (1..5).forEach { i ->
-                                key(i) {
-                                    TabItem("Tab $i")
-                                }
-                            }
-                        }
-                    )
+                    orientation = VERTICAL
                 }
-            },
-            content = {
-                ViewPager(
-                    selectedPage = selectedPage,
-                    onPageChanged = { selectedPage = it },
+
+                AppBar(title = "Pager")
+
+                TabLayout(
+                    selectedIndex = selectedPage,
+                    onTabChanged = { selectedPage = it },
                     children = {
                         (1..5).forEach { i ->
                             key(i) {
-                                val color = memo { AllColors.toList().shuffled()[i] }
-                                Page(i, color)
+                                TabItem("Tab $i")
                             }
                         }
                     }
                 )
             }
-        )
-    }
+        },
+        content = {
+            ViewPager(
+                selectedPage = selectedPage,
+                onPageChanged = { selectedPage = it },
+                children = {
+                    (1..5).forEach { i ->
+                        key(i) {
+                            val color = memo { AllColors.toList().shuffled()[i] }
+                            Page(i, color)
+                        }
+                    }
+                }
+            )
+        }
+    )
 }
 
 private fun ComponentComposition.Page(
