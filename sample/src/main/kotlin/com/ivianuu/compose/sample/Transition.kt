@@ -73,43 +73,38 @@ fun TransitionDemos() = Route {
 private fun TransitionDemo(
     transitionDemo: TransitionDemo,
     parentNavigator: Navigator
-): Route = Route(key = transitionDemo) {
-    ChangeHandlers(handler = transitionDemo.getTransition()) {
-        val navigator = ambient(NavigatorAmbient)
+): Route = Route(key = transitionDemo, handler = transitionDemo.getTransition()) {
+    val navigator = ambient(NavigatorAmbient)
+    ViewByLayoutRes<View>(layoutRes = transitionDemo.layoutRes) {
+        onBindView {
+            with(it) {
+                if (transitionDemo.color != Color.Transparent && transition_bg != null) {
+                    transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
+                }
 
-        key(transitionDemo) {
-            ViewByLayoutRes<View>(layoutRes = transitionDemo.layoutRes) {
-                onBindView {
-                    with(it) {
-                        if (transitionDemo.color != Color.Transparent && transition_bg != null) {
-                            transition_bg.setBackgroundColor(transitionDemo.color.toArgb())
-                        }
+                val nextIndex = transitionDemo.ordinal + 1
+                var buttonColor = Color.Transparent
+                if (nextIndex < TransitionDemo.values().size) {
+                    buttonColor = TransitionDemo.values()[nextIndex].color
+                }
+                if (buttonColor == Color.Transparent) {
+                    buttonColor = TransitionDemo.values()[0].color
+                }
 
-                        val nextIndex = transitionDemo.ordinal + 1
-                        var buttonColor = Color.Transparent
-                        if (nextIndex < TransitionDemo.values().size) {
-                            buttonColor = TransitionDemo.values()[nextIndex].color
-                        }
-                        if (buttonColor == Color.Transparent) {
-                            buttonColor = TransitionDemo.values()[0].color
-                        }
+                next_button.backgroundTintList =
+                    ColorStateList.valueOf(buttonColor.toArgb())
+                transition_title.text = transitionDemo.title
 
-                        next_button.backgroundTintList =
-                            ColorStateList.valueOf(buttonColor.toArgb())
-                        transition_title.text = transitionDemo.title
-
-                        next_button.setOnClickListener {
-                            if (nextIndex < TransitionDemo.values().size) {
-                                navigator.push(
-                                    TransitionDemo(
-                                        TransitionDemo.values()[nextIndex],
-                                        parentNavigator
-                                    )
-                                )
-                            } else {
-                                parentNavigator.pop()
-                            }
-                        }
+                next_button.setOnClickListener {
+                    if (nextIndex < TransitionDemo.values().size) {
+                        navigator.push(
+                            TransitionDemo(
+                                TransitionDemo.values()[nextIndex],
+                                parentNavigator
+                            )
+                        )
+                    } else {
+                        parentNavigator.pop()
                     }
                 }
             }
