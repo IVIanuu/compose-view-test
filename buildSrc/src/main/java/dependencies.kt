@@ -56,7 +56,7 @@ object Versions {
 
     const val jarJar = "1.0.1"
 
-    const val kotlin = "1.3.41"
+    const val kotlin = "1.3.50"
 
     const val leakCanary = "2.0-beta-2"
 

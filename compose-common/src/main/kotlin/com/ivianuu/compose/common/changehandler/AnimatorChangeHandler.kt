@@ -20,15 +20,17 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.common.OnReadyOrAbortedListener
+import kotlin.time.Duration
+import kotlin.time.milliseconds
 
 fun AnimatorChangeHandler(
-    duration: Long = AnimatorChangeHandler.NO_DURATION,
+    duration: Duration = AnimatorChangeHandler.NO_DURATION,
     getAnimator: (ComponentChangeHandler.ChangeData) -> Animator
 ): AnimatorChangeHandler =
     SimpleAnimatorChangeHandler(duration, getAnimator)
 
 private class SimpleAnimatorChangeHandler(
-    duration: Long = NO_DURATION,
+    duration: Duration = NO_DURATION,
     val getAnimator: (ChangeData) -> Animator
 ) : AnimatorChangeHandler(duration) {
     override fun getAnimator(changeData: ChangeData): Animator =
@@ -38,7 +40,8 @@ private class SimpleAnimatorChangeHandler(
         SimpleAnimatorChangeHandler(duration, getAnimator)
 }
 
-abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : ComponentChangeHandler() {
+abstract class AnimatorChangeHandler(val duration: Duration = NO_DURATION) :
+    ComponentChangeHandler() {
 
     private var animator: Animator? = null
     private var onReadyOrAbortedListener: OnReadyOrAbortedListener? = null
@@ -85,7 +88,7 @@ abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : Compone
 
         animator = getAnimator(changeData).apply {
             if (this@AnimatorChangeHandler.duration != NO_DURATION) {
-                this.duration = this@AnimatorChangeHandler.duration
+                this.duration = this@AnimatorChangeHandler.duration.toLongMilliseconds()
             }
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
@@ -112,7 +115,7 @@ abstract class AnimatorChangeHandler(val duration: Long = NO_DURATION) : Compone
     }
 
     companion object {
-        const val NO_DURATION = -1L
+        val NO_DURATION = (-1L).milliseconds
     }
 
 }

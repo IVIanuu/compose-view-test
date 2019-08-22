@@ -19,8 +19,9 @@ package com.ivianuu.compose.common.changehandler
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
+import kotlin.time.Duration
 
-fun HorizontalChangeHandler(duration: Long = AnimatorChangeHandler.NO_DURATION): AnimatorChangeHandler {
+fun HorizontalChangeHandler(duration: Duration = AnimatorChangeHandler.NO_DURATION): AnimatorChangeHandler {
     return AnimatorChangeHandler(duration) { changeData ->
         val (_, from, to, isPush) = changeData
 

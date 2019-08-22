@@ -20,8 +20,9 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
+import kotlin.time.Duration
 
-fun VerticalChangeHandler(duration: Long = AnimatorChangeHandler.NO_DURATION): AnimatorChangeHandler {
+fun VerticalChangeHandler(duration: Duration = AnimatorChangeHandler.NO_DURATION): AnimatorChangeHandler {
     return AnimatorChangeHandler(duration) { changeData ->
         val (_, from, to, isPush) = changeData
 

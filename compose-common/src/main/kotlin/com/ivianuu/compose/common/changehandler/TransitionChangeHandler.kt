@@ -19,8 +19,10 @@ package com.ivianuu.compose.common.changehandler
 import android.transition.Transition
 import android.transition.TransitionManager
 import com.ivianuu.compose.ComponentChangeHandler
+import kotlin.time.Duration
+import kotlin.time.milliseconds
 
-abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) :
+abstract class TransitionChangeHandler(val duration: Duration = NO_DURATION) :
     ComponentChangeHandler() {
 
     private var canceled = false
@@ -29,7 +31,7 @@ abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) :
         val transition = getTransition(changeData)
 
         if (duration != NO_DURATION) {
-            transition.duration = duration
+            transition.duration = duration.toLongMilliseconds()
         }
 
         transition.addListener(object : Transition.TransitionListener {
@@ -86,6 +88,6 @@ abstract class TransitionChangeHandler(val duration: Long = NO_DURATION) :
     }
 
     companion object {
-        const val NO_DURATION = -1L
+        val NO_DURATION = (-1).milliseconds
     }
 }

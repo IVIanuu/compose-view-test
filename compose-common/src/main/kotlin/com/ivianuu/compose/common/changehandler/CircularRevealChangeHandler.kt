@@ -16,18 +16,20 @@
 
 package com.ivianuu.compose.common.changehandler
 
-import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import kotlin.math.hypot
+import kotlin.time.Duration
 
-open class CircularRevealChangeHandler(private val id: Int? = null) : AnimatorChangeHandler() {
-
-    override fun getAnimator(changeData: ChangeData): Animator {
+fun CircularRevealChangeHandler(
+    id: Int? = null,
+    duration: Duration = AnimatorChangeHandler.NO_DURATION
+): AnimatorChangeHandler {
+    return AnimatorChangeHandler(duration) { changeData ->
         val (_, from, to, isPush) = changeData
-        return if (from != null && to != null) {
+        return@AnimatorChangeHandler if (from != null && to != null) {
             if (isPush) {
                 val view = id?.let { from.findViewById<View>(it) } ?: from
                 val (cx, cy) = getCenter(changeData.container, view)
@@ -43,22 +45,20 @@ open class CircularRevealChangeHandler(private val id: Int? = null) : AnimatorCh
             ObjectAnimator()
         }
     }
+}
 
-    override fun copy() = CircularRevealChangeHandler(id)
+private fun getCenter(
+    container: ViewGroup,
+    view: View
+): Pair<Int, Int> {
+    val fromLocation = IntArray(2)
+    view.getLocationInWindow(fromLocation)
 
-    private fun getCenter(
-        container: ViewGroup,
-        view: View
-    ): Pair<Int, Int> {
-        val fromLocation = IntArray(2)
-        view.getLocationInWindow(fromLocation)
+    val containerLocation = IntArray(2)
+    container.getLocationInWindow(containerLocation)
 
-        val containerLocation = IntArray(2)
-        container.getLocationInWindow(containerLocation)
+    val relativeLeft = fromLocation[0] - containerLocation[0]
+    val relativeTop = fromLocation[1] - containerLocation[1]
 
-        val relativeLeft = fromLocation[0] - containerLocation[0]
-        val relativeTop = fromLocation[1] - containerLocation[1]
-
-        return view.width / 2 + relativeLeft to view.height / 2 + relativeTop
-    }
+    return view.width / 2 + relativeLeft to view.height / 2 + relativeTop
 }
