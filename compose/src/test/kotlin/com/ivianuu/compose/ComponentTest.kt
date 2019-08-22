@@ -57,4 +57,8 @@ fun <A : Activity> ActivityScenario<A>.withActivity(block: A.() -> Unit) {
     onActivity(block)
 }
 
-class TestActivity : ComponentActivity()
+class TestActivity : ComponentActivity() {
+
+    var changingConfigurations = false
+
+}
