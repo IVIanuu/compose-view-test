@@ -98,7 +98,7 @@ private class SourceLocationClassBuilder(val delegateClassBuilder: ClassBuilder)
             ) {
                 if (opcode == 184 && name == "sourceLocation") {
                     InstructionAdapter(this).apply {
-                        this.aconst("${origin.descriptor!!.fqNameSafe}:$lineNumber")
+                        aconst("${origin.descriptor!!.fqNameSafe}:$lineNumber")
                     }
                 } else {
                     super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
