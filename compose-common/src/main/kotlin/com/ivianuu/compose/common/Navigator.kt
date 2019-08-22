@@ -18,6 +18,7 @@ package com.ivianuu.compose.common
 
 import androidx.compose.Ambient
 import androidx.compose.Recompose
+import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentChangeHandler
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
@@ -94,13 +95,15 @@ class Navigator internal constructor(private val startRoute: Route) {
             .filter { it.keepState || it.isVisible() }
             .forEach { route ->
                 componentComposition.key(key = route.key) {
-                    TransitionHints(isPush = wasPush) {
-                        Hidden(value = !route.isVisible()) {
-                            ShareViews(value = false) {
-                                RouteAmbient.Provider(value = route) {
-                                    with(route) {
-                                        with(componentComposition) {
-                                            compose()
+                    ChangeHandlers(inHandler = route.inHandler, outHandler = route.outHandler) {
+                        TransitionHints(isPush = wasPush) {
+                            Hidden(value = !route.isVisible()) {
+                                ShareViews(value = false) {
+                                    RouteAmbient.Provider(value = route) {
+                                        with(route) {
+                                            with(componentComposition) {
+                                                compose()
+                                            }
                                         }
                                     }
                                 }
@@ -154,16 +157,14 @@ inline fun Route(
     inHandler: ComponentChangeHandler? = null,
     outHandler: ComponentChangeHandler? = null,
     noinline compose: ComponentComposition.() -> Unit
-) = Route(sourceLocation(), isFloating, keepState, inHandler, outHandler, compose)
+) = SimpleRoute(sourceLocation(), isFloating, keepState, inHandler, outHandler, compose)
 
-fun Route(
-    key: Any,
+inline fun Route(
     isFloating: Boolean = false,
     keepState: Boolean = false,
-    inHandler: ComponentChangeHandler? = null,
-    outHandler: ComponentChangeHandler? = null,
-    content: ComponentComposition.() -> Unit
-): Route = SimpleRoute(key, isFloating, keepState, inHandler, outHandler, content)
+    handler: ComponentChangeHandler,
+    noinline compose: ComponentComposition.() -> Unit
+) = SimpleRoute(sourceLocation(), isFloating, keepState, handler, handler, compose)
 
 class SimpleRoute(
     override val key: Any,
