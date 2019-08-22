@@ -169,7 +169,6 @@ class Component<T : View>(
         }
     }
 
-
     @PublishedApi
     internal fun onBindView(callback: (T) -> Unit): () -> Unit {
         if (bindViewCallbacks == null) bindViewCallbacks = mutableListOf()

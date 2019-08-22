@@ -40,6 +40,9 @@ object Versions {
     const val androidxAppCompat = "1.1.0-rc01"
     const val androidxUi = "1.0.0-alpha01"
     const val androidxRecyclerView = "1.1.0-beta01"
+    const val androidxTestCore = "1.0.0"
+    const val androidxTestExtJunit = "1.0.0"
+    const val androidxTestRunner = "1.1.0"
 
     const val autoService = "1.0-rc6"
 
@@ -61,7 +64,7 @@ object Versions {
 
     const val materialComponents = "1.1.0-alpha07"
 
-    const val roboelectric = "4.0.2"
+    const val roboelectric = "4.3"
 }
 
 object Deps {
@@ -71,6 +74,9 @@ object Deps {
     const val androidxRecyclerView =
         "androidx.recyclerview:recyclerview:${Versions.androidxRecyclerView}"
     const val androidxUiCore = "androidx.ui:ui-core:${Versions.androidxUi}"
+    const val androidxTestCore = "androidx.test:core:${Versions.androidxTestCore}"
+    const val androidxTestRunner = "androidx.test:runner:${Versions.androidxTestRunner}"
+    const val androidxTestExtJunit = "androidx.test.ext:junit:${Versions.androidxTestExtJunit}"
 
     const val autoService = "com.google.auto.service:auto-service:${Versions.autoService}"
 

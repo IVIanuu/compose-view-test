@@ -19,5 +19,8 @@ dependencies {
     api(Deps.kotlinReflect)
     api(Deps.kotlinStdLib)
 
+    testImplementation(Deps.androidxTestCore)
+    testImplementation(Deps.androidxTestRunner)
+    testImplementation(Deps.androidxTestExtJunit)
     testImplementation(Deps.roboelectric)
 }
