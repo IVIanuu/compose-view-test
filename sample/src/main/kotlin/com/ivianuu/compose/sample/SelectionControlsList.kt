@@ -20,8 +20,8 @@ import android.graphics.Color
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.CompoundButton
 import android.widget.ImageView
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.ivianuu.compose.ChangeHandlers
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewById
@@ -31,16 +31,17 @@ import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.distinct
 import com.ivianuu.compose.key
+import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 import com.ivianuu.compose.setBy
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.list_item.view.*
 
-fun ListRoute() = Route {
+fun SelectionControlsList() = Route {
     ChangeHandlers(handler = VerticalChangeHandler()) {
         Scaffold(
-            appBar = { AppBar("List") },
+            appBar = { AppBar("Selection Controls") },
             content = {
                 RecyclerView {
                     (0..100).forEach {
@@ -55,7 +56,14 @@ fun ListRoute() = Route {
                                         ColorAvatar(color = Color.RED)
                                     },
                                     trailingAction = {
-                                        Checkbox(checked = checked, onCheckedChanged = setChecked)
+                                        val selectionControlType = memo {
+                                            SelectionControl.values()
+                                                .toList()
+                                                .shuffled()
+                                                .first()
+                                        }
+
+                                        selectionControlType.compose(this, checked, setChecked)
                                     }
                                 )
                             }
@@ -67,17 +75,83 @@ fun ListRoute() = Route {
     }
 }
 
+private enum class SelectionControl(
+    val compose: ComponentComposition.(
+        checked: Boolean,
+        onCheckedChanged: (Boolean) -> Unit
+    ) -> Unit
+) {
+    CheckBox(
+        compose = { checked, onCheckedChanged ->
+            CheckBox(
+                checked = checked,
+                onCheckedChanged = onCheckedChanged
+            )
+        }
+    ),
+    RadioButton(
+        compose = { checked, onCheckedChanged ->
+            RadioButton(
+                checked = checked,
+                onCheckedChanged = onCheckedChanged
+            )
+        }
+    ),
+    Switch(
+        compose = { checked, onCheckedChanged ->
+            Switch(
+                checked = checked,
+                onCheckedChanged = onCheckedChanged
+            )
+        }
+    )
+}
+
 private fun ComponentComposition.ColorAvatar(color: Int) {
     ViewByLayoutRes<ImageView>(layoutRes = R.layout.avatar) {
         set(color) { setBackgroundColor(it) }
     }
 }
 
-private fun ComponentComposition.Checkbox(
+private fun ComponentComposition.CheckBox(
     checked: Boolean,
     onCheckedChanged: (Boolean) -> Unit
 ) {
-    ViewByLayoutRes<MaterialCheckBox>(layoutRes = R.layout.checkbox) {
+    CompoundButton(
+        layoutRes = R.layout.checkbox,
+        checked = checked,
+        onCheckedChanged = onCheckedChanged
+    )
+}
+
+private fun ComponentComposition.RadioButton(
+    checked: Boolean,
+    onCheckedChanged: (Boolean) -> Unit
+) {
+    CompoundButton(
+        layoutRes = R.layout.radio_button,
+        checked = checked,
+        onCheckedChanged = onCheckedChanged
+    )
+}
+
+private fun ComponentComposition.Switch(
+    checked: Boolean,
+    onCheckedChanged: (Boolean) -> Unit
+) {
+    CompoundButton(
+        layoutRes = R.layout.switch_compat,
+        checked = checked,
+        onCheckedChanged = onCheckedChanged
+    )
+}
+
+private inline fun ComponentComposition.CompoundButton(
+    layoutRes: Int,
+    checked: Boolean,
+    noinline onCheckedChanged: (Boolean) -> Unit
+) {
+    ViewByLayoutRes<CompoundButton>(layoutRes = layoutRes) {
         set(checked) { isChecked = it }
         setBy(checked, onCheckedChanged) { setOnClickListener { onCheckedChanged(!checked) } }
     }

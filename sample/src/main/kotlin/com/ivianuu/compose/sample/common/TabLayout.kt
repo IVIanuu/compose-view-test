@@ -26,8 +26,8 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.currentComponent
 import com.ivianuu.compose.getViewManager
+import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.onUpdateChildViews
-import com.ivianuu.compose.onUpdateView
 import com.ivianuu.compose.sample.R
 
 fun ComponentComposition.TabLayout(
@@ -37,7 +37,7 @@ fun ComponentComposition.TabLayout(
 ) {
     ViewByLayoutRes<TabLayout>(layoutRes = R.layout.tab_layout) {
         val component = currentComponent()
-        onUpdateView {
+        onBindView {
             with(it) {
                 component.children
                     .mapIndexed { i, child ->
@@ -54,7 +54,7 @@ fun ComponentComposition.TabLayout(
                     }
                     .forEach { (child, tab) ->
                         (tab.customView as ViewGroup).getViewManager(component)
-                            .update(listOf(child), true)
+                            .update(listOf(child), true, true)
                     }
 
                 while (tabCount > component.children.size) {
@@ -85,6 +85,6 @@ fun ComponentComposition.TabLayout(
 
 fun ComponentComposition.TabItem(text: String) {
     ViewByLayoutRes<TextView>(layoutRes = R.layout.tab_item) {
-        onUpdateView { it.text = text }
+        onBindView { it.text = text }
     }
 }

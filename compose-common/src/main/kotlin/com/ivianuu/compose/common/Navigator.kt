@@ -20,6 +20,7 @@ import androidx.compose.Ambient
 import androidx.compose.Recompose
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.Hidden
+import com.ivianuu.compose.ShareViews
 import com.ivianuu.compose.TransitionHints
 import com.ivianuu.compose.internal.sourceLocation
 import com.ivianuu.compose.key
@@ -94,10 +95,12 @@ class Navigator internal constructor(private val startRoute: Route) {
                 componentComposition.key(key = route.key) {
                     TransitionHints(isPush = wasPush) {
                         Hidden(value = !route.isVisible()) {
-                            RouteAmbient.Provider(value = route) {
-                                with(route) {
-                                    with(componentComposition) {
-                                        compose()
+                            ShareViews(value = false) {
+                                RouteAmbient.Provider(value = route) {
+                                    with(route) {
+                                        with(componentComposition) {
+                                            compose()
+                                        }
                                     }
                                 }
                             }

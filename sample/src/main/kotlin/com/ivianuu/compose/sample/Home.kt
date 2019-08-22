@@ -82,7 +82,7 @@ private enum class HomeItem(
     List(
         title = "List",
         color = Color.Maroon,
-        route = { ListRoute() }
+        route = { SelectionControlsList() }
     ),
     MultipleChildren(
         title = "Multiple children",

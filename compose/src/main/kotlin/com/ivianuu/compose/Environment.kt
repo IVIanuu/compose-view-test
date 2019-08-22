@@ -59,6 +59,15 @@ inline fun ComponentComposition.Hidden(
     children()
 }
 
+inline fun ComponentComposition.ShareViews(
+    value: Boolean,
+    children: ComponentComposition.() -> Unit
+) {
+    val state = ambient(ComponentEnvironmentAmbient)
+    state.shareViews = value
+    children()
+}
+
 inline fun ComponentComposition.ById(
     value: Boolean,
     children: ComponentComposition.() -> Unit

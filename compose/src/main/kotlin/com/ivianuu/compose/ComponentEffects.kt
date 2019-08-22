@@ -21,7 +21,7 @@ import androidx.compose.remember
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.sourceLocation
 
-inline fun <T : View> ComponentBuilder<T>.onUpdateView(
+inline fun <T : View> ComponentBuilder<T>.onBindView(
     noinline callback: (T) -> Unit
 ) {
     callbackEffect(
@@ -29,11 +29,11 @@ inline fun <T : View> ComponentBuilder<T>.onUpdateView(
         inputs = null,
         callback = callback
     ) { component, _callback ->
-        component.onUpdateView(_callback)
+        component.onBindView(_callback)
     }
 }
 
-inline fun <T : View> ComponentBuilder<T>.onUpdateView(
+inline fun <T : View> ComponentBuilder<T>.onBindView(
     vararg inputs: Any?,
     noinline callback: (T) -> Unit
 ) {
@@ -42,11 +42,11 @@ inline fun <T : View> ComponentBuilder<T>.onUpdateView(
         inputs = inputs,
         callback = callback
     ) { component, _callback ->
-        component.onUpdateView(_callback)
+        component.onBindView(_callback)
     }
 }
 
-inline fun <T : View> ComponentBuilder<T>.onDestroyView(
+inline fun <T : View> ComponentBuilder<T>.onUnbindView(
     noinline callback: (T) -> Unit
 ) {
     callbackEffect(
@@ -54,11 +54,11 @@ inline fun <T : View> ComponentBuilder<T>.onDestroyView(
         inputs = null,
         callback = callback
     ) { component, _callback ->
-        component.onDestroyView(_callback)
+        component.onUnbindView(_callback)
     }
 }
 
-inline fun <T : View> ComponentBuilder<T>.onDestroyView(
+inline fun <T : View> ComponentBuilder<T>.onUnbindView(
     vararg inputs: Any?,
     noinline callback: (T) -> Unit
 ) {
@@ -67,7 +67,7 @@ inline fun <T : View> ComponentBuilder<T>.onDestroyView(
         inputs = inputs,
         callback = callback
     ) { component, _callback ->
-        component.onDestroyView(_callback)
+        component.onUnbindView(_callback)
     }
 }
 
@@ -93,6 +93,31 @@ inline fun <T : View> ComponentBuilder<T>.onUpdateChildViews(
         callback = callback
     ) { component, _callback ->
         component.onUpdateChildViews(_callback)
+    }
+}
+
+inline fun <T : View> ComponentBuilder<T>.onClearChildViews(
+    noinline callback: (T) -> Unit
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = null,
+        callback = callback
+    ) { component, _callback ->
+        component.onClearChildViews(callback)
+    }
+}
+
+inline fun <T : View> ComponentBuilder<T>.onClearChildViews(
+    vararg inputs: Any?,
+    noinline callback: (T) -> Unit
+) {
+    callbackEffect(
+        key = sourceLocation(),
+        inputs = inputs,
+        callback = callback
+    ) { component, _callback ->
+        component.onClearChildViews(_callback)
     }
 }
 
