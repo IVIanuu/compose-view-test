@@ -92,7 +92,13 @@ fun ComponentComposition.RecyclerView(
 ) {
     View<RecyclerView> {
         val layoutManagerStateHolder = memo { LayoutManagerStateHolder() }
-        set(layoutManager) { this.layoutManager = it ?: LinearLayoutManager(context) }
+        set(layoutManager) {
+            this.layoutManager = it ?: LinearLayoutManager(context)
+            if (layoutManagerStateHolder.state != null) {
+                this.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
+                layoutManagerStateHolder.state = null
+            }
+        }
 
         init { adapter = ComposeRecyclerViewAdapter() }
 
@@ -104,10 +110,6 @@ fun ComponentComposition.RecyclerView(
         val component = currentComponent()
         onUpdateChildViews { view, _ ->
             (view.adapter as ComposeRecyclerViewAdapter).submitList(component.visibleChildren.toList())
-            if (layoutManagerStateHolder.state != null) {
-                view.layoutManager!!.onRestoreInstanceState(layoutManagerStateHolder.state)
-                layoutManagerStateHolder.state = null
-            }
         }
         onClearChildViews {
             (it.adapter as ComposeRecyclerViewAdapter).terminated = true
