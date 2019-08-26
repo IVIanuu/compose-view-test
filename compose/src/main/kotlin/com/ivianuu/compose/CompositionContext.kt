@@ -29,7 +29,7 @@ class CompositionContext {
     private val root = Component(
         key = "Root",
         viewKey = "Root",
-        createView = { it }
+        createView = { container, _ -> container }
     )
 
     private val composeComponent = object : androidx.compose.Component() {

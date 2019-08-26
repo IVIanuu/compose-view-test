@@ -16,6 +16,7 @@
 
 package com.ivianuu.compose
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Composer
@@ -30,7 +31,7 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
     fun <T : View> emit(
         key: Any,
         viewKey: Any,
-        createView: (ViewGroup) -> T,
+        createView: (ViewGroup, Context) -> T,
         block: (ComponentBuilder<T>.() -> Unit)? = null
     ) = with(composer) {
         checkIsComposing()
@@ -64,6 +65,8 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
         environment.shareViews = true
         node.byId = environment.byId
         environment.byId = false
+
+        node.contextMapper = ambient(ContextMapperAmbient)
 
         var changed = false
 

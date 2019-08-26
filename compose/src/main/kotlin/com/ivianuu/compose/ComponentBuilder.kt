@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.currentViewUpdater
+import com.ivianuu.compose.internal.log
 import com.ivianuu.compose.internal.sourceLocation
 import java.lang.reflect.Constructor
 import java.util.concurrent.ConcurrentHashMap
@@ -29,7 +30,7 @@ import kotlin.reflect.KClass
 
 inline fun <T : View> ComponentComposition.View(
     viewKey: Any,
-    noinline createView: (ViewGroup) -> T,
+    noinline createView: (ViewGroup, Context) -> T,
     noinline block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     emit(key = sourceLocation(), viewKey = viewKey, createView = createView, block = block)
@@ -38,9 +39,11 @@ inline fun <T : View> ComponentComposition.View(
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
 
 @PublishedApi
-internal fun <T : View> createViewByType(type: KClass<T>): (ViewGroup) -> T = { container ->
+internal fun <T : View> createViewByType(type: KClass<T>): (ViewGroup, Context) -> T =
+    { _, context ->
+        log { "create view by type context $context" }
     constructorsByClass.getOrPut(type) { type.java.getConstructor(Context::class.java) }
-        .newInstance(container.context) as T
+        .newInstance(context) as T
 }
 
 inline fun <reified T : View> ComponentComposition.View(
@@ -55,8 +58,9 @@ inline fun <reified T : View> ComponentComposition.View(
 }
 
 @PublishedApi
-internal fun <T : View> createViewByLayoutRes(layoutRes: Int): (ViewGroup) -> T = { container ->
-    LayoutInflater.from(container.context)
+internal fun <T : View> createViewByLayoutRes(layoutRes: Int): (ViewGroup, Context) -> T =
+    { container, context ->
+        LayoutInflater.from(context)
         .inflate(layoutRes, container, false) as T
 }
 
@@ -80,7 +84,7 @@ inline fun <T : View> ComponentComposition.ViewById(
     ById(value = true) {
         View(
             viewKey = viewKey,
-            createView = { it.findViewById(id) },
+            createView = { container, _ -> container.findViewById(id) },
             block = block
         )
     }

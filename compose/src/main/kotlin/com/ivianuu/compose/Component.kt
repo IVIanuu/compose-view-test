@@ -16,6 +16,7 @@
 
 package com.ivianuu.compose
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import com.ivianuu.compose.internal.ViewUpdater
@@ -26,7 +27,7 @@ import com.ivianuu.compose.internal.tagKey
 class Component<T : View>(
     val key: Any,
     val viewKey: Any,
-    val createView: (ViewGroup) -> T
+    val createView: (ViewGroup, Context) -> T
 ) {
 
     var _parent: Component<*>? = null
@@ -58,6 +59,7 @@ class Component<T : View>(
     internal var byId = false
         internal set
     internal var generation = 1
+    var contextMapper: (Context) -> Context = { it }
 
     fun update() {
         log { "lifecycle: $key -> update" }
@@ -90,7 +92,10 @@ class Component<T : View>(
 
     fun createView(container: ViewGroup): T {
         log { "lifecycle: $key -> create view $container" }
-        val view = createView.invoke(container)
+        val view = createView.invoke(
+            container,
+            contextMapper(container.context)
+        ) // todo should we use the provided context from ActivityAmbient?
         view.ensureLayoutParams(container)
         return view
     }

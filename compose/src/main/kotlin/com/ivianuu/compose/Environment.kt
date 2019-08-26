@@ -16,7 +16,10 @@
 
 package com.ivianuu.compose
 
+import android.content.Context
+import android.view.ContextThemeWrapper
 import android.view.View
+import androidx.compose.Ambient
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 
 inline fun ComponentComposition.ChangeHandlers(
@@ -75,6 +78,30 @@ inline fun ComponentComposition.ById(
     val state = ambient(ComponentEnvironmentAmbient)
     state.byId = value
     children()
+}
+
+@PublishedApi
+internal val ContextMapperAmbient = Ambient.of<(Context) -> Context> { { it } }
+
+fun ComponentComposition.ContextMapper(
+    mapper: (Context) -> Context,
+    children: ComponentComposition.() -> Unit
+) {
+    val prevMapper = ambient(ContextMapperAmbient)
+    val finalMapper: (Context) -> Context = { mapper(prevMapper(it)) }
+    ContextMapperAmbient.Provider(value = finalMapper) {
+        children()
+    }
+}
+
+fun ComponentComposition.Theme(
+    theme: Int,
+    children: ComponentComposition.() -> Unit
+) {
+    ContextMapper(
+        mapper = { ContextThemeWrapper(it, theme) },
+        children = children
+    )
 }
 
 fun <T : View> ComponentComposition.currentComponent(): Component<T> =
