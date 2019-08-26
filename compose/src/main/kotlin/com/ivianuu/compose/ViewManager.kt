@@ -23,10 +23,16 @@ import com.ivianuu.compose.internal.tagKey
 
 class ViewManager(val key: Any, val container: ViewGroup) {
 
-    val children = mutableListOf<Component<*>>()
-    private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
+    private data class ViewKeyWithSlot(
+        val viewKey: Any,
+        val slot: Any
+    )
 
-    private val viewsByViewKey = mutableMapOf<Any, View>()
+    private val children = mutableListOf<Component<*>>()
+    private val slotsByChild = mutableMapOf<Component<*>, Any>()
+
+    private val runningTransitions = mutableMapOf<Component<*>, ComponentChangeHandler>()
+    private val views = mutableMapOf<ViewKeyWithSlot, View>()
 
     fun update(newChildren: List<Component<*>>, isPush: Boolean, animate: Boolean) {
         log { "view manager: $key -> update new ${newChildren.map { it.key }} old ${children.map { it.key }}" }
@@ -40,21 +46,35 @@ class ViewManager(val key: Any, val container: ViewGroup) {
         val childrenToAdd = addedChildren
             .filter { newChild ->
                 removedChildren.none { oldChild ->
-                    oldChild.viewKey == newChild.viewKey && oldChild.shareViews && newChild.shareViews
+                    oldChild.viewKey == newChild.viewKey && slotsByChild.getValue(oldChild) == newChild.slot
+                            && oldChild.shareViews && newChild.shareViews
                 }
             }
         val childrenToRemove = removedChildren
             .filter { oldChild ->
                 newChildren.none { newChild ->
-                    oldChild.viewKey == newChild.viewKey && oldChild.shareViews && newChild.shareViews
+                    oldChild.viewKey == newChild.viewKey && slotsByChild.getValue(oldChild) == newChild.slot
+                            && oldChild.shareViews && newChild.shareViews
                 }
             }
         val childrenToReplace = addedChildren
             .filter { it !in childrenToAdd }
-            .map { newChild -> newChild to removedChildren.first { oldChild -> newChild.viewKey == oldChild.viewKey } }
-        
+            .map { newChild ->
+                newChild to removedChildren.first { oldChild ->
+                    newChild.viewKey == oldChild.viewKey && newChild.slot == slotsByChild.getValue(
+                        oldChild
+                    )
+                }
+            }
+
+        log { "view manager $key to add ${childrenToAdd.map { it.key }} to remove ${childrenToRemove.map { it.key }} to replace ${childrenToReplace.map { it.first.key.toString() + "=:=" + it.second.key }}" }
+
         children.clear()
         children += newChildren
+        slotsByChild.clear()
+        children.forEach {
+            slotsByChild[it] = it.slot!!
+        }
 
         val oldTopChild = childrenToRemove.lastOrNull()
         val newTopChild = childrenToAdd.lastOrNull()
@@ -117,7 +137,7 @@ class ViewManager(val key: Any, val container: ViewGroup) {
 
             cancelTransition(oldChild)
 
-            val view = viewsByViewKey.getValue(newChild.viewKey)
+            val view = views.getValue(ViewKeyWithSlot(newChild.viewKey, newChild.slot!!))
             oldChild as Component<View>
             oldChild.unbindView(view, false)
             newChild as Component<View>
@@ -147,11 +167,11 @@ class ViewManager(val key: Any, val container: ViewGroup) {
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val fromView = viewsByViewKey[from?.viewKey]
+        val fromView = from?.let { views[ViewKeyWithSlot(it.viewKey, it.slot!!)] }
 
         val toView = if (to != null) {
             if (from?.viewKey != to.viewKey) {
-                viewsByViewKey.getOrPut(to.viewKey) {
+                views.getOrPut(ViewKeyWithSlot(to.viewKey, to.slot!!)) {
                     val view = to.createView(container)
                     to as Component<View>
                     to.bindView(view, true)
@@ -161,7 +181,7 @@ class ViewManager(val key: Any, val container: ViewGroup) {
                 val view = to.createView(container)
                 to as Component<View>
                 to.bindView(view, true)
-                viewsByViewKey[to.viewKey] = view
+                views[ViewKeyWithSlot(to.viewKey, to.slot!!)] = view
                 view
             }
         } else {
@@ -188,13 +208,13 @@ class ViewManager(val key: Any, val container: ViewGroup) {
 
                 override fun removeFromView() {
                     if (fromView != null) {
-                        if (!from!!.byId) container.removeView(fromView)
+                        if (!from.byId) container.removeView(fromView)
                         from as Component<View>
                         from.unbindView(fromView, true)
 
                         // only remove the view if the view ids are not the same
                         if (to?.viewKey != from.viewKey) {
-                            viewsByViewKey.remove(from.viewKey)
+                            views.remove(ViewKeyWithSlot(from.viewKey, from.slot!!))
                         }
                     }
                 }

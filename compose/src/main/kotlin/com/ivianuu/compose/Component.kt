@@ -30,7 +30,9 @@ class Component<T : View>(
     val createView: (ViewGroup, Context) -> T
 ) {
 
-    var _parent: Component<*>? = null
+    var parent: Component<*>? = null
+        private set
+    var slot: Any? = null
         private set
 
     private val _children = mutableListOf<Component<*>>()
@@ -74,12 +76,13 @@ class Component<T : View>(
         log { "lifecycle: $key -> update children new ${newChildren.map { it.key }} old ${_children.map { it.key }}" }
 
         _children
+            .reversed()
             .filter { it !in newChildren }
-            .forEach { it._parent = null }
+            .forEach { it.unmount() }
 
         newChildren
             .filter { it !in _children }
-            .forEach { it._parent = this }
+            .forEachIndexed { index, child -> child.mount(this, index) }
 
         _children.clear()
         _children += newChildren
@@ -172,6 +175,18 @@ class Component<T : View>(
                 animate = false
             )
         }
+    }
+
+    private fun mount(parent: Component<*>?, slot: Int) {
+        log { "lifecycle: $key -> mount parent ${parent?.key} slot $slot" }
+        this.parent = parent
+        this.slot = slot
+    }
+
+    private fun unmount() {
+        log { "lifecycle: $key -> unmount" }
+        parent = null
+        slot = null
     }
 
     @PublishedApi
