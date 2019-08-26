@@ -168,7 +168,12 @@ class ViewManager(val key: Any, val container: ViewGroup) {
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val fromView = from?.let { views[ViewKeyWithSlot(it.viewKey, slotsByChild.getValue(it))] }
+        val fromSlot = from?.let { slotsByChild.getValue(it) }
+        val fromView = if (from != null) {
+            views[ViewKeyWithSlot(from.viewKey, fromSlot!!)]
+        } else {
+            null
+        }
 
         val toView = if (to != null) {
             if (from?.viewKey != to.viewKey) {
@@ -209,13 +214,13 @@ class ViewManager(val key: Any, val container: ViewGroup) {
 
                 override fun removeFromView() {
                     if (fromView != null) {
-                        if (!from.byId) container.removeView(fromView)
+                        if (!from!!.byId) container.removeView(fromView)
                         from as Component<View>
                         from.unbindView(fromView, true)
 
                         // only remove the view if the view ids are not the same
                         if (to?.viewKey != from.viewKey) {
-                            views.remove(ViewKeyWithSlot(from.viewKey, from.slot!!))
+                            views.remove(ViewKeyWithSlot(from.viewKey, fromSlot!!))
                         }
                     }
                 }
