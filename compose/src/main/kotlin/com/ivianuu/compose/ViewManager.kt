@@ -71,7 +71,6 @@ class ViewManager(val key: Any, val container: ViewGroup) {
 
         children.clear()
         children += newChildren
-        slotsByChild.clear()
         children.forEach {
             slotsByChild[it] = it.slot!!
         }
@@ -143,6 +142,8 @@ class ViewManager(val key: Any, val container: ViewGroup) {
             newChild as Component<View>
             newChild.bindView(view, false)
         }
+
+        removedChildren.forEach { slotsByChild.remove(it) }
     }
 
     private fun cancelTransition(component: Component<*>) {
@@ -167,7 +168,7 @@ class ViewManager(val key: Any, val container: ViewGroup) {
         from?.let { cancelTransition(it) }
         to?.let { runningTransitions[it] = handlerToUse }
 
-        val fromView = from?.let { views[ViewKeyWithSlot(it.viewKey, it.slot!!)] }
+        val fromView = from?.let { views[ViewKeyWithSlot(it.viewKey, slotsByChild.getValue(it))] }
 
         val toView = if (to != null) {
             if (from?.viewKey != to.viewKey) {
