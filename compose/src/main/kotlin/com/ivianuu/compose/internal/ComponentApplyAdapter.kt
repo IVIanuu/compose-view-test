@@ -43,9 +43,6 @@ internal class ComponentApplyAdapter(private val root: Component<*>) : ApplyAdap
 
     override fun Component<*>.insertAt(index: Int, instance: Component<*>) {
         val children = childrenByParent.getOrInit(this)
-        check(children.none { it.key == instance.key }) {
-            "Duplicated key ${instance.key}"
-        }
         children.add(index, instance)
     }
 

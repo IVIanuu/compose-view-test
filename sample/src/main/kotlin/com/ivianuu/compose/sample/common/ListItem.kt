@@ -20,7 +20,6 @@ import android.view.View
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ViewById
 import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.key
 import com.ivianuu.compose.sample.R
 import com.ivianuu.compose.set
 import kotlinx.android.synthetic.main.list_item.view.*
@@ -60,14 +59,14 @@ fun ComponentComposition.ListItem(
                 .map { list_text_container.getChildAt(it) }
                 .forEach { it.isEnabled = enabled }
 
-            list_leading_action.isEnabled = enabled
-            (0 until list_leading_action.childCount)
-                .map { list_leading_action.getChildAt(it) }
+            list_leading.isEnabled = enabled
+            (0 until list_leading.childCount)
+                .map { list_leading.getChildAt(it) }
                 .forEach { it.isEnabled = enabled }
 
-            list_trailing_action.isEnabled = enabled
-            (0 until list_trailing_action.childCount)
-                .map { list_trailing_action.getChildAt(it) }
+            list_trailing.isEnabled = enabled
+            (0 until list_trailing.childCount)
+                .map { list_trailing.getChildAt(it) }
                 .forEach { it.isEnabled = enabled }
 
             isEnabled = enabled
@@ -75,27 +74,23 @@ fun ComponentComposition.ListItem(
 
         ViewById<View>(id = R.id.list_text_container) {
             if (title != null) {
-                key(key = "title") {
-                    TextStyle(textAppearance = R.style.TextAppearance_MaterialComponents_Subtitle1) {
-                        title()
-                    }
+                TextStyle(textAppearance = R.style.TextAppearance_MaterialComponents_Subtitle1) {
+                    title()
                 }
             }
 
             if (text != null) {
-                key(key = "text") {
-                    TextStyle(textAppearance = R.style.TextAppearance_AppCompat_Body2) {
-                        text()
-                    }
+                TextStyle(textAppearance = R.style.TextAppearance_AppCompat_Body2) {
+                    text()
                 }
             }
         }
 
-        ViewById<View>(id = R.id.list_leading_action) {
+        ViewById<View>(id = R.id.list_leading) {
             leadingAction?.invoke(composition)
         }
 
-        ViewById<View>(id = R.id.list_trailing_action) {
+        ViewById<View>(id = R.id.list_trailing) {
             trailingAction?.invoke(composition)
         }
 

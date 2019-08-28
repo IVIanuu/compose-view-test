@@ -52,14 +52,13 @@ fun TransitionDemos() = Route {
                 }
 
                 if (loading) {
-                    key("loading") {
-                        ChangeHandlers(handler = FadeChangeHandler()) {
-                            ViewByLayoutRes<View>(layoutRes = R.layout.full_screen_loading)
-                        }
+                    ChangeHandlers(handler = FadeChangeHandler()) {
+                        ViewByLayoutRes<View>(layoutRes = R.layout.full_screen_loading)
                     }
                 } else {
-                    key("transitions") {
+                    key {
                         val parentNavigator = ambient(NavigatorAmbient)
+
                         Navigator {
                             TransitionDemo(TransitionDemo.values().first(), parentNavigator)
                         }

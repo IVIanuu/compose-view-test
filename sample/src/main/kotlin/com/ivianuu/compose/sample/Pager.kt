@@ -28,7 +28,6 @@ import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.init
-import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.TabItem
@@ -83,9 +82,7 @@ fun PagerRoute() = Route(handler = FadeChangeHandler()) {
                     onTabChanged = { selectedPage = it },
                     children = {
                         (1..5).forEach { i ->
-                            key(i) {
-                                TabItem("Tab $i")
-                            }
+                            TabItem("Tab $i")
                         }
                     }
                 )
@@ -97,10 +94,8 @@ fun PagerRoute() = Route(handler = FadeChangeHandler()) {
                 onPageChanged = { selectedPage = it },
                 children = {
                     (1..5).forEach { i ->
-                        key(i) {
-                            val color = memo { AllColors.toList().shuffled()[i] }
-                            Page(i, color)
-                        }
+                        val color = memo { AllColors.toList().shuffled()[i] }
+                        Page(i, color)
                     }
                 }
             )

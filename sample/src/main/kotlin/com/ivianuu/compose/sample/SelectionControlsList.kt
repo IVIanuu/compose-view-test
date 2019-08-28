@@ -25,7 +25,6 @@ import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.distinct
-import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.ListItem
 import com.ivianuu.compose.sample.common.Scaffold
@@ -40,28 +39,26 @@ fun SelectionControlsList() = Route(handler = VerticalChangeHandler()) {
         content = {
             RecyclerView {
                 (1..100).forEach {
-                    key(it) {
-                        val (checked, setChecked) = state { false }
-                        distinct(checked) {
-                            ListItem(
-                                title = { Text(text = "Title $it") },
-                                text = { Text(text = "Text: $it") },
-                                onClick = { setChecked(!checked) },
-                                leadingAction = {
-                                    ColorAvatar(color = Color.RED)
-                                },
-                                trailingAction = {
-                                    val selectionControlType = memo {
-                                        SelectionControl.values()
-                                            .toList()
-                                            .shuffled()
-                                            .first()
-                                    }
-
-                                    selectionControlType.compose(this, checked, setChecked)
+                    val (checked, setChecked) = state { false }
+                    distinct(checked) {
+                        ListItem(
+                            title = { Text(text = "Title $it") },
+                            text = { Text(text = "Text: $it") },
+                            onClick = { setChecked(!checked) },
+                            leadingAction = {
+                                ColorAvatar(color = Color.RED)
+                            },
+                            trailingAction = {
+                                val selectionControlType = memo {
+                                    SelectionControl.values()
+                                        .toList()
+                                        .shuffled()
+                                        .first()
                                 }
-                            )
-                        }
+
+                                selectionControlType.compose(this, checked, setChecked)
+                            }
+                        )
                     }
                 }
             }

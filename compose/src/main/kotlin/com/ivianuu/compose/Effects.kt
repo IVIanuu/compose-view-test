@@ -183,6 +183,10 @@ fun ComponentComposition.scope(block: ComponentComposition.() -> Unit) = with(co
 }
 
 inline fun <T> ComponentComposition.key(
+    noinline block: ComponentComposition.() -> T
+) = key(key = sourceLocation(), block = block)
+
+inline fun <T> ComponentComposition.key(
     key: Any,
     block: ComponentComposition.() -> T
 ): T = with(composer) {

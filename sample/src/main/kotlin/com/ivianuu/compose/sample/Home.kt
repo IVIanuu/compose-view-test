@@ -42,14 +42,8 @@ fun HomeRoute() = Route(keepState = true) {
         appBar = { AppBar("Home") },
         content = {
             RecyclerView {
-                key(1) {
-                    Checkable(checked, setChecked)
-                }
-                key(2) {
-                    Hidden(checked) {
-                        Checkable(checked, setChecked)
-                    }
-                }
+                key { Checkable(checked, setChecked) }
+                key { Hidden(checked) { Checkable(checked, setChecked) } }
                 HomeItem.values().forEach { item -> HomeItem(item = item) }
             }
         }
@@ -107,24 +101,22 @@ private enum class HomeItem(
 }
 
 private fun ComponentComposition.HomeItem(item: HomeItem) {
-    key(item) {
-        val navigator = ambient(NavigatorAmbient)
-        val route = item.route()
+    val navigator = ambient(NavigatorAmbient)
+    val route = item.route()
 
-        ViewByLayoutRes<View>(layoutRes = R.layout.home_item) {
-            set(item) {
-                home_title.text = item.title
-                setOnClickListener { navigator.push(route) }
-            }
+    ViewByLayoutRes<View>(layoutRes = R.layout.home_item) {
+        set(item) {
+            home_title.text = item.title
+            setOnClickListener { navigator.push(route) }
+        }
 
-            ViewById<View>(id = R.id.home_color_container) {
-                ViewByLayoutRes<ImageView>(layoutRes = R.layout.home_color) {
-                    set(item.color) {
-                        setColorFilter(
-                            it.toArgb(),
-                            PorterDuff.Mode.SRC_IN
-                        )
-                    }
+        ViewById<View>(id = R.id.home_color_container) {
+            ViewByLayoutRes<ImageView>(layoutRes = R.layout.home_color) {
+                set(item.color) {
+                    setColorFilter(
+                        it.toArgb(),
+                        PorterDuff.Mode.SRC_IN
+                    )
                 }
             }
         }
