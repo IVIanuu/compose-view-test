@@ -16,6 +16,7 @@
 
 package com.ivianuu.compose.sample.common
 
+import androidx.compose.State
 import androidx.viewpager2.widget.ViewPager2
 import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.View
@@ -23,6 +24,7 @@ import com.ivianuu.compose.common.ComposeRecyclerViewAdapter
 import com.ivianuu.compose.init
 import com.ivianuu.compose.onUpdateChildViews
 import com.ivianuu.compose.set
+import com.ivianuu.compose.state
 
 fun ComponentComposition.ViewPager(
     selectedPage: Int,
@@ -53,4 +55,33 @@ fun ComponentComposition.ViewPager(
 
         children()
     }
+}
+
+fun ComponentComposition.ViewPager(
+    initialPage: Int,
+    children: ComponentComposition.() -> Unit
+) {
+    val controller = ViewPagerController(state { initialPage })
+    ViewPager(controller = controller, children = children)
+}
+
+fun ComponentComposition.ViewPager(
+    controller: ViewPagerController,
+    children: ComponentComposition.() -> Unit
+) {
+    ViewPager(
+        selectedPage = controller.selectedPage,
+        onPageChanged = { controller.selectedPage = it },
+        children = children
+    )
+}
+
+class ViewPagerController(private val state: State<Int>) {
+
+    var selectedPage
+        get() = state.value
+        set(value) {
+            state.value = value
+        }
+
 }

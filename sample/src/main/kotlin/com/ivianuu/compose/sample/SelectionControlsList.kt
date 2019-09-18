@@ -24,7 +24,7 @@ import com.ivianuu.compose.ViewByLayoutRes
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
-import com.ivianuu.compose.distinct
+import com.ivianuu.compose.key
 import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.ListItem
 import com.ivianuu.compose.sample.common.Scaffold
@@ -38,16 +38,15 @@ fun SelectionControlsList() = Route(handler = VerticalChangeHandler()) {
         appBar = { AppBar("Selection Controls") },
         content = {
             RecyclerView {
-                (1..100).forEach {
-                    val (checked, setChecked) = state { false }
-                    distinct(checked) {
+                (1..100).forEach { index ->
+                    key(index) {
+                        val (checked, setChecked) = state { false }
+
                         ListItem(
-                            title = { Text(text = "Title $it") },
-                            text = { Text(text = "Text: $it") },
+                            title = { Text(text = "Title $index") },
+                            text = { Text(text = "Text: $index") },
                             onClick = { setChecked(!checked) },
-                            leadingAction = {
-                                ColorAvatar(color = Color.RED)
-                            },
+                            leadingAction = { ColorAvatar(color = Color.RED) },
                             trailingAction = {
                                 val selectionControlType = memo {
                                     SelectionControl.values()

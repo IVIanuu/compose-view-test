@@ -41,7 +41,8 @@ class Component<T : View>(
     private val _visibleChildren = mutableListOf<Component<*>>()
     val visibleChildren: List<Component<*>> get() = _visibleChildren
 
-    private val boundViews = mutableSetOf<T>()
+    val boundViews: Set<T> get() = _boundViews
+    private val _boundViews = mutableSetOf<T>()
 
     private var bindViewCallbacks: MutableList<(T) -> Unit>? = null
     private var unbindViewCallbacks: MutableList<(T) -> Unit>? = null
@@ -61,11 +62,11 @@ class Component<T : View>(
     internal var byId = false
         internal set
     internal var generation = 1
-    var contextMapper: (Context) -> Context = { it }
+    internal var contextMapper: (Context) -> Context = { it }
 
     fun update() {
         log { "lifecycle: $key -> update" }
-        boundViews.forEach { bindView(it, false) }
+        _boundViews.forEach { bindView(it, false) }
     }
 
     fun updateChildren(newChildren: List<Component<*>>) {
@@ -90,7 +91,7 @@ class Component<T : View>(
         _visibleChildren.clear()
         _visibleChildren += newVisibleChildren
 
-        boundViews.forEach { updateChildViews(it, false) }
+        _boundViews.forEach { updateChildViews(it, false) }
     }
 
     fun createView(container: ViewGroup): T {
@@ -106,29 +107,33 @@ class Component<T : View>(
     fun bindView(view: T, init: Boolean) {
         log { "lifecycle: $key -> bind view $view is new? ${view.generation == null}" }
 
-        boundViews += view
+        _boundViews += view
 
         bindViewCallbacks?.forEach { it(view) }
 
         val newView = view.generation == null
 
-        if (newView) {
-            log { "updater: $key -> update new view ${view.generation} to $generation" }
-            view.generation = generation
-            viewUpdater?.getBlocks(
-                ViewUpdater.Type.Init,
-                ViewUpdater.Type.Update,
-                ViewUpdater.Type.Value
-            )?.forEach { it(view) }
-        } else if (view.generation != generation) {
-            log { "updater: $key -> update view ${view.generation} to $generation" }
-            view.generation = generation
-            viewUpdater?.getBlocks(ViewUpdater.Type.Update, ViewUpdater.Type.Value)
-                ?.forEach { it(view) }
-        } else {
-            log { "updater: $key -> skip update $generation" }
-            viewUpdater?.getBlocks(ViewUpdater.Type.Update)
-                ?.forEach { it(view) }
+        when {
+            newView -> {
+                log { "updater: $key -> update new view ${view.generation} to $generation" }
+                view.generation = generation
+                viewUpdater?.getBlocks(
+                    ViewUpdater.Type.Init,
+                    ViewUpdater.Type.Update,
+                    ViewUpdater.Type.Value
+                )?.forEach { it(view) }
+            }
+            view.generation != generation -> {
+                log { "updater: $key -> update view ${view.generation} to $generation" }
+                view.generation = generation
+                viewUpdater?.getBlocks(ViewUpdater.Type.Update, ViewUpdater.Type.Value)
+                    ?.forEach { it(view) }
+            }
+            else -> {
+                log { "updater: $key -> skip update $generation" }
+                viewUpdater?.getBlocks(ViewUpdater.Type.Update)
+                    ?.forEach { it(view) }
+            }
         }
 
         updateChildViews(view, init)
@@ -142,7 +147,7 @@ class Component<T : View>(
         log { "lifecycle: $key -> unbind view $view" }
         unbindViewCallbacks?.forEach { it(view) }
         view.generation = null
-        boundViews -= view
+        _boundViews -= view
     }
 
     private fun updateChildViews(view: T, init: Boolean) {
@@ -167,8 +172,7 @@ class Component<T : View>(
 
         if (clearChildViewsCallback != null) {
             clearChildViewsCallback!!.invoke(view)
-        } else {
-            if (view !is ViewGroup) return
+        } else if (view is ViewGroup) {
             view.getViewManager(this).update(
                 newChildren = emptyList(),
                 isPush = false,

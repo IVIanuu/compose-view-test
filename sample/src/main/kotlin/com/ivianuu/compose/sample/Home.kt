@@ -28,22 +28,21 @@ import com.ivianuu.compose.ambient
 import com.ivianuu.compose.common.NavigatorAmbient
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
-import com.ivianuu.compose.key
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.checkable.view.*
 import kotlinx.android.synthetic.main.home_item.view.*
 
-fun HomeRoute() = Route(keepState = true) {
+fun HomeRoute() = Route(keepState = false) {
     val (checked, setChecked) = state { false }
 
     Scaffold(
         appBar = { AppBar("Home") },
         content = {
             RecyclerView {
-                key { Checkable(checked, setChecked) }
-                key { Hidden(checked) { Checkable(checked, setChecked) } }
+                Checkable(checked, setChecked)
+                Hidden(checked) { Checkable(checked, setChecked) }
                 HomeItem.values().forEach { item -> HomeItem(item = item) }
             }
         }
