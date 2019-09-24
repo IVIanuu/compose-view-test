@@ -29,7 +29,7 @@ import com.ivianuu.compose.sample.common.Scaffold
 import kotlinx.android.synthetic.main.checkable.view.*
 import kotlinx.android.synthetic.main.home_item.view.*
 
-fun HomeRoute() = Route(keepState = false) {
+fun HomeRoute() = Route(key = "HomeRoute", keepState = false) {
     val (checked, setChecked) = state { false }
 
     Scaffold(

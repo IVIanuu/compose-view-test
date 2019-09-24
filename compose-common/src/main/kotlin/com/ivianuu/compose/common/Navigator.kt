@@ -17,16 +17,7 @@
 package com.ivianuu.compose.common
 
 import androidx.compose.Ambient
-import androidx.compose.Recompose
-import com.ivianuu.compose.ChangeHandlers
-import com.ivianuu.compose.ComponentChangeHandler
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.Hidden
-import com.ivianuu.compose.ShareViews
-import com.ivianuu.compose.TransitionHints
-import com.ivianuu.compose.internal.sourceLocation
-import com.ivianuu.compose.key
-import com.ivianuu.compose.memo
+import com.ivianuu.compose.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -36,25 +27,29 @@ fun ComponentComposition.Navigator(
     handleBack: Boolean = true,
     startRoute: ComponentComposition.() -> Route
 ) {
-    Recompose { recompose ->
-        val navigator = memo { Navigator(startRoute()) }
-        navigator.recompose = recompose
+    /*Recompose { recompose ->
 
-        if (handleBack && navigator.backStack.size > 1) {
-            key(navigator.backStack.size) {
-                handleBack { navigator.pop() }
-            }
-        }
+    }*/
 
-        NavigatorAmbient.Provider(navigator) {
-            navigator.compose(this)
+    val navigator = memo { Navigator(startRoute()) }
+    navigator.recompose = {
+        composer.recompose()
+    }
+
+    if (handleBack && navigator.backStack.size > 1) {
+        key(navigator.backStack.size) {
+            handleBack { navigator.pop() }
         }
+    }
+
+    NavigatorAmbient.Provider(navigator) {
+        navigator.compose(this)
     }
 }
 
 class Navigator internal constructor(private val startRoute: Route) {
 
-    lateinit var recompose: () -> Unit
+    internal lateinit var recompose: () -> Unit
 
     val backStack: List<Route> get() = _backStack
     private val _backStack = mutableListOf<Route>()
@@ -149,14 +144,6 @@ interface Route {
 fun Route.withHandlers(handler: ComponentChangeHandler): Route =
     withHandlers(inHandler = handler, outHandler = handler)
 
-inline fun Route(
-    isFloating: Boolean = false,
-    keepState: Boolean = false,
-    inHandler: ComponentChangeHandler? = null,
-    outHandler: ComponentChangeHandler? = null,
-    noinline compose: ComponentComposition.() -> Unit
-) = Route(sourceLocation(), isFloating, keepState, inHandler, outHandler, compose)
-
 fun Route(
     key: Any,
     isFloating: Boolean = false,
@@ -165,13 +152,6 @@ fun Route(
     outHandler: ComponentChangeHandler? = null,
     compose: ComponentComposition.() -> Unit
 ) = SimpleRoute(key, isFloating, keepState, inHandler, outHandler, compose)
-
-inline fun Route(
-    isFloating: Boolean = false,
-    keepState: Boolean = false,
-    handler: ComponentChangeHandler,
-    noinline compose: ComponentComposition.() -> Unit
-): Route = Route(sourceLocation(), isFloating, keepState, handler, handler, compose)
 
 fun Route(
     key: Any,

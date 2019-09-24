@@ -23,17 +23,16 @@ import android.view.ViewGroup
 import com.ivianuu.compose.internal.checkIsComposing
 import com.ivianuu.compose.internal.currentViewUpdater
 import com.ivianuu.compose.internal.log
-import com.ivianuu.compose.internal.sourceLocation
 import java.lang.reflect.Constructor
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-inline fun <T : View> ComponentComposition.View(
+fun <T : View> ComponentComposition.View(
     viewKey: Any,
-    noinline createView: (ViewGroup, Context) -> T,
-    noinline block: (ComponentBuilder<T>.() -> Unit)? = null
+    createView: (ViewGroup, Context) -> T,
+    block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
-    emit(key = sourceLocation(), viewKey = viewKey, createView = createView, block = block)
+    emit(key = uniqueKey(), viewKey = viewKey, createView = createView, block = block)
 }
 
 private val constructorsByClass = ConcurrentHashMap<KClass<*>, Constructor<*>>()
@@ -64,10 +63,10 @@ internal fun <T : View> createViewByLayoutRes(layoutRes: Int): (ViewGroup, Conte
         .inflate(layoutRes, container, false) as T
 }
 
-inline fun <T : View> ComponentComposition.ViewByLayoutRes(
+fun <T : View> ComponentComposition.ViewByLayoutRes(
     layoutRes: Int,
     viewKey: Any = layoutRes,
-    noinline block: (ComponentBuilder<T>.() -> Unit)? = null
+    block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     View(
         viewKey = viewKey,
@@ -76,10 +75,10 @@ inline fun <T : View> ComponentComposition.ViewByLayoutRes(
     )
 }
 
-inline fun <T : View> ComponentComposition.ViewById(
+fun <T : View> ComponentComposition.ViewById(
     id: Int,
     viewKey: Any = id,
-    noinline block: (ComponentBuilder<T>.() -> Unit)? = null
+    block: (ComponentBuilder<T>.() -> Unit)? = null
 ) {
     ById(value = true) {
         View(
@@ -124,5 +123,5 @@ fun <T : View> ComponentBuilder<T>.update(block: T.() -> Unit) {
     }
 }
 
-inline fun <T : View> ComponentBuilder<T>.currentComponent() =
+fun <T : View> ComponentBuilder<T>.currentComponent() =
     composition.currentComponent<T>()

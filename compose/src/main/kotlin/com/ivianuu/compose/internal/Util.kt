@@ -16,6 +16,7 @@
 
 package com.ivianuu.compose.internal
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ComposeAccessor
@@ -26,7 +27,7 @@ var loggingEnabled = true
 
 inline fun log(block: () -> String) {
     if (loggingEnabled) {
-        println(block())
+        Log.d("Compose", block())
     }
 }
 
@@ -39,8 +40,6 @@ inline fun stackTrace(msg: () -> String) {
         }
     }
 }
-
-fun sourceLocation(): Any = 0
 
 fun ViewGroup.children(): List<View> {
     return (0 until childCount)

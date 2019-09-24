@@ -18,17 +18,13 @@ package com.ivianuu.compose.sample
 
 import android.animation.ValueAnimator
 import android.view.View
-import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.*
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
-import com.ivianuu.compose.onActive
 import com.ivianuu.compose.sample.common.Scaffold
-import com.ivianuu.compose.scope
-import com.ivianuu.compose.set
-import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.animation.view.*
 
-fun AnimationRoute() = Route(handler = FadeChangeHandler()) {
+fun AnimationRoute() = Route(key = "AnimationRoute", handler = FadeChangeHandler()) {
     Scaffold(
         appBar = { AppBar("Animation") },
         content = {

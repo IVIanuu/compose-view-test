@@ -23,7 +23,7 @@ import androidx.compose.Composer
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.ViewUpdater
 import com.ivianuu.compose.internal.checkIsComposing
-import com.ivianuu.compose.internal.log
+import com.ivianuu.compose.internal.stackTrace
 
 //@EffectsDsl
 class ComponentComposition(val composer: Composer<Component<*>>) {
@@ -39,7 +39,7 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
         val environment = ambient(ComponentEnvironmentAmbient)
         val finalKey = environment.joinKey(key)
 
-        log { "composer: emit $finalKey" }
+        stackTrace { "composer: emit $finalKey" }
 
         startNode(finalKey)
 
@@ -73,6 +73,7 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
         if (block != null) {
             val updater = ViewUpdater<T>(composer)
             environment.pushComponent(node)
+            environment.pushKey()
             environment.viewUpdater = updater
             ComponentBuilder(this@ComponentComposition, node).block()
             node.viewUpdater = updater
@@ -82,6 +83,7 @@ class ComponentComposition(val composer: Composer<Component<*>>) {
             }
 
             environment.viewUpdater = null
+            environment.popKey()
             environment.popComponent()
         }
 

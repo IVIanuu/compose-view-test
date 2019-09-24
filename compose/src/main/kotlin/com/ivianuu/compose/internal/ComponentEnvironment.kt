@@ -24,6 +24,7 @@ import com.ivianuu.compose.ComponentComposition
 import com.ivianuu.compose.ambient
 import java.util.*
 
+
 // todo remove once we found a better solution to pass data around
 
 @PublishedApi
@@ -41,6 +42,8 @@ internal class ComponentEnvironment(
         private set
     private val currentComponentStack = Stack<Component<*>>()
 
+    private val keyStack = Stack<Int>()
+
     private var groupKey: Any? = null
     private val groupKeyStack = Stack<Any?>()
 
@@ -51,6 +54,17 @@ internal class ComponentEnvironment(
 
     fun popComponent() {
         currentComponent = currentComponentStack.pop()
+    }
+
+    fun pushKey() {
+        log { "push key: current $currentKey" }
+        keyStack.push(currentKey)
+        currentKey = 0
+    }
+
+    fun popKey() {
+        currentKey = keyStack.pop()
+        log { "pop key: current $currentKey" }
     }
 
     fun pushGroupKey(key: Any): Any {
@@ -78,6 +92,8 @@ internal class ComponentEnvironment(
         currentComponent = null
         currentComponentStack.clear()
         viewUpdater = null
+        currentKey = 0
+        keyStack.clear()
         groupKey = null
         groupKeyStack.clear()
     }
@@ -90,3 +106,6 @@ internal fun <T : View> ComponentComposition.currentViewUpdater(): ViewUpdater<T
 
 @PublishedApi
 internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")
+
+private var currentKey = 0
+internal fun generateKey(): Any = ++currentKey

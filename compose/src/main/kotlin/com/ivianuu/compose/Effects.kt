@@ -23,120 +23,120 @@ import androidx.compose.Effect
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.JoinedKey
 import com.ivianuu.compose.internal.checkIsComposing
-import com.ivianuu.compose.internal.sourceLocation
+import com.ivianuu.compose.internal.generateKey
 
-inline fun <T> ComponentComposition.memo(noinline calculation: () -> T) =
+fun <T> ComponentComposition.memo(calculation: () -> T) =
     androidx.compose.memo(calculation = calculation).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun <T> ComponentComposition.memo(vararg inputs: Any?, noinline calculation: () -> T) =
+fun <T> ComponentComposition.memo(vararg inputs: Any?, calculation: () -> T) =
     androidx.compose.memo(inputs = *inputs, calculation = calculation).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun ComponentComposition.onActive(
-    noinline callback: CommitScope.() -> Unit
+fun ComponentComposition.onActive(
+    callback: CommitScope.() -> Unit
 ) = androidx.compose.onActive(callback = callback).resolve(
     composer,
-    sourceLocation()
+    uniqueKey()
 )
 
-inline fun ComponentComposition.onActive(
+fun ComponentComposition.onActive(
     vararg inputs: Any?,
-    noinline callback: CommitScope.() -> Unit
+    callback: CommitScope.() -> Unit
 ) {
     key(*inputs) { onActive(callback) }
 }
 
-inline fun ComponentComposition.onDispose(
-    noinline callback: () -> Unit
+fun ComponentComposition.onDispose(
+    callback: () -> Unit
 ) = androidx.compose.onDispose(callback = callback).resolve(
     composer,
-    sourceLocation()
+    uniqueKey()
 )
 
-inline fun ComponentComposition.onDispose(
+fun ComponentComposition.onDispose(
     vararg inputs: Any?,
-    noinline callback: () -> Unit
+    callback: () -> Unit
 ) {
     key(*inputs) { onDispose(callback) }
 }
 
-inline fun ComponentComposition.onCommit(
-    noinline callback: CommitScope.() -> Unit
+fun ComponentComposition.onCommit(
+    callback: CommitScope.() -> Unit
 ) =
     androidx.compose.onCommit(callback = callback).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun ComponentComposition.onCommit(
+fun ComponentComposition.onCommit(
     vararg inputs: Any?,
-    noinline callback: CommitScope.() -> Unit
+    callback: CommitScope.() -> Unit
 ) =
     androidx.compose.onCommit(inputs = *inputs, callback = callback).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun ComponentComposition.onPreCommit(
-    noinline callback: CommitScope.() -> Unit
+fun ComponentComposition.onPreCommit(
+    callback: CommitScope.() -> Unit
 ) =
     androidx.compose.onPreCommit(callback = callback).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun ComponentComposition.onPreCommit(
+fun ComponentComposition.onPreCommit(
     vararg inputs: Any?,
-    noinline callback: CommitScope.() -> Unit
+    callback: CommitScope.() -> Unit
 ) =
     androidx.compose.onPreCommit(inputs = *inputs, callback = callback).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun <T> ComponentComposition.state(noinline init: () -> T) =
+fun <T> ComponentComposition.state(init: () -> T) =
     androidx.compose.state(init = init).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun <T> ComponentComposition.stateFor(vararg inputs: Any?, noinline init: () -> T) =
+fun <T> ComponentComposition.stateFor(vararg inputs: Any?, init: () -> T) =
     androidx.compose.stateFor(inputs = *inputs, init = init).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun <T> ComponentComposition.model(noinline init: () -> T) =
+fun <T> ComponentComposition.model(init: () -> T) =
     androidx.compose.modelFor(init = init).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun <T> ComponentComposition.modelFor(vararg inputs: Any?, noinline init: () -> T) =
+fun <T> ComponentComposition.modelFor(vararg inputs: Any?, init: () -> T) =
     androidx.compose.modelFor(inputs = *inputs, init = init).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
-inline fun <T> ComponentComposition.ambient(key: Ambient<T>) =
+fun <T> ComponentComposition.ambient(key: Ambient<T>) =
     androidx.compose.ambient(key = key).resolve(
         composer,
-        sourceLocation()
+        uniqueKey()
     )
 
 @PublishedApi
 internal val invocation = Any()
 
-inline fun ComponentComposition.distinct(
+fun ComponentComposition.distinct(
     vararg inputs: Any?,
     block: ComponentComposition.() -> Unit
 ) = with(composer) {
-    startGroup(sourceLocation())
+    startGroup(uniqueKey())
 
     if (arrayChanged(inputs)) {
         startGroup(invocation)
@@ -160,10 +160,10 @@ internal fun ComponentComposition.arrayChanged(inputs: Array<out Any?>) = with(c
     }
 }
 
-inline fun ComponentComposition.static(
+fun ComponentComposition.static(
     block: ComponentComposition.() -> Unit
 ) = with(composer) {
-    startGroup(sourceLocation())
+    startGroup(uniqueKey())
 
     if (inserting) {
         startGroup(invocation)
@@ -177,7 +177,7 @@ inline fun ComponentComposition.static(
 }
 
 fun ComponentComposition.scope(block: ComponentComposition.() -> Unit) = with(composer) {
-    val key = sourceLocation()
+    val key = uniqueKey()
     composer.startGroup(key)
     composer.startJoin(key, false) { block() }
     block()
@@ -185,11 +185,11 @@ fun ComponentComposition.scope(block: ComponentComposition.() -> Unit) = with(co
     composer.endGroup()
 }
 
-inline fun <T> ComponentComposition.key(
-    noinline block: ComponentComposition.() -> T
-) = key(key = sourceLocation(), block = block)
+fun <T> ComponentComposition.key(
+    block: ComponentComposition.() -> T
+) = key(key = uniqueKey(), block = block)
 
-inline fun <T> ComponentComposition.key(
+fun <T> ComponentComposition.key(
     key: Any,
     block: ComponentComposition.() -> T
 ): T = with(composer) {
@@ -203,12 +203,12 @@ inline fun <T> ComponentComposition.key(
     return@with result
 }
 
-inline fun <T> ComponentComposition.key(
+fun <T> ComponentComposition.key(
     vararg inputs: Any?,
-    noinline block: ComponentComposition.() -> T
-) = key(key = sourceLocation(), inputs = *inputs, block = block)
+    block: ComponentComposition.() -> T
+) = key(key = uniqueKey(), inputs = *inputs, block = block)
 
-inline fun <T> ComponentComposition.key(
+fun <T> ComponentComposition.key(
     key: Any,
     vararg inputs: Any?,
     block: ComponentComposition.() -> T
@@ -223,3 +223,5 @@ internal fun <T> Effect<T>.resolve(composer: Composer<Component<*>>, key: Any): 
     composer.checkIsComposing()
     return resolve(composer, key.hashCode())
 }
+
+fun ComponentComposition.uniqueKey(): Any = generateKey()

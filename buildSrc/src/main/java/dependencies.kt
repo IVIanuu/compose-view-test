@@ -44,17 +44,9 @@ object Versions {
     const val androidxTestExtJunit = "1.0.0"
     const val androidxTestRunner = "1.1.0"
 
-    const val autoService = "1.0-rc6"
-
     const val bintray = "1.8.4"
 
-    const val buildConfig = "1.1.8"
-
-    const val compose = "0.0.1-dev32"
-
     const val coroutines = "1.3.0-RC"
-
-    const val jarJar = "1.0.1"
 
     const val kotlin = "1.3.50"
 
@@ -78,28 +70,15 @@ object Deps {
     const val androidxTestRunner = "androidx.test:runner:${Versions.androidxTestRunner}"
     const val androidxTestExtJunit = "androidx.test.ext:junit:${Versions.androidxTestExtJunit}"
 
-    const val autoService = "com.google.auto.service:auto-service:${Versions.autoService}"
-
     const val bintrayGradlePlugin =
         "com.jfrog.bintray.gradle:gradle-bintray-plugin:${Versions.bintray}"
-
-    const val buildConfigPlugin =
-        "gradle.plugin.de.fuerstenau:BuildConfigPlugin:${Versions.buildConfig}"
-
-    const val composeGradlePlugin = "com.ivianuu.compose:compose-gradle-plugin:${Versions.compose}"
 
     const val coroutinesAndroid =
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val coroutinesCore =
         "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
 
-    const val jarJarGradlePlugin = "org.anarres.jarjar:jarjar-gradle:${Versions.jarJar}"
-
-    const val kotlinCompiler =
-        "org.jetbrains.kotlin:kotlin-compiler:${Versions.kotlin}"
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
-    const val kotlinGradlePluginApi =
-        "org.jetbrains.kotlin:kotlin-gradle-plugin-api:${Versions.kotlin}"
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
 

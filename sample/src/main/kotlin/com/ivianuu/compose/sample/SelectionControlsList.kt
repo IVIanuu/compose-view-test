@@ -19,21 +19,16 @@ package com.ivianuu.compose.sample
 import android.graphics.Color
 import android.widget.CompoundButton
 import android.widget.ImageView
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.ViewByLayoutRes
+import com.ivianuu.compose.*
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
-import com.ivianuu.compose.key
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.ListItem
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.Text
-import com.ivianuu.compose.set
-import com.ivianuu.compose.setBy
-import com.ivianuu.compose.state
 
-fun SelectionControlsList() = Route(handler = VerticalChangeHandler()) {
+fun SelectionControlsList() =
+    Route(key = "SelectionControlsList", handler = VerticalChangeHandler()) {
     Scaffold(
         appBar = { AppBar("Selection Controls") },
         content = {
@@ -136,10 +131,10 @@ private fun ComponentComposition.Switch(
     )
 }
 
-private inline fun ComponentComposition.CompoundButton(
+private fun ComponentComposition.CompoundButton(
     layoutRes: Int,
     checked: Boolean,
-    noinline onCheckedChanged: (Boolean) -> Unit
+    onCheckedChanged: (Boolean) -> Unit
 ) {
     ViewByLayoutRes<CompoundButton>(layoutRes = layoutRes) {
         set(checked) { isChecked = it }

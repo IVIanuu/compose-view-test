@@ -24,23 +24,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.ivianuu.compose.Component
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
-import com.ivianuu.compose.currentComponent
-import com.ivianuu.compose.init
-import com.ivianuu.compose.memo
-import com.ivianuu.compose.onClearChildViews
-import com.ivianuu.compose.onUnbindView
-import com.ivianuu.compose.onUpdateChildViews
-import com.ivianuu.compose.set
+import com.ivianuu.compose.*
 import kotlinx.coroutines.flow.Flow
 
-inline fun <T> ComponentComposition.RecyclerView(
+fun <T> ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     flow: Flow<Iterable<T>>,
-    crossinline placeholder: ComponentComposition.() -> Unit = {},
-    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+    placeholder: ComponentComposition.() -> Unit = {},
+    itemBuilder: ComponentComposition.(Int, T) -> Unit
 ) {
     val items = flow(flow)
     if (items != null) {
@@ -50,10 +41,10 @@ inline fun <T> ComponentComposition.RecyclerView(
     }
 }
 
-inline fun <T> ComponentComposition.RecyclerView(
+fun <T> ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     items: Array<T>,
-    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+    itemBuilder: ComponentComposition.(Int, T) -> Unit
 ) {
     RecyclerView(layoutManager = layoutManager) {
         items.forEachIndexed { index, item ->
@@ -62,10 +53,10 @@ inline fun <T> ComponentComposition.RecyclerView(
     }
 }
 
-inline fun <T> ComponentComposition.RecyclerView(
+fun <T> ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     items: Iterable<T>,
-    crossinline itemBuilder: ComponentComposition.(Int, T) -> Unit
+    itemBuilder: ComponentComposition.(Int, T) -> Unit
 ) {
     RecyclerView(layoutManager = layoutManager) {
         items.forEachIndexed { index, item ->
@@ -74,10 +65,10 @@ inline fun <T> ComponentComposition.RecyclerView(
     }
 }
 
-inline fun ComponentComposition.RecyclerView(
+fun ComponentComposition.RecyclerView(
     layoutManager: RecyclerView.LayoutManager? = null,
     itemCount: Int,
-    crossinline itemBuilder: ComponentComposition.(Int) -> Unit
+    itemBuilder: ComponentComposition.(Int) -> Unit
 ) {
     RecyclerView(layoutManager = layoutManager) {
         (0 until itemCount).forEach { index ->

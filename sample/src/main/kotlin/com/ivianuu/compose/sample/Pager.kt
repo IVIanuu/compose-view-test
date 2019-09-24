@@ -46,7 +46,7 @@ val AllColors = arrayOf(
     Color.Magenta
 )
 
-fun PagerRoute() = Route(handler = FadeChangeHandler()) {
+fun PagerRoute() = Route(key = "PagerRoute", handler = FadeChangeHandler()) {
     var selectedPage by state { 0 }
 
     Scaffold(

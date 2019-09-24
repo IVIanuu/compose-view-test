@@ -35,7 +35,7 @@ import com.ivianuu.compose.sample.handler.FlipChangeHandler
 import kotlinx.android.synthetic.main.transition_demo.view.*
 import kotlinx.coroutines.delay
 
-fun TransitionDemos() = Route {
+fun TransitionDemos() = Route(key = "TransitionDemos") {
     ChangeHandlers(handler = FadeChangeHandler()) {
         Scaffold(
             appBar = { AppBar(title = "Transitions") },

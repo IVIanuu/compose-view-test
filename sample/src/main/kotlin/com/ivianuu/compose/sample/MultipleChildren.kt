@@ -29,7 +29,7 @@ import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.set
 import kotlinx.android.synthetic.main.navigation.view.*
 
-fun MultipleChildrenRoute() = Route(handler = FadeChangeHandler()) {
+fun MultipleChildrenRoute() = Route(key = "MultipleChildrenRoute", handler = FadeChangeHandler()) {
     Scaffold(
         appBar = { AppBar("Multiple children") },
         content = {

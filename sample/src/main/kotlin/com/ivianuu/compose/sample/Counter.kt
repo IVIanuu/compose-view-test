@@ -25,7 +25,7 @@ import com.ivianuu.compose.set
 import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.counter.view.*
 
-fun CounterRoute() = Route(handler = HorizontalChangeHandler()) {
+fun CounterRoute() = Route(key = "CounterRoute", handler = HorizontalChangeHandler()) {
     Scaffold(
         appBar = { AppBar("Counter") },
         content = {
