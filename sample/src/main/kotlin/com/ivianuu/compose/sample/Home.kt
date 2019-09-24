@@ -20,17 +20,12 @@ import android.graphics.PorterDuff
 import android.view.View
 import android.widget.ImageView
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.Hidden
-import com.ivianuu.compose.ViewById
-import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.ambient
+import androidx.ui.graphics.toArgb
+import com.ivianuu.compose.*
 import com.ivianuu.compose.common.NavigatorAmbient
 import com.ivianuu.compose.common.RecyclerView
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.sample.common.Scaffold
-import com.ivianuu.compose.set
-import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.checkable.view.*
 import kotlinx.android.synthetic.main.home_item.view.*
 
@@ -74,12 +69,12 @@ private enum class HomeItem(
     ),
     List(
         title = "List",
-        color = Color.Maroon,
+        color = Color.LightGray,
         route = { SelectionControlsList() }
     ),
     MultipleChildren(
         title = "Multiple children",
-        color = Color.Lime,
+        color = Color.Red,
         route = { MultipleChildrenRoute() }
     ),
     Pager(

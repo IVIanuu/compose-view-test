@@ -20,7 +20,6 @@ import androidx.compose.Ambient
 import androidx.compose.CommitScope
 import androidx.compose.Composer
 import androidx.compose.Effect
-import androidx.compose.invocation
 import com.ivianuu.compose.internal.ComponentEnvironmentAmbient
 import com.ivianuu.compose.internal.JoinedKey
 import com.ivianuu.compose.internal.checkIsComposing
@@ -130,6 +129,9 @@ inline fun <T> ComponentComposition.ambient(key: Ambient<T>) =
         sourceLocation()
     )
 
+@PublishedApi
+internal val invocation = Any()
+
 inline fun ComponentComposition.distinct(
     vararg inputs: Any?,
     block: ComponentComposition.() -> Unit
@@ -141,7 +143,7 @@ inline fun ComponentComposition.distinct(
         block()
         endGroup()
     } else {
-        skipGroup(invocation)
+        skipCurrentGroup()
     }
 
     endGroup()
@@ -168,15 +170,16 @@ inline fun ComponentComposition.static(
         block()
         endGroup()
     } else {
-        skipGroup(invocation)
+        skipCurrentGroup()
     }
 
     endGroup()
 }
 
 fun ComponentComposition.scope(block: ComponentComposition.() -> Unit) = with(composer) {
-    composer.startGroup(sourceLocation())
-    composer.startJoin(false) { block() }
+    val key = sourceLocation()
+    composer.startGroup(key)
+    composer.startJoin(key, false) { block() }
     block()
     composer.doneJoin(false)
     composer.endGroup()

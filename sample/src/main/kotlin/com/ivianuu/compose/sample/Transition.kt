@@ -19,10 +19,8 @@ package com.ivianuu.compose.sample
 import android.content.res.ColorStateList
 import android.view.View
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.ChangeHandlers
-import com.ivianuu.compose.ComponentChangeHandler
-import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.ambient
+import androidx.ui.graphics.toArgb
+import com.ivianuu.compose.*
 import com.ivianuu.compose.common.Navigator
 import com.ivianuu.compose.common.NavigatorAmbient
 import com.ivianuu.compose.common.Route
@@ -31,12 +29,9 @@ import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.common.changehandler.VerticalChangeHandler
 import com.ivianuu.compose.common.launchOnActive
-import com.ivianuu.compose.key
-import com.ivianuu.compose.onBindView
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.handler.ArcFadeMoveChangeHandler
 import com.ivianuu.compose.sample.handler.FlipChangeHandler
-import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.transition_demo.view.*
 import kotlinx.coroutines.delay
 
@@ -159,7 +154,7 @@ private enum class TransitionDemo(
     ARC_FADE_RESET(
         "Arc/Fade Shared Element Transition (on Lollipop and above, else Fade)",
         R.layout.transition_demo,
-        Color.Fuchsia
+        Color.Red
     ) {
         override fun getTransition(): ComponentChangeHandler =
             ArcFadeMoveChangeHandler(listOf("title", "dot"))

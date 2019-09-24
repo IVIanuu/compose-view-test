@@ -22,19 +22,14 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import androidx.ui.graphics.Color
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
-import com.ivianuu.compose.ViewByLayoutRes
+import androidx.ui.graphics.toArgb
+import com.ivianuu.compose.*
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
-import com.ivianuu.compose.init
-import com.ivianuu.compose.memo
 import com.ivianuu.compose.sample.common.Scaffold
 import com.ivianuu.compose.sample.common.TabItem
 import com.ivianuu.compose.sample.common.TabLayout
 import com.ivianuu.compose.sample.common.ViewPager
-import com.ivianuu.compose.set
-import com.ivianuu.compose.state
 import kotlinx.android.synthetic.main.page.view.*
 
 val AllColors = arrayOf(
@@ -48,17 +43,7 @@ val AllColors = arrayOf(
     Color.Blue,
     Color.Yellow,
     Color.Cyan,
-    Color.Magenta,
-    Color.Transparent,
-    Color.Aqua,
-    Color.Fuchsia,
-    Color.Lime,
-    Color.Maroon,
-    Color.Navy,
-    Color.Olive,
-    Color.Purple,
-    Color.Silver,
-    Color.Teal
+    Color.Magenta
 )
 
 fun PagerRoute() = Route(handler = FadeChangeHandler()) {
