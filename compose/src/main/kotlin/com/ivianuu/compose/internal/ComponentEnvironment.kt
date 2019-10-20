@@ -89,4 +89,4 @@ internal fun <T : View> ComponentComposition.currentViewUpdater(): ViewUpdater<T
     ambient(ComponentEnvironmentAmbient).viewUpdater as ViewUpdater<T>
 
 @PublishedApi
-internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>("ComponentEnvironment")
+internal val ComponentEnvironmentAmbient = Ambient.of<ComponentEnvironment>()

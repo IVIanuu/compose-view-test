@@ -18,19 +18,21 @@ package com.ivianuu.compose.common
 
 import androidx.compose.Ambient
 import androidx.compose.Recompose
-import com.ivianuu.compose.ChangeHandlers
-import com.ivianuu.compose.ComponentChangeHandler
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.Hidden
-import com.ivianuu.compose.ShareViews
-import com.ivianuu.compose.TransitionHints
+import com.ivianuu.compose.*
 import com.ivianuu.compose.internal.sourceLocation
-import com.ivianuu.compose.key
-import com.ivianuu.compose.memo
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.collections.List
+import kotlin.collections.filter
+import kotlin.collections.forEach
+import kotlin.collections.lastIndex
+import kotlin.collections.mutableListOf
+import kotlin.collections.mutableMapOf
+import kotlin.collections.plusAssign
+import kotlin.collections.reversed
+import kotlin.collections.set
 
 fun ComponentComposition.Navigator(
     handleBack: Boolean = true,
@@ -201,4 +203,4 @@ class SimpleRoute(
 
 }
 
-val RouteAmbient = Ambient.of<Route?>("CurrentRoute") { null }
+val RouteAmbient = Ambient.of<Route?> { null }

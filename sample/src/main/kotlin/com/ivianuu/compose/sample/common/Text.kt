@@ -18,22 +18,21 @@ package com.ivianuu.compose.sample.common
 
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.Ambient
-import com.ivianuu.compose.ComponentComposition
-import com.ivianuu.compose.View
-import com.ivianuu.compose.ambient
-import com.ivianuu.compose.set
-import com.ivianuu.compose.setBy
+import com.ivianuu.compose.*
 
-val TextAppearanceAmbient = Ambient.of<Int?>(key = "TextAppearance")
-val TextColorAmbient = Ambient.of<Int?>(key = "TextColor")
+data class TextAppearance(val resource: Int)
+data class TextColor(val color: Int)
+
+val TextAppearanceAmbient = Ambient.of<TextAppearance?> { null }
+val TextColorAmbient = Ambient.of<TextColor?> { null }
 
 fun ComponentComposition.TextStyle(
     textAppearance: Int? = null,
     textColor: Int? = null,
     children: ComponentComposition.() -> Unit
 ) {
-    TextAppearanceAmbient.Provider(value = textAppearance) {
-        TextColorAmbient.Provider(value = textColor) {
+    TextAppearanceAmbient.Provider(value = textAppearance?.let { TextAppearance(it) }) {
+        TextColorAmbient.Provider(value = textColor?.let { TextColor(it) }) {
             children()
         }
     }
@@ -42,8 +41,8 @@ fun ComponentComposition.TextStyle(
 fun ComponentComposition.Text(
     text: String? = null,
     textRes: Int? = null,
-    textAppearance: Int? = ambient(TextAppearanceAmbient),
-    textColor: Int? = ambient(TextColorAmbient)
+    textAppearance: Int? = ambient(TextAppearanceAmbient)?.resource,
+    textColor: Int? = ambient(TextColorAmbient)?.color
 ) {
     View<AppCompatTextView> {
         set(textAppearance) {
