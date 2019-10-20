@@ -17,34 +17,33 @@
 package com.ivianuu.compose.sample
 
 import android.view.View
-import com.ivianuu.compose.ViewById
-import com.ivianuu.compose.ViewByLayoutRes
-import com.ivianuu.compose.ambient
+import com.ivianuu.compose.*
 import com.ivianuu.compose.common.Navigator
 import com.ivianuu.compose.common.NavigatorAmbient
 import com.ivianuu.compose.common.Route
 import com.ivianuu.compose.common.changehandler.FadeChangeHandler
 import com.ivianuu.compose.common.changehandler.HorizontalChangeHandler
 import com.ivianuu.compose.sample.common.Scaffold
-import com.ivianuu.compose.set
 import kotlinx.android.synthetic.main.navigation.view.*
 
 fun MultipleChildrenRoute() = Route(handler = FadeChangeHandler()) {
     Scaffold(
         appBar = { AppBar("Multiple children") },
-        content = {
-            ViewByLayoutRes<View>(layoutRes = R.layout.multiple_children) {
-                listOf(R.id.container_0, R.id.container_1, R.id.container_2)
-                    .forEachIndexed { index, containerId ->
-                        ViewById<View>(id = containerId) {
-                            Navigator {
-                                ChildRoute(index = 0)
-                            }
-                        }
-                    }
-            }
-        }
+        content = { Content() }
     )
+}
+
+private fun ComponentComposition.Content() {
+    ViewByLayoutRes<View>(layoutRes = R.layout.multiple_children) {
+        listOf(R.id.container_0, R.id.container_1, R.id.container_2)
+            .forEachIndexed { index, containerId ->
+                ViewById<View>(id = containerId) {
+                    Navigator {
+                        ChildRoute(index = 0)
+                    }
+                }
+            }
+    }
 }
 
 private fun ChildRoute(index: Int): Route =
